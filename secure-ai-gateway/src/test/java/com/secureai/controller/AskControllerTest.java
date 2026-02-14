@@ -128,8 +128,6 @@ class AskControllerTest {
         // Given
         AskRequest request = new AskRequest("");
 
-        when(rateLimitService.isAllowed(anyString())).thenReturn(true);
-
         // When & Then
         mockMvc.perform(post("/api/ask")
                         .principal(authentication)
@@ -143,8 +141,6 @@ class AskControllerTest {
         // Given
         String longPrompt = "x".repeat(8193); // Exceeds 8192 limit
         AskRequest request = new AskRequest(longPrompt);
-
-        when(rateLimitService.isAllowed(anyString())).thenReturn(true);
 
         // When & Then
         mockMvc.perform(post("/api/ask")

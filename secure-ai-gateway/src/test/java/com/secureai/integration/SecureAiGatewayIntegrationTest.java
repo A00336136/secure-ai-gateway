@@ -12,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  * Verifies that the application context loads correctly.
  */
 @SpringBootTest
+@org.springframework.test.context.ActiveProfiles("test")
 class SecureAiGatewayIntegrationTest {
 
     @Autowired

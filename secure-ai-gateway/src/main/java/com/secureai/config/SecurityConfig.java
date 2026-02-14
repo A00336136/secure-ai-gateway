@@ -12,6 +12,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
+import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter.HeaderValue;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -72,7 +74,7 @@ public class SecurityConfig {
                         .contentSecurityPolicy(csp -> 
                                 csp.policyDirectives("default-src 'self'; frame-ancestors 'none'"))
                         .frameOptions(frame -> frame.deny())
-                        .xssProtection(xss -> xss.headerValue("1; mode=block"))
+                        .xssProtection(xss -> xss.headerValue(HeaderValue.ENABLED_MODE_BLOCK))
                         .contentTypeOptions(contentType -> contentType.disable())
                 );
 

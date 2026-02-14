@@ -44,6 +44,11 @@ class AuthControllerTest {
     @BeforeEach
     void setUp() {
         objectMapper = new ObjectMapper();
+        
+        // Ensure jwtUtil is initialized (it has a @PostConstruct)
+        ReflectionTestUtils.setField(jwtUtil, "secret", "a".repeat(32));
+        ReflectionTestUtils.setField(jwtUtil, "issuer", "secure-ai-gateway");
+        
         mockMvc = MockMvcBuilders.standaloneSetup(authController)
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .build();
