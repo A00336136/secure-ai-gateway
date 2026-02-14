@@ -25,10 +25,11 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         
         <!-- Dependencies versions -->
-        <jjwt.version>0.12.5</jjwt.version>
+        <jjwt.version>0.11.5</jjwt.version>
         <springdoc.version>2.3.0</springdoc.version>
         <bucket4j.version>8.7.0</bucket4j.version>
         <h2.version>2.2.224</h2.version>
+        <lombok.version>1.18.30</lombok.version>
         
         <!-- Plugin versions -->
         <jacoco.version>0.8.11</jacoco.version>

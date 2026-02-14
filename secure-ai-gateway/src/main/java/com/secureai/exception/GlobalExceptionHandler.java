@@ -52,9 +52,26 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(errorResponse);
     }
 
-    @ExceptionHandler(AuthenticationException.class)
+    @ExceptionHandler(com.secureai.exception.AuthenticationException.class)
+    public ResponseEntity<ErrorResponse> handleAppAuthenticationException(
+            com.secureai.exception.AuthenticationException ex,
+            HttpServletRequest request) {
+        
+        log.warn("Application authentication failed for request: {} - Message: {}", request.getRequestURI(), ex.getMessage());
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .message(ex.getMessage())
+                .status(HttpStatus.UNAUTHORIZED.value())
+                .timestamp(Instant.now())
+                .path(request.getRequestURI())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+    }
+
+    @ExceptionHandler(org.springframework.security.core.AuthenticationException.class)
     public ResponseEntity<ErrorResponse> handleAuthenticationException(
-            AuthenticationException ex,
+            org.springframework.security.core.AuthenticationException ex,
             HttpServletRequest request) {
         
         log.warn("Authentication failed for request: {} - Message: {}", request.getRequestURI(), ex.getMessage());

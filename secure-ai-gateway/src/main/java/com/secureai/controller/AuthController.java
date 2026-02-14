@@ -103,7 +103,7 @@ public class AuthController {
             @ApiResponse(responseCode = "200", description = "Token is valid"),
             @ApiResponse(responseCode = "401", description = "Token is invalid")
     })
-    public ResponseEntity<Void> validateToken(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<Void> validateToken(@RequestHeader(value = "Authorization", required = false) String token) {
         try {
             if (token != null && token.startsWith("Bearer ")) {
                 String jwtToken = token.substring(7);
