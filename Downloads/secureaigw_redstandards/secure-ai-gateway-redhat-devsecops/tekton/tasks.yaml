@@ -1,0 +1,113 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: sonarqube-scanner
+  namespace: secure-ai-gateway-cicd
+spec:
+  params:
+  - name: SONAR_HOST_URL
+    description: SonarQube server URL
+    type: string
+  - name: SONAR_PROJECT_KEY
+    description: Project key
+    type: string
+  
+  workspaces:
+  - name: source
+  
+  steps:
+  - name: sonar-scan
+    image: sonarsource/sonar-scanner-cli:latest
+    workingDir: $(workspaces.source.path)
+    env:
+    - name: SONAR_TOKEN
+      valueFrom:
+        secretKeyRef:
+          name: sonarqube-secret
+          key: token
+    script: |
+      #!/bin/bash
+      sonar-scanner \
+        -Dsonar.projectKey=$(params.SONAR_PROJECT_KEY) \
+        -Dsonar.sources=src/main/java \
+        -Dsonar.java.binaries=target/classes \
+        -Dsonar.host.url=$(params.SONAR_HOST_URL) \
+        -Dsonar.login=${SONAR_TOKEN} \
+        -Dsonar.java.coveragePlugin=jacoco \
+        -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: rox-image-check
+  namespace: secure-ai-gateway-cicd
+spec:
+  params:
+  - name: image
+    description: Full image name to scan
+    type: string
+  - name: rox_central_endpoint
+    description: Red Hat Advanced Cluster Security Central endpoint
+    type: string
+    default: "central.stackrox.svc:443"
+  - name: rox_api_token
+    description: Secret name containing ROX API token
+    type: string
+  
+  steps:
+  - name: rox-image-scan
+    image: registry.redhat.io/advanced-cluster-security/rhacs-roxctl-rhel8:latest
+    env:
+    - name: ROX_API_TOKEN
+      valueFrom:
+        secretKeyRef:
+          name: $(params.rox_api_token)
+          key: token
+    script: |
+      #!/bin/bash
+      set -e
+      
+      echo "Scanning image: $(params.image)"
+      
+      roxctl image scan \
+        --endpoint=$(params.rox_central_endpoint) \
+        --image=$(params.image) \
+        --insecure-skip-tls-verify \
+        --output=table
+      
+      roxctl image check \
+        --endpoint=$(params.rox_central_endpoint) \
+        --image=$(params.image) \
+        --insecure-skip-tls-verify
+      
+      echo "Image scan completed successfully"
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: send-to-slack
+  namespace: secure-ai-gateway-cicd
+spec:
+  params:
+  - name: webhook-secret
+    type: string
+    description: Secret name containing Slack webhook URL
+    default: slack-webhook
+  - name: message
+    type: string
+    description: Message to send
+  
+  steps:
+  - name: post-to-slack
+    image: curlimages/curl:latest
+    env:
+    - name: WEBHOOK_URL
+      valueFrom:
+        secretKeyRef:
+          name: $(params.webhook-secret)
+          key: url
+    script: |
+      #!/bin/sh
+      curl -X POST -H 'Content-type: application/json' \
+        --data "{\"text\":\"$(params.message)\"}" \
+        ${WEBHOOK_URL}

@@ -1,0 +1,50 @@
+spring:
+  application:
+    name: secure-ai-gateway-test
+  
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+  
+  security:
+    user:
+      name: admin
+      password: testpassword
+
+ollama:
+  base-url: http://localhost:11434
+  model: mistral:7b
+  timeout: 30000
+  max-retries: 3
+
+jwt:
+  secret: test-secret-key-for-testing-must-be-at-least-32-characters-long
+  expiration: 3600000
+  issuer: secure-ai-gateway-test
+
+rate-limit:
+  enabled: true
+  capacity: 100
+  refill-tokens: 10
+  refill-period-seconds: 60
+
+pii:
+  enabled: true
+  patterns:
+    email: true
+    phone: true
+    ssn: true
+    credit-card: true
+    ip-address: true
+
+logging:
+  level:
+    root: INFO
+    com.secureai: DEBUG

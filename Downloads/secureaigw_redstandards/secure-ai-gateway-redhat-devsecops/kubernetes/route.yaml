@@ -1,0 +1,21 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: secure-ai-gateway
+  namespace: secure-ai-gateway
+  labels:
+    app: secure-ai-gateway
+  annotations:
+    haproxy.router.openshift.io/timeout: 60s
+spec:
+  host: secure-ai-gateway.apps.your-cluster.example.com
+  to:
+    kind: Service
+    name: secure-ai-gateway
+    weight: 100
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None

@@ -1,0 +1,142 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: secure-ai-gateway
+  namespace: secure-ai-gateway
+  labels:
+    app: secure-ai-gateway
+    app.kubernetes.io/name: secure-ai-gateway
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: application
+    app.kubernetes.io/part-of: ai-platform
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: secure-ai-gateway
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: secure-ai-gateway
+        version: v1
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/actuator/prometheus"
+    spec:
+      # Security Context for Pod
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      
+      # Service Account
+      serviceAccountName: secure-ai-gateway-sa
+      
+      containers:
+      - name: secure-ai-gateway
+        image: quay.io/secure-ai/secure-ai-gateway:1.0.0
+        imagePullPolicy: Always
+        
+        # Security Context for Container
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          runAsUser: 1000
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+        
+        ports:
+        - name: http
+          containerPort: 8080
+          protocol: TCP
+        - name: actuator
+          containerPort: 8081
+          protocol: TCP
+        
+        # Environment Variables from ConfigMap and Secrets
+        envFrom:
+        - configMapRef:
+            name: secure-ai-gateway-config
+        - secretRef:
+            name: secure-ai-gateway-secrets
+        
+        env:
+        - name: JAVA_OPTS
+          value: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -Djava.security.egd=file:/dev/./urandom"
+        
+        # Resource Limits
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        
+        # Liveness Probe
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+        
+        # Readiness Probe
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: 8080
+          initialDelaySeconds: 20
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        
+        # Startup Probe
+        startupProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 30
+        
+        # Volume Mounts
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: app-cache
+          mountPath: /app/cache
+      
+      # Volumes
+      volumes:
+      - name: tmp
+        emptyDir: {}
+      - name: app-cache
+        emptyDir: {}
+      
+      # Affinity Rules
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - secure-ai-gateway
+              topologyKey: kubernetes.io/hostname
