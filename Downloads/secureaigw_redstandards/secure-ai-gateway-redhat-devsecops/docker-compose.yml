@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  secure-ai-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: secure-ai-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - JWT_SECRET=change-this-to-a-very-long-secure-random-secret-key-at-least-32-characters
+      - ADMIN_USERNAME=admin
+      - ADMIN_PASSWORD=SecurePassword123!
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - OLLAMA_MODEL=mistral:7b
+      - RATE_LIMIT_ENABLED=true
+      - RATE_LIMIT_CAPACITY=100
+      - LOG_LEVEL=INFO
+    depends_on:
+      - ollama
+    networks:
+      - ai-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    networks:
+      - ai-network
+    restart: unless-stopped
+
+volumes:
+  ollama-data:
+    driver: local
+
+networks:
+  ai-network:
+    driver: bridge
