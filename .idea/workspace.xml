@@ -4,46 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2c713ac9-0db2-4701-9ecc-44d9107bd702" name="Changes" comment="Merge remote-tracking branch 'origin/feature/a00336136' into feature/a00336136">
-      <change afterPath="$PROJECT_DIR$/.idea/go.imports.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/secure-ai-gateway/target/reports/css/apache-maven-fluido-2.0.0-M9.min.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/secure-ai-gateway/target/reports/css/print.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/secure-ai-gateway/target/reports/css/site.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/secure-ai-gateway/target/reports/fonts/glyphicons-halflings-regular.eot" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/secure-ai-gateway/target/reports/fonts/glyphicons-halflings-regular.svg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/secure-ai-gateway/target/reports/fonts/glyphicons-halflings-regular.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/secure-ai-gateway/target/reports/fonts/glyphicons-halflings-regular.woff" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/accessories-text-editor.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/add.gif" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/apache-maven-project-2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/application-certificate.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/contact-new.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/document-properties.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/drive-harddisk.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/fix.gif" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/icon_error_sml.gif" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/icon_help_sml.gif" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/icon_info_sml.gif" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/icon_success_sml.gif" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/icon_warning_sml.gif" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/image-x-generic.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/internet-web-browser.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/logos/build-by-maven-black.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/logos/build-by-maven-white.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/logos/maven-feather.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/network-server.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/package-x-generic.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/profiles/pre-release.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/profiles/retired.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/profiles/sandbox.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/remove.gif" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/rss.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/update.gif" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/window-new.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/secure-ai-gateway/target/reports/img/glyphicons-halflings-white.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/secure-ai-gateway/target/reports/img/glyphicons-halflings.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/secure-ai-gateway/target/reports/js/apache-maven-fluido-2.0.0-M9.min.js" afterDir="false" />
+    <list default="true" id="2c713ac9-0db2-4701-9ecc-44d9107bd702" name="Changes" comment="Update `.idea` configs to include task adjustments, Go imports, and recent branch merge settings">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.output.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/secure-ai-gateway/Dockerfile" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -72,6 +36,7 @@
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="UPDATE_TYPE" value="REBASE" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
   &quot;lastFilter&quot;: {
@@ -147,7 +112,7 @@
     "project.structure.last.edited": "Project",
     "project.structure.proportion": "0.0",
     "project.structure.side.proportion": "0.0",
-    "settings.editor.selected.configurable": "settings.qodana",
+    "settings.editor.selected.configurable": "reference.settingsDialog.application.dockerConsole",
     "to.speed.mode.migration.done": "true",
     "vue.rearranger.settings.migration": "true"
   }
@@ -196,7 +161,7 @@
       <updated>1771021702475</updated>
       <workItem from="1771021703829" duration="24000" />
       <workItem from="1771021751368" duration="8104000" />
-      <workItem from="1771192613716" duration="1374000" />
+      <workItem from="1771192613716" duration="5797000" />
     </task>
     <task id="LOCAL-00001" summary="JUNIT">
       <option name="closed" value="true" />
@@ -262,7 +227,39 @@
       <option name="project" value="LOCAL" />
       <updated>1771192881919</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Update `.idea` configs to include task adjustments, Go imports, and recent branch merge settings">
+      <option name="closed" value="true" />
+      <created>1771194472821</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1771194472821</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Update `.idea` configs to include task adjustments, Go imports, and recent branch merge settings">
+      <option name="closed" value="true" />
+      <created>1771194491064</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1771194491064</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Update `.idea` configs to include task adjustments, Go imports, and recent branch merge settings">
+      <option name="closed" value="true" />
+      <created>1771194500261</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1771194500261</updated>
+    </task>
+    <task id="LOCAL-00012" summary="Update `.idea` configs to include task adjustments, Go imports, and recent branch merge settings">
+      <option name="closed" value="true" />
+      <created>1771194520702</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1771194520702</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -283,7 +280,8 @@
     <MESSAGE value="JUNIT" />
     <MESSAGE value="JUNIT tested authentication and rate" />
     <MESSAGE value="Merge remote-tracking branch 'origin/feature/a00336136' into feature/a00336136" />
-    <option name="LAST_COMMIT_MESSAGE" value="Merge remote-tracking branch 'origin/feature/a00336136' into feature/a00336136" />
+    <MESSAGE value="Update `.idea` configs to include task adjustments, Go imports, and recent branch merge settings" />
+    <option name="LAST_COMMIT_MESSAGE" value="Update `.idea` configs to include task adjustments, Go imports, and recent branch merge settings" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

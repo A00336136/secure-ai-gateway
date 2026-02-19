@@ -1,7 +1,7 @@
 # Multi-stage Dockerfile with security best practices
 
 # Build stage
-FROM maven:3.9-eclipse-temurin-17-alpine AS build
+FROM maven:3.9-eclipse-temurin-17 AS build
 WORKDIR /app
 
 # Copy pom.xml and download dependencies (cached layer)
@@ -13,17 +13,17 @@ COPY src ./src
 RUN mvn clean package -DskipTests -B
 
 # Runtime stage
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:17-jre
 
 # Install security updates
-RUN apk update && \
-    apk upgrade && \
-    apk add --no-cache dumb-init && \
-    rm -rf /var/cache/apk/*
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y --no-install-recommends wget dumb-init && \
+    rm -rf /var/lib/apt/lists/*
 
 # Create non-root user
-RUN addgroup -S appgroup && \
-    adduser -S appuser -G appgroup
+RUN groupadd -r appgroup && \
+    useradd -r -g appgroup appuser
 
 # Set working directory
 WORKDIR /app
