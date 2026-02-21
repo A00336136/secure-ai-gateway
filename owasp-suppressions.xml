@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
+    <!-- Suppress false positive for H2 in test scope -->
+    <suppress>
+        <notes>H2 in test scope only, not deployed to production</notes>
+        <gav regex="true">^com\.h2database:h2:.*$</gav>
+        <cpe>cpe:/a:h2database:h2</cpe>
+    </suppress>
+</suppressions>
