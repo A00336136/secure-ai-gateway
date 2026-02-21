@@ -6,6 +6,57 @@
   <component name="ChangeListManager">
     <list default="true" id="2c713ac9-0db2-4701-9ecc-44d9107bd702" name="Changes" comment="Update `.idea` configs to include task adjustments, Go imports, and recent branch merge settings">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/checkstyle-cachefile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/checkstyle-checker.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/checkstyle-result.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/maven-archiver/pom.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/createdFiles.lst" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/pmd.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/pmd/rulesets/001-maven-pmd-plugin-default.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/checkstyle.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/css/apache-maven-fluido-2.0.0-M9.min.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/css/print.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/css/site.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/fonts/glyphicons-halflings-regular.eot" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/fonts/glyphicons-halflings-regular.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/fonts/glyphicons-halflings-regular.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/fonts/glyphicons-halflings-regular.woff" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/accessories-text-editor.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/add.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/apache-maven-project-2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/application-certificate.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/contact-new.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/document-properties.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/drive-harddisk.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/fix.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/icon_error_sml.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/icon_help_sml.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/icon_info_sml.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/icon_success_sml.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/icon_warning_sml.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/image-x-generic.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/internet-web-browser.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/logos/build-by-maven-black.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/logos/build-by-maven-white.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/logos/maven-feather.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/network-server.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/package-x-generic.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/profiles/pre-release.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/profiles/retired.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/profiles/sandbox.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/remove.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/rss.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/update.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/window-new.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/img/glyphicons-halflings-white.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/img/glyphicons-halflings.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/js/apache-maven-fluido-2.0.0-M9.min.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/pmd.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/secure-ai-gateway.jar.original" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/spotbugs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/spotbugsXml.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/test-classes/application-test.yml" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,22 +92,22 @@
     &quot;assignee&quot;: &quot;A00336136&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/A00336136/secure-ai-gateway.git",
-    "accountId": "2e604d4e-2d83-45d3-b6b4-019d8d6a1e33"
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/A00336136/secure-ai-gateway.git&quot;,
+    &quot;accountId&quot;: &quot;2e604d4e-2d83-45d3-b6b4-019d8d6a1e33&quot;
   },
-  "recentNewPullRequestHead": {
-    "server": {
-      "useHttp": false,
-      "host": "github.com",
-      "port": null,
-      "suffix": null
+  &quot;recentNewPullRequestHead&quot;: {
+    &quot;server&quot;: {
+      &quot;useHttp&quot;: false,
+      &quot;host&quot;: &quot;github.com&quot;,
+      &quot;port&quot;: null,
+      &quot;suffix&quot;: null
     },
-    "owner": "A00336136",
-    "repository": "secure-ai-gateway"
+    &quot;owner&quot;: &quot;A00336136&quot;,
+    &quot;repository&quot;: &quot;secure-ai-gateway&quot;
   }
-}]]></component>
+}</component>
   <component name="KubernetesApiPersistence">{}</component>
   <component name="KubernetesApiProvider">{
   &quot;isMigrated&quot;: true
@@ -86,34 +137,34 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Maven. [clean,compile,-f...].executor": "Run",
-    "Maven. [clean,compile].executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.MCP Project settings loaded": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.go.formatter.settings.were.checked": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "git-widget-placeholder": "feature/a00336136",
-    "junie.onboarding.icon.badge.shown": "true",
-    "kotlin-language-version-configured": "true",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Project",
-    "project.structure.proportion": "0.0",
-    "project.structure.side.proportion": "0.0",
-    "settings.editor.selected.configurable": "reference.settingsDialog.application.dockerConsole",
-    "to.speed.mode.migration.done": "true",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Maven. [clean,compile,-f...].executor&quot;: &quot;Run&quot;,
+    &quot;Maven. [clean,compile].executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;feature/a00336136&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settingsDialog.application.dockerConsole&quot;,
+    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunAnythingCache">
     <option name="myCommands">
       <command value="mvn clean compile" />
@@ -158,7 +209,7 @@
       <updated>1771021702475</updated>
       <workItem from="1771021703829" duration="24000" />
       <workItem from="1771021751368" duration="8104000" />
-      <workItem from="1771192613716" duration="6309000" />
+      <workItem from="1771192613716" duration="7519000" />
     </task>
     <task id="LOCAL-00001" summary="JUNIT">
       <option name="closed" value="true" />
@@ -272,7 +323,15 @@
       <option name="project" value="LOCAL" />
       <updated>1771515077550</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="Update `.idea` configs to include task adjustments, Go imports, and recent branch merge settings">
+      <option name="closed" value="true" />
+      <created>1771538351407</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1771538351407</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
