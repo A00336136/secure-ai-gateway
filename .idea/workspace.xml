@@ -6,57 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="2c713ac9-0db2-4701-9ecc-44d9107bd702" name="Changes" comment="Update `.idea` configs to include task adjustments, Go imports, and recent branch merge settings">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/checkstyle-cachefile" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/checkstyle-checker.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/checkstyle-result.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/maven-archiver/pom.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/createdFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/pmd.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/pmd/rulesets/001-maven-pmd-plugin-default.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/checkstyle.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/css/apache-maven-fluido-2.0.0-M9.min.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/css/print.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/css/site.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/fonts/glyphicons-halflings-regular.eot" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/fonts/glyphicons-halflings-regular.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/fonts/glyphicons-halflings-regular.ttf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/fonts/glyphicons-halflings-regular.woff" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/accessories-text-editor.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/add.gif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/apache-maven-project-2.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/application-certificate.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/contact-new.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/document-properties.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/drive-harddisk.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/fix.gif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/icon_error_sml.gif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/icon_help_sml.gif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/icon_info_sml.gif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/icon_success_sml.gif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/icon_warning_sml.gif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/image-x-generic.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/internet-web-browser.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/logos/build-by-maven-black.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/logos/build-by-maven-white.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/logos/maven-feather.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/network-server.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/package-x-generic.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/profiles/pre-release.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/profiles/retired.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/profiles/sandbox.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/remove.gif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/rss.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/update.gif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/images/window-new.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/img/glyphicons-halflings-white.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/img/glyphicons-halflings.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/js/apache-maven-fluido-2.0.0-M9.min.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/reports/pmd.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/secure-ai-gateway.jar.original" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/spotbugs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/spotbugsXml.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/test-classes/application-test.yml" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -195,8 +144,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-30f59d01ecdd-2fc7cc6b9a17-intellij.indexing.shared.core-IU-253.30387.90" />
-        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-IU-253.30387.90" />
+        <option value="bundled-jdk-30f59d01ecdd-2fc7cc6b9a17-intellij.indexing.shared.core-IU-253.31033.145" />
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-IU-253.31033.145" />
       </set>
     </attachedChunks>
   </component>
@@ -210,6 +159,7 @@
       <workItem from="1771021703829" duration="24000" />
       <workItem from="1771021751368" duration="8104000" />
       <workItem from="1771192613716" duration="7519000" />
+      <workItem from="1771682113193" duration="4520000" />
     </task>
     <task id="LOCAL-00001" summary="JUNIT">
       <option name="closed" value="true" />
@@ -331,7 +281,15 @@
       <option name="project" value="LOCAL" />
       <updated>1771538351407</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="Update `.idea` configs to include task adjustments, Go imports, and recent branch merge settings">
+      <option name="closed" value="true" />
+      <created>1771682147134</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1771682147135</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
