@@ -1,6 +1,0 @@
-com/secureai/integration/SecureAiGatewayIntegrationTest.class
-com/secureai/controller/AskControllerTest.class
-com/secureai/controller/AuthControllerTest.class
-com/secureai/service/PiiRedactionServiceTest.class
-com/secureai/service/RateLimitServiceTest.class
-com/secureai/util/JwtUtilTest.class
