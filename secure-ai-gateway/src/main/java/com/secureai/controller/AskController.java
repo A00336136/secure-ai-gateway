@@ -1,149 +1,138 @@
 package com.secureai.controller;
 
-import com.secureai.dto.AskRequest;
-import com.secureai.dto.AskResponse;
-import com.secureai.exception.SecureAiException;
-import com.secureai.service.OllamaService;
-import com.secureai.service.PiiRedactionService;
-import com.secureai.service.RateLimitService;
+import com.secureai.agent.ReActAgentService;
+import com.secureai.model.AskRequest;
+import com.secureai.model.AskResponse;
+import com.secureai.pii.PiiRedactionService;
+import com.secureai.service.AuditLogService;
+import com.secureai.service.OllamaClient;
+import com.secureai.service.RateLimiterService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.Instant;
-import java.util.UUID;
+import java.security.Principal;
 
 /**
- * Controller for AI query endpoints.
- * Implements rate limiting, PII redaction, and secure AI access.
+ * Ask Controller — Main AI Gateway Endpoint
+ *
+ * Pipeline per request:
+ *  ① JWT auth (enforced by security filter, not this controller)
+ *  ② Rate limit check (Bucket4j — 100 req/hr per user)
+ *  ③ Route to OllamaClient or ReActAgent
+ *  ④ PII redaction on response
+ *  ⑤ Async audit log to PostgreSQL
+ *  ⑥ Return response with rate-limit headers
  */
-@Slf4j
 @RestController
 @RequestMapping("/api")
-@RequiredArgsConstructor
-@Tag(name = "AI Gateway", description = "AI query endpoints with PII protection")
-@SecurityRequirement(name = "Bearer Authentication")
+@Tag(name = "AI Gateway", description = "Secure AI inference endpoints")
 public class AskController {
 
-    private final OllamaService ollamaService;
-    private final PiiRedactionService piiRedactionService;
-    private final RateLimitService rateLimitService;
+    private static final Logger log = LoggerFactory.getLogger(AskController.class);
 
-    /**
-     * Process an AI query with PII redaction.
-     *
-     * @param request        the AI query request
-     * @param authentication the authentication object containing user details
-     * @return ResponseEntity with AI response
-     */
+    @Autowired private OllamaClient ollamaClient;
+    @Autowired private PiiRedactionService piiRedactionService;
+    @Autowired private RateLimiterService rateLimiterService;
+    @Autowired private ReActAgentService reActAgentService;
+    @Autowired private AuditLogService auditLogService;
+
     @PostMapping("/ask")
-    @Operation(summary = "Query AI model", description = "Send a prompt to the AI model and receive a response with PII redaction")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully processed query"),
-            @ApiResponse(responseCode = "400", description = "Invalid request"),
-            @ApiResponse(responseCode = "401", description = "Unauthorized"),
-            @ApiResponse(responseCode = "429", description = "Rate limit exceeded"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
-    })
+    @Operation(
+        summary = "Send a prompt to the AI gateway",
+        description = "Authenticated, rate-limited, PII-redacted AI inference",
+        security = @SecurityRequirement(name = "bearerAuth")
+    )
     public ResponseEntity<AskResponse> ask(
             @Valid @RequestBody AskRequest request,
-            Authentication authentication) {
+            Principal principal,
+            HttpServletRequest httpRequest) {
 
-        String username = authentication.getName();
-        String requestId = UUID.randomUUID().toString();
-        
-        log.info("Processing AI query - RequestID: {}, User: {}, PromptLength: {}", 
-                requestId, username, request.getPrompt().length());
+        String username = principal.getName();
+        long startTime = System.currentTimeMillis();
 
-        try {
-            // Check rate limit
-            if (!rateLimitService.isAllowed(username)) {
-                log.warn("Rate limit exceeded for user: {}", username);
-                return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
-                        .body(AskResponse.builder()
-                                .response("Rate limit exceeded. Please try again later.")
-                                .redacted(false)
-                                .requestId(requestId)
-                                .timestamp(Instant.now())
-                                .build());
-            }
+        // ② Rate Limiting
+        if (!rateLimiterService.tryConsume(username)) {
+            long remaining = rateLimiterService.getRemainingTokens(username);
+            log.warn("Rate limit exceeded for user '{}'", username);
 
-            // Get AI response
-            String aiResponse = ollamaService.generateResponse(request.getPrompt());
+            auditLogService.logRequest(username, request.getPrompt(), null,
+                    ollamaClient.getModel(), false, true, null,
+                    429, 0L, httpRequest.getRemoteAddr());
 
-            // Check for and redact PII
-            boolean hasPii = piiRedactionService.containsPii(aiResponse);
-            String finalResponse = hasPii ? piiRedactionService.redact(aiResponse) : aiResponse;
-
-            if (hasPii) {
-                log.info("PII detected and redacted - RequestID: {}, Types: {}", 
-                        requestId, piiRedactionService.detectPiiTypes(aiResponse));
-            }
-
-            AskResponse response = AskResponse.builder()
-                    .response(finalResponse)
-                    .redacted(hasPii)
-                    .requestId(requestId)
-                    .timestamp(Instant.now())
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                    .header("X-Rate-Limit-Remaining", String.valueOf(remaining))
+                    .header("Retry-After", "3600")
+                    .header("X-Rate-Limit-Capacity", String.valueOf(rateLimiterService.getCapacity()))
                     .build();
-
-            log.info("Query processed successfully - RequestID: {}, Redacted: {}", requestId, hasPii);
-            return ResponseEntity.ok(response);
-
-        } catch (SecureAiException e) {
-            log.error("Error processing query - RequestID: {}, Error: {}", requestId, e.getMessage(), e);
-            throw e;
-        } catch (Exception e) {
-            log.error("Unexpected error processing query - RequestID: {}", requestId, e);
-            throw new SecureAiException("Failed to process AI query", e);
         }
-    }
 
-    /**
-     * Health check endpoint for the AI service.
-     *
-     * @return ResponseEntity with service status
-     */
-    @GetMapping("/health")
-    @Operation(summary = "Check AI service health", description = "Verify that the AI service is available")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Service is healthy"),
-            @ApiResponse(responseCode = "503", description = "Service unavailable")
-    })
-    public ResponseEntity<String> health() {
-        boolean isAvailable = ollamaService.isAvailable();
-        
-        if (isAvailable) {
-            return ResponseEntity.ok("AI service is available");
+        String rawResponse;
+        int reactSteps = 0;
+
+        // ③ Route: ReAct agent or direct inference
+        if (request.isUseReActAgent()) {
+            log.info("ReAct agent invoked for user '{}'", username);
+            ReActAgentService.AgentResult result = reActAgentService.execute(request.getPrompt());
+            rawResponse = result.answer;
+            reactSteps = result.totalSteps;
         } else {
-            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
-                    .body("AI service is unavailable");
+            rawResponse = ollamaClient.generateResponse(request.getPrompt());
         }
+
+        // ④ PII Redaction
+        boolean piiDetected = piiRedactionService.containsPii(rawResponse);
+        String finalResponse = piiDetected ? piiRedactionService.redact(rawResponse) : rawResponse;
+
+        long durationMs = System.currentTimeMillis() - startTime;
+
+        // ⑤ Async Audit Log
+        auditLogService.logRequest(
+                username, request.getPrompt(), finalResponse,
+                ollamaClient.getModel(), piiDetected, false,
+                reactSteps > 0 ? reactSteps : null,
+                200, durationMs, httpRequest.getRemoteAddr()
+        );
+
+        log.info("Request processed for '{}': pii={}, steps={}, ms={}",
+                username, piiDetected, reactSteps, durationMs);
+
+        long remaining = rateLimiterService.getRemainingTokens(username);
+
+        // ⑥ Return response
+        AskResponse response = new AskResponse(
+                finalResponse, piiDetected, piiDetected, reactSteps, durationMs,
+                ollamaClient.getModel()
+        );
+
+        return ResponseEntity.ok()
+                .header("X-Rate-Limit-Remaining", String.valueOf(remaining))
+                .header("X-Rate-Limit-Capacity", String.valueOf(rateLimiterService.getCapacity()))
+                .header("X-PII-Redacted", String.valueOf(piiDetected))
+                .header("X-Duration-Ms", String.valueOf(durationMs))
+                .body(response);
     }
 
-    /**
-     * Get remaining rate limit tokens for the current user.
-     *
-     * @param authentication the authentication object
-     * @return ResponseEntity with remaining tokens
-     */
-    @GetMapping("/rate-limit")
-    @Operation(summary = "Check rate limit", description = "Get remaining API calls for the current user")
-    @ApiResponse(responseCode = "200", description = "Successfully retrieved rate limit info")
-    public ResponseEntity<Long> getRateLimit(Authentication authentication) {
-        String username = authentication.getName();
-        long remaining = rateLimitService.getRemainingTokens(username);
-        
-        log.debug("Rate limit check for user: {}, Remaining: {}", username, remaining);
-        return ResponseEntity.ok(remaining);
+    @GetMapping("/status")
+    @Operation(summary = "Check AI model connectivity", security = @SecurityRequirement(name = "bearerAuth"))
+    public ResponseEntity<Object> status(Principal principal) {
+        boolean ollamaHealthy = ollamaClient.isHealthy();
+        return ResponseEntity.ok(java.util.Map.of(
+            "user", principal.getName(),
+            "ollamaHealthy", ollamaHealthy,
+            "model", ollamaClient.getModel(),
+            "rateLimitRemaining", rateLimiterService.getRemainingTokens(principal.getName())
+        ));
     }
 }

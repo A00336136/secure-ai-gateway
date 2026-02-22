@@ -1,1178 +1,1219 @@
-# Secure AI Gateway - Complete Red Hat DevSecOps Setup Guide
+# Secure AI Gateway — Complete Setup & Implementation Guide
+
+> **Stack**: Spring Boot 3.2.12 · Ollama LLaMA 3.1 8B · PostgreSQL 16 · Kubernetes · Jenkins CI/CD  
+> **Version**: 2.0.0 · **Last Updated**: 2025
+
+---
 
 ## Table of Contents
-1. [Prerequisites](#prerequisites)
-2. [Quick Start](#quick-start)
-3. [Detailed Setup Instructions](#detailed-setup-instructions)
-4. [CLI Commands Reference](#cli-commands-reference)
-5. [GUI Dashboard Configuration](#gui-dashboard-configuration)
-6. [Security Configuration](#security-configuration)
-7. [CI/CD Pipeline Setup](#cicd-pipeline-setup)
-8. [Monitoring and Observability](#monitoring-and-observability)
-9. [Troubleshooting](#troubleshooting)
+
+1. [Prerequisites](#1-prerequisites)
+2. [Quick Start (Docker Compose)](#2-quick-start-docker-compose)
+3. [Project Structure Overview](#3-project-structure-overview)
+4. [Detailed Local Development Setup](#4-detailed-local-development-setup)
+5. [Ollama LLM Setup & Model Configuration](#5-ollama-llm-setup--model-configuration)
+6. [Database Setup (PostgreSQL + H2)](#6-database-setup-postgresql--h2)
+7. [Security Configuration (JWT, Secrets)](#7-security-configuration-jwt-secrets)
+8. [Environment Profiles (dev / test / prod)](#8-environment-profiles-dev--test--prod)
+9. [Kubernetes Deployment (Minikube & Production)](#9-kubernetes-deployment-minikube--production)
+10. [Jenkins CI/CD Pipeline Setup](#10-jenkins-cicd-pipeline-setup)
+11. [Monitoring (Prometheus + Grafana)](#11-monitoring-prometheus--grafana)
+12. [API Reference & Testing](#12-api-reference--testing)
+13. [Troubleshooting](#13-troubleshooting)
 
 ---
 
-## Prerequisites
+## 1. Prerequisites
 
-### Required Tools
+### Required Tools & Versions
+
+| Tool | Minimum Version | Purpose |
+|------|----------------|---------|
+| Java JDK | 17 (LTS) | Application runtime |
+| Maven | 3.9.x | Build and dependency management |
+| Docker | 24.x+ | Container runtime |
+| Docker Compose | 2.x+ | Local multi-service orchestration |
+| kubectl | 1.28+ | Kubernetes CLI |
+| Minikube | 1.32+ | Local Kubernetes cluster |
+| Git | 2.40+ | Source control |
+| curl / wget | Any | API testing |
+
+### System Requirements
+
+| Resource | Minimum | Recommended |
+|----------|---------|-------------|
+| RAM | 8 GB | 16 GB (for LLM) |
+| CPU | 4 cores | 8 cores |
+| Disk | 20 GB | 40 GB |
+| OS | Linux / macOS / WSL2 | Ubuntu 22.04 LTS |
+
+### Install Java 17
+
 ```bash
-# OpenShift CLI
-curl -LO https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable/openshift-client-linux.tar.gz
-tar -xzf openshift-client-linux.tar.gz
-sudo mv oc kubectl /usr/local/bin/
+# Ubuntu / Debian
+sudo apt update && sudo apt install -y openjdk-17-jdk
+java -version  # Verify: openjdk 17.x
 
-# Helm
-curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+# macOS (Homebrew)
+brew install openjdk@17
+echo 'export JAVA_HOME=$(brew --prefix openjdk@17)' >> ~/.zshrc
+source ~/.zshrc
 
-# Tekton CLI (tkn)
-curl -LO https://github.com/tektoncd/cli/releases/download/v0.32.0/tkn_0.32.0_Linux_x86_64.tar.gz
-tar xvzf tkn_0.32.0_Linux_x86_64.tar.gz
-sudo mv tkn /usr/local/bin/
-
-# ArgoCD CLI
-curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
-sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
+# Verify
+java -version
+javac -version
 ```
 
-### OpenShift Cluster Requirements
-- OpenShift 4.10 or later
-- Cluster admin access
-- Red Hat OpenShift Platform Plus subscription (or evaluation)
-- Minimum 3 worker nodes with 8GB RAM each
+### Install Maven 3.9
 
-### Red Hat Operators Required
-- OpenShift Pipelines (Tekton)
-- OpenShift GitOps (ArgoCD)
-- Red Hat Advanced Cluster Security for Kubernetes (optional but recommended)
-- Red Hat Quay (optional - can use quay.io)
+```bash
+# Ubuntu / Debian
+sudo apt install -y maven
+mvn -version  # Verify: Apache Maven 3.x
+
+# macOS
+brew install maven
+
+# Manual install (any OS)
+curl -LO https://dlcdn.apache.org/maven/maven-3/3.9.6/binaries/apache-maven-3.9.6-bin.tar.gz
+tar -xzf apache-maven-3.9.6-bin.tar.gz
+sudo mv apache-maven-3.9.6 /opt/maven
+echo 'export PATH=$PATH:/opt/maven/bin' >> ~/.bashrc
+source ~/.bashrc
+```
+
+### Install Docker & Docker Compose
+
+```bash
+# Ubuntu
+curl -fsSL https://get.docker.com | sh
+sudo usermod -aG docker $USER
+newgrp docker
+
+# Verify
+docker --version
+docker compose version
+
+# macOS — install Docker Desktop from https://www.docker.com/products/docker-desktop/
+```
+
+### Install kubectl & Minikube
+
+```bash
+# kubectl
+curl -LO "https://dl.k8s.io/release/$(curl -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+chmod +x kubectl && sudo mv kubectl /usr/local/bin/
+kubectl version --client
+
+# Minikube
+curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+sudo install minikube-linux-amd64 /usr/local/bin/minikube
+minikube version
+```
 
 ---
 
-## Quick Start
+## 2. Quick Start (Docker Compose)
 
-### Option 1: Automated Setup (Recommended)
+The fastest way to run the complete stack locally — all services included.
+
 ```bash
-# Clone the repository
+# 1. Clone the repository
 git clone https://github.com/your-org/secure-ai-gateway.git
 cd secure-ai-gateway
 
-# Login to OpenShift
-oc login https://api.your-cluster.example.com:6443
+# 2. Start all services (app + postgres + ollama + sonarqube + jenkins + prometheus + grafana)
+docker compose up -d
 
-# Make setup script executable
-chmod +x scripts/setup.sh
+# 3. Wait for services to be healthy (~2-3 minutes)
+docker compose ps
 
-# Run complete setup
-./scripts/setup.sh
+# 4. Pull the LLaMA 3.1 model into Ollama (one-time, ~4.7 GB download)
+docker exec -it secure-ai-ollama ollama pull llama3.1:8b
+
+# 5. Verify the app is running
+curl http://localhost:8080/actuator/health
+# Expected: {"status":"UP"}
+
+# 6. Register a user and get a JWT token
+curl -s -X POST http://localhost:8080/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"username":"testuser","password":"Test@1234","email":"test@example.com"}' | jq .
+
+curl -s -X POST http://localhost:8080/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"testuser","password":"Test@1234"}' | jq .token
+
+# 7. Send an AI query
+TOKEN="<paste-token-from-above>"
+curl -s -X POST http://localhost:8080/api/ai/query \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"prompt":"Explain what a firewall does in simple terms"}' | jq .
 ```
 
-### Option 2: Helm Deployment
-```bash
-# Login to OpenShift
-oc login https://api.your-cluster.example.com:6443
+### Service URLs (Docker Compose)
 
-# Create namespace
-oc create namespace secure-ai-gateway
+| Service | URL | Default Credentials |
+|---------|-----|-------------------|
+| **Spring Boot API** | http://localhost:8080 | — |
+| **Swagger UI** | http://localhost:8080/swagger-ui.html | — |
+| **Actuator Health** | http://localhost:8080/actuator/health | — |
+| **PostgreSQL** | localhost:5432 | secureai_user / secureai_password |
+| **Ollama LLM** | http://localhost:11434 | — |
+| **SonarQube** | http://localhost:9000 | admin / admin |
+| **Jenkins** | http://localhost:8090 | (setup on first run) |
+| **Prometheus** | http://localhost:9090 | — |
+| **Grafana** | http://localhost:3000 | admin / admin |
 
-# Install with Helm
-helm install secure-ai-gateway ./helm \
-  --namespace secure-ai-gateway \
-  --set secrets.jwtSecret="$(openssl rand -base64 32)" \
-  --set secrets.adminPassword="YourSecurePassword123!"
+---
+
+## 3. Project Structure Overview
+
+```
+secure-ai-gateway/
+├── src/
+│   ├── main/
+│   │   ├── java/com/secureai/
+│   │   │   ├── config/          # SecurityConfig, RateLimitConfig, OllamaConfig
+│   │   │   ├── controller/      # AuthController, AiController, AgentController
+│   │   │   ├── model/           # User, AuditLog, JwtRequest, JwtResponse
+│   │   │   ├── security/        # JwtTokenProvider, JwtAuthFilter, UserDetailsService
+│   │   │   ├── service/         # AiService, PiiRedactionService, RateLimitService
+│   │   │   │                       AuditService, ReActAgentService
+│   │   │   └── repository/      # UserRepository, AuditLogRepository
+│   │   └── resources/
+│   │       ├── application.yml          # Base config (all profiles)
+│   │       ├── application-dev.yml      # Dev: H2 in-memory DB
+│   │       ├── application-test.yml     # Test: H2 + mock LLM
+│   │       ├── application-prod.yml     # Prod: PostgreSQL + TLS
+│   │       ├── db/migration/            # Flyway SQL migration scripts
+│   │       └── static/                  # Static resources
+│   └── test/
+│       └── java/com/secureai/           # 67+ JUnit 5 test cases
+│           ├── controller/              # @WebMvcTest controller tests
+│           ├── service/                 # Unit tests with Mockito
+│           └── integration/             # @SpringBootTest integration tests
+├── k8s/
+│   ├── namespace.yaml           # secure-ai-dev + secure-ai-prod namespaces
+│   ├── deployment.yaml          # Deployment + Service + HPA + Ingress
+│   └── postgres/
+│       └── postgres.yaml        # PostgreSQL StatefulSet + PVC
+├── monitoring/
+│   └── prometheus.yml           # Prometheus scrape config
+├── Dockerfile                   # Multi-stage: JDK build → JRE runtime
+├── docker-compose.yml           # Full local dev stack
+├── Jenkinsfile                  # 13-stage DevSecOps pipeline
+├── pom.xml                      # Maven dependencies
+└── owasp-suppressions.xml       # OWASP false-positive suppressions
 ```
 
 ---
 
-## Detailed Setup Instructions
+## 4. Detailed Local Development Setup
 
-### Step 1: Login to OpenShift Cluster
+### Step 1: Clone and Build
 
 ```bash
-# Login via CLI
-oc login https://api.your-cluster.example.com:6443 \
-  --username=your-username \
-  --password=your-password
+git clone https://github.com/your-org/secure-ai-gateway.git
+cd secure-ai-gateway
 
-# Verify cluster access
-oc whoami
-oc cluster-info
+# Compile (skips tests for speed)
+mvn clean compile -DskipTests
 
-# Check cluster version
-oc get clusterversion
+# Run all unit tests
+mvn test -Dspring.profiles.active=test
+
+# Run with dev profile (H2 in-memory DB — no external DB needed)
+mvn spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
-**GUI Access:**
-1. Open browser to: `https://console-openshift-console.apps.your-cluster.example.com`
-2. Login with your credentials
-3. Verify you're in the Administrator perspective
+### Step 2: IDE Setup (IntelliJ IDEA / VS Code)
 
----
-
-### Step 2: Create Project Namespaces
-
-#### CLI Method:
-```bash
-# Create development namespace
-oc new-project secure-ai-gateway-dev \
-  --display-name="Secure AI Gateway - Development" \
-  --description="Development environment for Secure AI Gateway"
-
-# Create production namespace
-oc new-project secure-ai-gateway-prod \
-  --display-name="Secure AI Gateway - Production" \
-  --description="Production environment for Secure AI Gateway"
-
-# Create CI/CD namespace
-oc new-project secure-ai-gateway-cicd \
-  --display-name="Secure AI Gateway - CI/CD" \
-  --description="CI/CD pipelines for Secure AI Gateway"
-
-# Label namespaces for monitoring
-oc label namespace secure-ai-gateway-dev \
-  app=secure-ai-gateway environment=dev
-
-oc label namespace secure-ai-gateway-prod \
-  app=secure-ai-gateway environment=prod
-
-oc label namespace secure-ai-gateway-cicd \
-  app=secure-ai-gateway environment=cicd
+**IntelliJ IDEA:**
+```
+1. File → Open → select secure-ai-gateway directory
+2. Wait for Maven import to complete
+3. Run → Edit Configurations → Add Application
+   - Main class: com.secureai.SecureAiGatewayApplication
+   - Active profiles: dev
+4. Run the configuration
 ```
 
-#### GUI Method:
-1. Navigate to: **Home → Projects**
-2. Click **Create Project**
-3. Fill in details:
-   - Name: `secure-ai-gateway-dev`
-   - Display Name: `Secure AI Gateway - Development`
-   - Description: `Development environment for Secure AI Gateway`
-4. Click **Create**
-5. Repeat for `secure-ai-gateway-prod` and `secure-ai-gateway-cicd`
-
----
-
-### Step 3: Install Required Operators
-
-#### Install OpenShift Pipelines (Tekton)
-
-**CLI Method:**
+**VS Code:**
 ```bash
-cat <<EOF | oc apply -f -
-apiVersion: operators.coreos.com/v1alpha1
-kind: Subscription
-metadata:
-  name: openshift-pipelines-operator
-  namespace: openshift-operators
-spec:
-  channel: latest
-  name: openshift-pipelines-operator-rh
-  source: redhat-operators
-  sourceNamespace: openshift-marketplace
-  installPlanApproval: Automatic
-EOF
+# Install extensions
+code --install-extension vscjava.vscode-spring-boot-pack
+code --install-extension vscjava.vscode-java-debug
 
-# Wait for operator to be ready
-oc get csv -n openshift-operators | grep openshift-pipelines
-
-# Verify installation
-tkn version
+# Open project
+code .
+# Then use Spring Boot Dashboard in the sidebar to run with 'dev' profile
 ```
 
-**GUI Method:**
-1. Navigate to: **Operators → OperatorHub**
-2. Search for "OpenShift Pipelines"
-3. Click on "Red Hat OpenShift Pipelines"
-4. Click **Install**
-5. Select:
-   - Update Channel: `latest`
-   - Installation Mode: `All namespaces on the cluster`
-   - Approval Strategy: `Automatic`
-6. Click **Install**
-7. Wait for installation to complete (Status: Succeeded)
+### Step 3: Verify Application Startup
 
-#### Install OpenShift GitOps (ArgoCD)
-
-**CLI Method:**
 ```bash
-cat <<EOF | oc apply -f -
-apiVersion: operators.coreos.com/v1alpha1
-kind: Subscription
-metadata:
-  name: openshift-gitops-operator
-  namespace: openshift-operators
-spec:
-  channel: latest
-  name: openshift-gitops-operator
-  source: redhat-operators
-  sourceNamespace: openshift-marketplace
-  installPlanApproval: Automatic
-EOF
+# Check app is running (dev profile uses H2, port 8080)
+curl http://localhost:8080/actuator/health
+# {"status":"UP","components":{"db":{"status":"UP"},"diskSpace":{"status":"UP"}}}
 
-# Wait for operator
-sleep 60
+# View H2 console (dev profile only)
+# Open browser: http://localhost:8080/h2-console
+# JDBC URL: jdbc:h2:mem:testdb
+# Username: sa  |  Password: (empty)
 
-# Get ArgoCD route
-oc get route openshift-gitops-server -n openshift-gitops
-
-# Get admin password
-oc extract secret/openshift-gitops-cluster \
-  -n openshift-gitops \
-  --to=- \
-  --keys=admin.password
+# View API docs
+# Open browser: http://localhost:8080/swagger-ui.html
 ```
 
-**GUI Method:**
-1. Navigate to: **Operators → OperatorHub**
-2. Search for "OpenShift GitOps"
-3. Click on "Red Hat OpenShift GitOps"
-4. Click **Install**
-5. Accept defaults and click **Install**
-6. Wait for installation complete
+### Step 4: Running Tests
 
-**Access ArgoCD Dashboard:**
-1. Navigate to: **Networking → Routes** (in openshift-gitops namespace)
-2. Click on `openshift-gitops-server` route URL
-3. Login with:
-   - Username: `admin`
-   - Password: (retrieve from secret as shown in CLI method)
-
-#### Install Red Hat Advanced Cluster Security (Optional)
-
-**CLI Method:**
 ```bash
-# Install ACS Operator
-cat <<EOF | oc apply -f -
-apiVersion: operators.coreos.com/v1alpha1
-kind: Subscription
-metadata:
-  name: rhacs-operator
-  namespace: openshift-operators
-spec:
-  channel: stable
-  name: rhacs-operator
-  source: redhat-operators
-  sourceNamespace: openshift-marketplace
-EOF
+# All unit tests
+mvn test -Dspring.profiles.active=test
 
-# Create namespace for ACS
-oc new-project stackrox
+# With coverage report
+mvn test jacoco:report -Dspring.profiles.active=test
+# Report: target/site/jacoco/index.html
 
-# Create Central instance
-cat <<EOF | oc apply -f -
-apiVersion: platform.stackrox.io/v1alpha1
-kind: Central
-metadata:
-  name: stackrox-central-services
-  namespace: stackrox
-spec:
-  central:
-    exposure:
-      route:
-        enabled: true
-  egress:
-    connectivityPolicy: Online
-  scanner:
-    analyzer:
-      scaling:
-        autoScaling: Enabled
-        maxReplicas: 5
-        minReplicas: 2
-        replicas: 3
-EOF
+# Specific test class
+mvn test -Dtest=AiServiceTest -Dspring.profiles.active=test
+
+# Integration tests only
+mvn failsafe:integration-test failsafe:verify -Dspring.profiles.active=test
+
+# Full build with all checks (mirrors CI pipeline)
+mvn clean verify -Dspring.profiles.active=test
+```
+
+### Step 5: Live Reload (Optional)
+
+```bash
+# Add spring-boot-devtools to pom.xml (already included in dev profile)
+# Then run:
+mvn spring-boot:run -Dspring-boot.run.profiles=dev -Dspring-boot.run.jvmArguments="-Dspring.devtools.restart.enabled=true"
+# Changes to .java files will trigger automatic restart
 ```
 
 ---
 
-### Step 4: Create Secrets and ConfigMaps
+## 5. Ollama LLM Setup & Model Configuration
 
-#### Generate JWT Secret
+### Install Ollama (Native — Recommended for Development)
+
 ```bash
-# Generate secure JWT secret (256 bits)
-JWT_SECRET=$(openssl rand -base64 32)
-echo "Generated JWT Secret: $JWT_SECRET"
+# Linux / macOS
+curl -fsSL https://ollama.ai/install.sh | sh
+
+# Start Ollama server
+ollama serve &
+
+# Verify
+ollama list
+curl http://localhost:11434/api/tags
 ```
 
-#### Create Application Secrets
+### Pull LLaMA 3.1 8B Model
 
-**CLI Method:**
 ```bash
-# For Development
-oc create secret generic secure-ai-gateway-secrets \
-  --from-literal=ADMIN_USERNAME=admin \
-  --from-literal=ADMIN_PASSWORD='DevPassword123!' \
-  --from-literal=JWT_SECRET="$JWT_SECRET" \
-  --from-literal=DB_USERNAME=sa \
-  --from-literal=DB_PASSWORD='' \
-  -n secure-ai-gateway-dev
+# Pull model (~4.7 GB — one-time download)
+ollama pull llama3.1:8b
 
-# For Production
-oc create secret generic secure-ai-gateway-secrets \
-  --from-literal=ADMIN_USERNAME=admin \
-  --from-literal=ADMIN_PASSWORD='ProdPassword123!@#' \
-  --from-literal=JWT_SECRET="$JWT_SECRET" \
-  --from-literal=DB_USERNAME=sa \
-  --from-literal=DB_PASSWORD='ProductionDBPassword' \
-  -n secure-ai-gateway-prod
+# Verify model is available
+ollama list
+# NAME              ID            SIZE    MODIFIED
+# llama3.1:8b      xxx           4.7 GB  Just now
+
+# Test the model directly
+ollama run llama3.1:8b "Hello, how are you?"
 ```
 
-**GUI Method:**
-1. Navigate to: **Workloads → Secrets** (in your namespace)
-2. Click **Create → Key/value secret**
-3. Fill in:
-   - Secret name: `secure-ai-gateway-secrets`
-   - Key: `ADMIN_USERNAME`, Value: `admin`
-   - Add key: `ADMIN_PASSWORD`, Value: (your password)
-   - Add key: `JWT_SECRET`, Value: (generated secret)
-4. Click **Create**
-
-#### Create Quay Registry Credentials
+### GPU Acceleration (Optional — Recommended)
 
 ```bash
-# Create docker-registry secret for Quay
-oc create secret docker-registry quay-credentials \
-  --docker-server=quay.io \
-  --docker-username=your-quay-username \
-  --docker-password=your-quay-password \
-  --docker-email=your-email@example.com \
-  -n secure-ai-gateway-cicd
+# NVIDIA GPU — Ollama auto-detects CUDA
+# Verify GPU is detected
+ollama run llama3.1:8b "Test"
+# Look for: "using NVIDIA GPU" in ollama serve output
 
-# Link secret to pipeline service account
-oc secrets link pipeline quay-credentials -n secure-ai-gateway-cicd
+# AMD GPU (ROCm)
+HSA_OVERRIDE_GFX_VERSION=10.3.0 ollama serve
+
+# Docker with GPU (edit docker-compose.yml — section is commented out)
+# Uncomment the `deploy.resources` block under the ollama service
 ```
 
-#### Apply ConfigMaps
+### Ollama Configuration in Application
 
-```bash
-# Apply ConfigMap
-oc apply -f kubernetes/configmap.yaml -n secure-ai-gateway-dev
-oc apply -f kubernetes/configmap.yaml -n secure-ai-gateway-prod
+```yaml
+# application.yml (already configured)
+ollama:
+  base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+  model: ${OLLAMA_MODEL:llama3.1:8b}
+  timeout-seconds: 120
+  react:
+    max-steps: 10   # ReAct agent: max Think→Act→Observe iterations
 ```
 
----
-
-### Step 5: Apply Security Policies
-
-#### Apply Security Context Constraints (SCC)
-
 ```bash
-# Create custom SCC
-oc apply -f security/scc.yaml
+# Override for a different model at runtime
+OLLAMA_MODEL=llama3.1:70b mvn spring-boot:run -Dspring-boot.run.profiles=dev
 
-# Grant SCC to service account
-oc adm policy add-scc-to-user secure-ai-gateway-scc \
-  -z secure-ai-gateway-sa \
-  -n secure-ai-gateway-dev
-
-oc adm policy add-scc-to-user secure-ai-gateway-scc \
-  -z secure-ai-gateway-sa \
-  -n secure-ai-gateway-prod
-
-# Verify SCC
-oc get scc secure-ai-gateway-scc
+# List available models from the API
+curl http://localhost:11434/api/tags | jq '.models[].name'
 ```
 
-#### Apply Network Policies
+### Verify LLM Integration
 
 ```bash
-# Apply network policies
-oc apply -f security/network-policy.yaml -n secure-ai-gateway-dev
-oc apply -f security/network-policy.yaml -n secure-ai-gateway-prod
+# Start app with Ollama running, then test
+TOKEN=$(curl -s -X POST http://localhost:8080/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin","password":"Admin@1234"}' | jq -r .token)
 
-# Verify network policies
-oc get networkpolicies -n secure-ai-gateway-dev
-```
+# Simple AI query (direct)
+curl -s -X POST http://localhost:8080/api/ai/query \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"prompt":"What is rate limiting in APIs?"}' | jq .
 
-#### Apply Resource Quotas and Limits
-
-```bash
-# Apply resource quotas
-oc apply -f security/resource-limits.yaml -n secure-ai-gateway-dev
-oc apply -f security/resource-limits.yaml -n secure-ai-gateway-prod
-
-# Verify quotas
-oc get resourcequota -n secure-ai-gateway-dev
-oc get limitrange -n secure-ai-gateway-dev
+# ReAct agent query (multi-step reasoning)
+curl -s -X POST http://localhost:8080/api/agent/run \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"task":"Analyze the security implications of storing passwords in plain text"}' | jq .
 ```
 
 ---
 
-### Step 6: Build and Push Container Image
+## 6. Database Setup (PostgreSQL + H2)
 
-#### Build with Docker/Podman
+### H2 In-Memory (Development & Testing — Zero Setup)
+
+H2 is used automatically when running with the `dev` or `test` profile. No installation required.
 
 ```bash
-# Build image
-docker build -t quay.io/secure-ai/secure-ai-gateway:1.0.0 .
+# Runs on H2 automatically
+mvn spring-boot:run -Dspring-boot.run.profiles=dev
 
-# Login to Quay
-docker login quay.io
-
-# Push image
-docker push quay.io/secure-ai/secure-ai-gateway:1.0.0
-
-# Tag as latest
-docker tag quay.io/secure-ai/secure-ai-gateway:1.0.0 \
-  quay.io/secure-ai/secure-ai-gateway:latest
-
-docker push quay.io/secure-ai/secure-ai-gateway:latest
+# H2 console available at:
+# http://localhost:8080/h2-console
+# JDBC URL: jdbc:h2:mem:testdb
+# Username: sa  |  Password: (blank)
 ```
 
-#### Build with OpenShift BuildConfig
+### PostgreSQL Setup (Production-Like Local Environment)
 
 ```bash
-# Create build config
-oc new-build --name=secure-ai-gateway \
-  --binary=true \
-  --strategy=docker \
-  -n secure-ai-gateway-cicd
+# Option A: Docker (easiest)
+docker run -d \
+  --name secure-ai-postgres \
+  -e POSTGRES_DB=secureai \
+  -e POSTGRES_USER=secureai_user \
+  -e POSTGRES_PASSWORD=secureai_password \
+  -p 5432:5432 \
+  postgres:16-alpine
 
-# Start build
-oc start-build secure-ai-gateway \
-  --from-dir=. \
-  --follow \
-  -n secure-ai-gateway-cicd
+# Option B: Native install (Ubuntu)
+sudo apt install -y postgresql postgresql-client
+sudo -u postgres psql -c "CREATE USER secureai_user WITH PASSWORD 'secureai_password';"
+sudo -u postgres psql -c "CREATE DATABASE secureai OWNER secureai_user;"
+sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE secureai TO secureai_user;"
 
-# Tag and push to Quay (if needed)
+# Verify connection
+psql -h localhost -U secureai_user -d secureai -c "SELECT version();"
+```
+
+### Running Flyway Migrations
+
+```bash
+# Migrations run automatically on startup via Spring Boot
+# To run manually:
+mvn flyway:migrate -Dspring.profiles.active=prod \
+  -Dspring.datasource.url=jdbc:postgresql://localhost:5432/secureai \
+  -Dspring.datasource.username=secureai_user \
+  -Dspring.datasource.password=secureai_password
+
+# View migration history
+mvn flyway:info -Dspring.profiles.active=prod
+
+# Migration files location: src/main/resources/db/migration/
+# Naming convention: V{version}__{description}.sql
+# Example: V1__create_users_table.sql, V2__create_audit_log_table.sql
+```
+
+### Database Schema Overview
+
+```sql
+-- Key tables created by Flyway migrations
+
+-- Users table
+CREATE TABLE users (
+    id BIGSERIAL PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,  -- BCrypt cost=12
+    role VARCHAR(20) DEFAULT 'USER',
+    enabled BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Audit log table (all AI requests logged here)
+CREATE TABLE audit_logs (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT REFERENCES users(id),
+    request_prompt TEXT,          -- PII-redacted before storage
+    response_text TEXT,           -- PII-redacted before storage
+    model_used VARCHAR(50),
+    tokens_used INTEGER,
+    response_time_ms BIGINT,
+    ip_address VARCHAR(45),
+    created_at TIMESTAMP DEFAULT NOW()
+);
 ```
 
 ---
 
-### Step 7: Deploy Application
+## 7. Security Configuration (JWT, Secrets)
 
-#### Deploy to Development
+### JWT Configuration
 
-```bash
-# Create RBAC
-oc apply -f kubernetes/rbac.yaml -n secure-ai-gateway-dev
-
-# Deploy application
-oc apply -f kubernetes/deployment.yaml -n secure-ai-gateway-dev
-oc apply -f kubernetes/service.yaml -n secure-ai-gateway-dev
-oc apply -f kubernetes/route.yaml -n secure-ai-gateway-dev
-
-# Wait for deployment
-oc rollout status deployment/secure-ai-gateway -n secure-ai-gateway-dev
-
-# Get application URL
-oc get route secure-ai-gateway -n secure-ai-gateway-dev
+```yaml
+# application.yml
+jwt:
+  secret: ${JWT_SECRET:secure-ai-gateway-super-secret-key-minimum-32-chars-for-hs256}
+  expiration-ms: 3600000   # 1 hour token expiry
 ```
 
-**GUI Method:**
-1. Navigate to: **Workloads → Deployments**
-2. Click **Create Deployment**
-3. Choose "From YAML" and paste deployment.yaml content
-4. Click **Create**
-5. Monitor rollout in **Workloads → Pods**
+```bash
+# Generate a strong JWT secret (32+ characters, Base64-encoded)
+openssl rand -base64 48
+# Example output: xK9mP2vL8nQ5rT1wY7uI4oE6aS3dF0gH==
+
+# Set as environment variable for production
+export JWT_SECRET="xK9mP2vL8nQ5rT1wY7uI4oE6aS3dF0gH=="
+```
+
+### Creating Kubernetes Secrets
+
+```bash
+# Create JWT secret
+kubectl create secret generic secure-ai-secrets \
+  --from-literal=JWT_SECRET="$(openssl rand -base64 48)" \
+  --from-literal=DB_PASSWORD="$(openssl rand -base64 24)" \
+  -n secure-ai-dev
+
+# Create secret for prod namespace
+kubectl create secret generic secure-ai-secrets \
+  --from-literal=JWT_SECRET="$(openssl rand -base64 48)" \
+  --from-literal=DB_PASSWORD="your-secure-prod-db-password" \
+  -n secure-ai-prod
+
+# Verify secrets exist (values are base64-encoded, not shown)
+kubectl get secrets -n secure-ai-dev
+```
+
+### Rate Limiting Configuration
+
+```yaml
+# application.yml — token bucket algorithm (Bucket4j)
+rate-limit:
+  capacity: 100             # Max requests per bucket
+  refill-tokens: 100        # Tokens refilled per interval
+  refill-duration-minutes: 60  # Refill every 60 minutes = 100 req/hr per user
+```
+
+```bash
+# Test rate limiting
+for i in {1..5}; do
+  curl -s -o /dev/null -w "%{http_code}\n" \
+    -X POST http://localhost:8080/api/ai/query \
+    -H "Authorization: Bearer $TOKEN" \
+    -H "Content-Type: application/json" \
+    -d '{"prompt":"test"}'
+done
+# All 5 return 200; after 100 requests within 1 hour → 429 Too Many Requests
+```
+
+### PII Redaction
+
+```yaml
+# application.yml
+pii:
+  redaction:
+    enabled: true
+    redact-in-audit-logs: true   # PII stripped before DB storage
+```
+
+The `PiiRedactionService` automatically strips:
+- Email addresses → `[EMAIL_REDACTED]`
+- Phone numbers → `[PHONE_REDACTED]`
+- SSNs (XXX-XX-XXXX format) → `[SSN_REDACTED]`
+- Credit card numbers → `[CARD_REDACTED]`
+
+```bash
+# Test PII redaction
+curl -s -X POST http://localhost:8080/api/ai/query \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"prompt":"My email is john@example.com and SSN is 123-45-6789"}' | jq .
+# Response and audit log will have PII replaced with [*_REDACTED] tokens
+```
+
+### Security Headers
+
+The `SecurityConfig` enforces these response headers on every request:
+
+```
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+X-XSS-Protection: 1; mode=block
+Strict-Transport-Security: max-age=31536000; includeSubDomains
+Cache-Control: no-cache, no-store, must-revalidate
+```
 
 ---
 
-### Step 8: Setup Tekton CI/CD Pipeline
+## 8. Environment Profiles (dev / test / prod)
 
-#### Install Pipeline Resources
+### Profile Overview
 
-```bash
-# Apply custom tasks
-oc apply -f tekton/tasks.yaml -n secure-ai-gateway-cicd
+| Profile | Database | LLM | Logging | Use Case |
+|---------|----------|-----|---------|----------|
+| `dev` | H2 in-memory | Ollama (localhost) | DEBUG | Local development |
+| `test` | H2 in-memory | Mocked | INFO | Unit & integration tests |
+| `prod` | PostgreSQL | Ollama (env var) | WARN | Production / Kubernetes |
 
-# Apply pipeline
-oc apply -f tekton/pipeline.yaml -n secure-ai-gateway-cicd
-
-# Create pipeline service account with permissions
-oc create serviceaccount pipeline -n secure-ai-gateway-cicd
-
-# Grant permissions
-oc adm policy add-scc-to-user privileged \
-  -z pipeline -n secure-ai-gateway-cicd
-
-oc adm policy add-role-to-user edit \
-  system:serviceaccount:secure-ai-gateway-cicd:pipeline \
-  -n secure-ai-gateway-dev
-
-oc adm policy add-role-to-user edit \
-  system:serviceaccount:secure-ai-gateway-cicd:pipeline \
-  -n secure-ai-gateway-prod
-```
-
-#### Run Pipeline Manually
+### Activating a Profile
 
 ```bash
-# Create a pipeline run
-tkn pipeline start secure-ai-gateway-pipeline \
-  -n secure-ai-gateway-cicd \
-  -p git-url=https://github.com/your-org/secure-ai-gateway.git \
-  -p git-revision=main \
-  -p image-name=quay.io/secure-ai/secure-ai-gateway \
-  -p image-tag=1.0.0 \
-  --use-param-defaults \
-  --workspace name=shared-workspace,claimName=pipeline-pvc \
-  --showlog
+# Maven (local run)
+mvn spring-boot:run -Dspring-boot.run.profiles=dev
+mvn spring-boot:run -Dspring-boot.run.profiles=prod
 
-# Watch pipeline run
-tkn pipelinerun logs -f -n secure-ai-gateway-cicd
+# Environment variable
+export SPRING_PROFILES_ACTIVE=prod
+java -jar target/secure-ai-gateway.jar
 
-# List pipeline runs
-tkn pipelinerun list -n secure-ai-gateway-cicd
+# Docker / Docker Compose
+docker run -e SPRING_PROFILES_ACTIVE=prod secure-ai-gateway:latest
+
+# Kubernetes (set in deployment.yaml → envFrom configMapRef)
+kubectl create configmap secure-ai-config \
+  --from-literal=SPRING_PROFILES_ACTIVE=prod \
+  --from-literal=DB_HOST=postgres-service \
+  --from-literal=DB_PORT=5432 \
+  --from-literal=DB_NAME=secureai \
+  --from-literal=DB_USERNAME=secureai_user \
+  --from-literal=OLLAMA_BASE_URL=http://ollama-service:11434 \
+  --from-literal=OLLAMA_MODEL=llama3.1:8b \
+  -n secure-ai-prod
 ```
 
-**GUI Method - OpenShift Pipelines:**
-1. Navigate to: **Pipelines** (in secure-ai-gateway-cicd namespace)
-2. Click on `secure-ai-gateway-pipeline`
-3. Click **Actions → Start**
-4. Fill in parameters:
-   - git-url: your repository
-   - git-revision: main
-   - image-name: quay.io/secure-ai/secure-ai-gateway
-   - image-tag: 1.0.0
-5. Click **Start**
-6. Monitor progress in **PipelineRuns** tab
+### Production Environment Variables Reference
 
-#### Setup Webhook for Automatic Triggers
-
-```bash
-# Get webhook URL
-WEBHOOK_URL=$(oc get route el-secure-ai-gateway-listener \
-  -n secure-ai-gateway-cicd \
-  -o jsonpath='{.spec.host}')
-
-echo "Webhook URL: https://$WEBHOOK_URL"
-
-# Create webhook secret
-oc create secret generic github-webhook-secret \
-  --from-literal=secret=$(openssl rand -hex 20) \
-  -n secure-ai-gateway-cicd
-```
-
-**Configure GitHub Webhook:**
-1. Go to your GitHub repository
-2. Navigate to **Settings → Webhooks**
-3. Click **Add webhook**
-4. Fill in:
-   - Payload URL: `https://<webhook-url-from-above>`
-   - Content type: `application/json`
-   - Secret: (value from github-webhook-secret)
-   - Events: Just the push event
-5. Click **Add webhook**
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `SPRING_PROFILES_ACTIVE` | Active Spring profile | `prod` |
+| `DB_HOST` | PostgreSQL hostname | `postgres-service` |
+| `DB_PORT` | PostgreSQL port | `5432` |
+| `DB_NAME` | Database name | `secureai` |
+| `DB_USERNAME` | DB user | `secureai_user` |
+| `DB_PASSWORD` | DB password (Secret) | `(secret)` |
+| `OLLAMA_BASE_URL` | Ollama server URL | `http://ollama:11434` |
+| `OLLAMA_MODEL` | LLM model name | `llama3.1:8b` |
+| `JWT_SECRET` | JWT signing key (Secret) | `(secret, 48+ chars)` |
 
 ---
 
-### Step 9: Setup GitOps with ArgoCD
+## 9. Kubernetes Deployment (Minikube & Production)
 
-#### Create ArgoCD Applications
+### Step 1: Start Minikube
 
 ```bash
-# Apply ArgoCD application manifests
-oc apply -f gitops/argocd-application.yaml
+# Start with sufficient resources for LLM workload
+minikube start \
+  --cpus=4 \
+  --memory=8192 \
+  --disk-size=30g \
+  --driver=docker
 
-# Login to ArgoCD CLI
-ARGOCD_ROUTE=$(oc get route openshift-gitops-server \
-  -n openshift-gitops \
-  -o jsonpath='{.spec.host}')
+# Enable required addons
+minikube addons enable ingress          # Nginx ingress
+minikube addons enable metrics-server   # HPA support
+minikube addons enable dashboard        # Kubernetes dashboard
 
-ARGOCD_PASSWORD=$(oc extract secret/openshift-gitops-cluster \
-  -n openshift-gitops \
-  --to=- \
-  --keys=admin.password)
-
-argocd login $ARGOCD_ROUTE \
-  --username admin \
-  --password $ARGOCD_PASSWORD \
-  --insecure
-
-# Verify applications
-argocd app list
-argocd app get secure-ai-gateway-dev
+# Verify cluster is running
+kubectl get nodes
+# NAME       STATUS   ROLES           AGE   VERSION
+# minikube   Ready    control-plane   60s   v1.28.x
 ```
 
-**GUI Method - ArgoCD Dashboard:**
-1. Access ArgoCD URL (from Step 3)
-2. Login with admin credentials
-3. Click **+ NEW APP**
-4. Fill in:
-   - Application Name: `secure-ai-gateway-dev`
-   - Project: `default`
-   - Sync Policy: `Automatic`
-   - Repository URL: `https://github.com/your-org/secure-ai-gateway.git`
-   - Revision: `HEAD`
-   - Path: `kubernetes`
-   - Cluster: `in-cluster`
-   - Namespace: `secure-ai-gateway-dev`
-5. Click **CREATE**
+### Step 2: Create Namespaces
+
+```bash
+kubectl apply -f k8s/namespace.yaml
+# Creates: secure-ai-dev and secure-ai-prod namespaces
+
+kubectl get namespaces | grep secure-ai
+```
+
+### Step 3: Deploy PostgreSQL
+
+```bash
+kubectl apply -f k8s/postgres/postgres.yaml -n secure-ai-dev
+
+# Wait for postgres to be ready
+kubectl rollout status statefulset/postgres -n secure-ai-dev
+
+# Verify postgres is running
+kubectl get pods -n secure-ai-dev -l app=postgres
+```
+
+### Step 4: Create ConfigMap and Secrets
+
+```bash
+# ConfigMap (non-sensitive config)
+kubectl create configmap secure-ai-config \
+  --from-literal=SPRING_PROFILES_ACTIVE=prod \
+  --from-literal=DB_HOST=postgres-service \
+  --from-literal=DB_PORT=5432 \
+  --from-literal=DB_NAME=secureai \
+  --from-literal=DB_USERNAME=secureai_user \
+  --from-literal=OLLAMA_BASE_URL=http://ollama-service:11434 \
+  --from-literal=OLLAMA_MODEL=llama3.1:8b \
+  -n secure-ai-dev
+
+# Secrets (sensitive — never put in Git)
+kubectl create secret generic secure-ai-secrets \
+  --from-literal=DB_PASSWORD="secureai_password" \
+  --from-literal=JWT_SECRET="$(openssl rand -base64 48)" \
+  -n secure-ai-dev
+```
+
+### Step 5: Build & Load Docker Image
+
+```bash
+# Point Docker to Minikube's Docker daemon
+eval $(minikube docker-env)
+
+# Build the image inside Minikube
+docker build -t secure-ai-gateway:latest .
+
+# Verify image is available
+docker images | grep secure-ai-gateway
+```
+
+### Step 6: Deploy the Application
+
+```bash
+# Update the image name in deployment.yaml to use local image
+# image: secure-ai-gateway:latest
+# imagePullPolicy: Never  (for local Minikube image)
+
+kubectl apply -f k8s/deployment.yaml -n secure-ai-dev
+
+# Watch rollout progress
+kubectl rollout status deployment/secure-ai-gateway -n secure-ai-dev
+
+# Check all pods are running
+kubectl get pods -n secure-ai-dev
+# NAME                                  READY   STATUS    RESTARTS
+# secure-ai-gateway-7d6f9b8c4-abc12    1/1     Running   0
+# secure-ai-gateway-7d6f9b8c4-def34    1/1     Running   0
+# secure-ai-gateway-7d6f9b8c4-ghi56    1/1     Running   0
+```
+
+### Step 7: Access the Application
+
+```bash
+# Get the Minikube ingress IP
+minikube ip
+# e.g., 192.168.49.2
+
+# Add to /etc/hosts
+echo "$(minikube ip) secure-ai.local" | sudo tee -a /etc/hosts
+
+# Test access
+curl http://secure-ai.local/actuator/health
+
+# Or use port-forward for quick access
+kubectl port-forward service/secure-ai-gateway-service 8080:80 -n secure-ai-dev &
+curl http://localhost:8080/actuator/health
+```
+
+### Step 8: Verify HPA and Scaling
+
+```bash
+# View HPA
+kubectl get hpa -n secure-ai-dev
+# NAME                      REFERENCE               TARGETS         MINPODS   MAXPODS
+# secure-ai-gateway-hpa     Deployment/...          <20%/70%>      2         10
+
+# View resource usage
+kubectl top pods -n secure-ai-dev
+```
+
+### Production Deployment Notes
+
+```bash
+# Production uses the same manifests with different namespace
+# After pipeline stages 1-12 pass (unit tests, SAST, DAST, container scan):
+
+# Manual approval required (Jenkins input step)
+# Only deploys from 'main' branch
+
+kubectl apply -f k8s/deployment.yaml -n secure-ai-prod
+kubectl rollout status deployment/secure-ai-gateway -n secure-ai-prod --timeout=300s
+
+# Rollback if needed
+kubectl rollout undo deployment/secure-ai-gateway -n secure-ai-prod
+kubectl rollout history deployment/secure-ai-gateway -n secure-ai-prod
+```
 
 ---
 
-### Step 10: Setup Monitoring and Observability
+## 10. Jenkins CI/CD Pipeline Setup
 
-#### Create ServiceMonitor for Prometheus
+### Step 1: Start Jenkins
+
+Jenkins is included in the Docker Compose stack on port 8090.
 
 ```bash
-# Create ServiceMonitor
-cat <<EOF | oc apply -f -
-apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
-metadata:
-  name: secure-ai-gateway
-  namespace: secure-ai-gateway-dev
-spec:
-  endpoints:
-  - interval: 30s
-    path: /actuator/prometheus
-    port: http
-    scheme: http
-  selector:
-    matchLabels:
-      app: secure-ai-gateway
-EOF
+# Start Jenkins
+docker compose up -d jenkins
 
-# Verify ServiceMonitor
-oc get servicemonitor -n secure-ai-gateway-dev
+# Get the initial admin password
+docker exec secure-ai-jenkins cat /var/jenkins_home/secrets/initialAdminPassword
+
+# Open browser: http://localhost:8090
+# Enter the initial password and install suggested plugins
 ```
 
-**Access Prometheus:**
+### Step 2: Install Required Plugins
+
+Navigate to **Manage Jenkins → Manage Plugins → Available** and install:
+
+- Git Integration
+- Pipeline (already installed with suggested plugins)
+- SonarQube Scanner
+- OWASP Dependency-Check
+- Jacoco
+- HTML Publisher
+- Kubernetes CLI (kubectl)
+- Docker Pipeline
+- Slack Notification (optional)
+- AnsiColor
+- Workspace Cleanup
+
+### Step 3: Configure Credentials
+
+Navigate to **Manage Jenkins → Credentials → System → Global credentials → Add Credential**:
+
+| Credential ID | Type | Value |
+|--------------|------|-------|
+| `sonarqube-token` | Secret text | SonarQube API token |
+| `dockerhub-credentials` | Username/Password | Docker Hub login |
+| `kubeconfig` | Secret file | ~/.kube/config contents |
+| `jwt-secret` | Secret text | Your JWT secret (32+ chars) |
+
 ```bash
-# Get Prometheus route
-oc get route prometheus-k8s -n openshift-monitoring
+# Create SonarQube token
+# Login to http://localhost:9000 (admin/admin)
+# My Account → Security → Generate Token → Copy token → paste as 'sonarqube-token'
 ```
 
-**Access Grafana:**
+### Step 4: Configure SonarQube Integration
+
+Navigate to **Manage Jenkins → Configure System → SonarQube servers**:
+- Name: `SonarQube`
+- Server URL: `http://sonarqube:9000`
+- Authentication token: `sonarqube-token`
+
+### Step 5: Create the Pipeline Job
+
+1. **New Item** → Enter name `secure-ai-gateway` → Select **Multibranch Pipeline** → OK
+2. Under **Branch Sources** → Add Source → Git
+3. Repository URL: `http://your-git-server/secure-ai-gateway.git`
+4. Credentials: Add your Git credentials
+5. **Build Configuration**: Mode = `by Jenkinsfile`, Script Path = `Jenkinsfile`
+6. Click **Save** → Jenkins will scan and find branches
+
+### Step 6: Pipeline Stage Summary
+
+| Stage | What It Does | Failure Action |
+|-------|-------------|----------------|
+| 1. Checkout | Fetches source, sets build metadata (commit, author, branch) | Aborts build |
+| 2. Compile | `mvn clean compile -DskipTests` | Aborts build |
+| 3. Unit Tests | `mvn test` with JUnit 5 + publishes test reports | Aborts build |
+| 4. JaCoCo Coverage | Enforces 70% line / 60% branch minimum | Aborts if below threshold |
+| 5. SonarQube Analysis | Static code analysis for code smells + bugs | Reports issues |
+| 6. Quality Gate | Waits for SonarQube quality gate result (10 min max) | Aborts if gate fails |
+| 7. OWASP CVE Check | Scans dependencies; fails on CVSS ≥ 7.0 | Aborts + Slack alert |
+| 8. SpotBugs | FindSecBugs security static analysis | Marks unstable if HIGH bugs found |
+| 9. Build FAT JAR | `mvn package -DskipTests -Pprod` + archives artifact | Aborts build |
+| 10. Docker Build & Push | Builds image tagged with Git commit SHA, pushes to registry | Aborts build |
+| 11. Trivy Scan | Scans container for HIGH/CRITICAL CVEs | Aborts + Slack alert |
+| 12. Deploy Dev | `kubectl set image` in `secure-ai-dev` namespace | Aborts + alerts |
+| 13. Integration Tests | `mvn failsafe:integration-test` against dev environment | Reports failures |
+| 14. Deploy Prod | Manual approval gate; `main` branch only → prod namespace | Requires approval |
+
+### Step 7: Trigger a Build
+
 ```bash
-# Create Grafana instance (if not already installed)
-# Access via OpenShift Console → Observe → Metrics
+# Commit and push to trigger a build
+git add .
+git commit -m "feat: add new security feature"
+git push origin feature/my-feature
+
+# Monitor in Jenkins UI: http://localhost:8090
+# Or via CLI:
+# (Install Jenkins CLI from http://localhost:8090/jnlpJars/jenkins-cli.jar)
+java -jar jenkins-cli.jar -s http://localhost:8090 -auth admin:password \
+  build secure-ai-gateway/main -f -v
 ```
-
-**GUI Method - OpenShift Console:**
-1. Navigate to: **Observe → Metrics**
-2. Enter query: `up{job="secure-ai-gateway"}`
-3. Click **Run Queries**
-4. Visualize metrics
-
-#### Access Application Logs
-
-**CLI Method:**
-```bash
-# View logs
-oc logs -f deployment/secure-ai-gateway -n secure-ai-gateway-dev
-
-# View all pods logs
-oc logs -l app=secure-ai-gateway -n secure-ai-gateway-dev --tail=100
-```
-
-**GUI Method:**
-1. Navigate to: **Workloads → Pods**
-2. Click on a pod name
-3. Click **Logs** tab
-4. View real-time logs
 
 ---
 
-## CLI Commands Reference
+## 11. Monitoring (Prometheus + Grafana)
 
-### Namespace Management
-```bash
-# List all projects
-oc projects
+### Prometheus Configuration
 
-# Switch project
-oc project secure-ai-gateway-dev
+Prometheus scrapes metrics from the Spring Boot Actuator endpoint at `/actuator/prometheus`. Configuration is in `monitoring/prometheus.yml`:
 
-# Get current project
-oc project
+```yaml
+scrape_configs:
+  - job_name: 'secure-ai-gateway'
+    static_configs:
+      - targets: ['app:8080']
+    metrics_path: /actuator/prometheus
+    scrape_interval: 15s
 ```
 
-### Deployment Management
 ```bash
-# List deployments
-oc get deployments -n secure-ai-gateway-dev
+# Start Prometheus
+docker compose up -d prometheus
+
+# Verify scrape targets are healthy
+# Open: http://localhost:9090/targets
+# Status should be UP for secure-ai-gateway
+
+# Sample queries (Prometheus expression browser)
+# Request rate:
+rate(http_server_requests_seconds_count{application="secure-ai-gateway"}[5m])
+
+# Error rate:
+rate(http_server_requests_seconds_count{status=~"5.."}[5m])
+
+# JVM heap usage:
+jvm_memory_used_bytes{area="heap"}
+
+# Active database connections:
+hikaricp_connections_active
+```
+
+### Grafana Setup
+
+```bash
+# Start Grafana
+docker compose up -d grafana
+
+# Open: http://localhost:3000
+# Login: admin / admin (change on first login)
+
+# Add Prometheus as data source:
+# Configuration → Data Sources → Add data source → Prometheus
+# URL: http://prometheus:9090
+# Save & Test
+```
+
+**Recommended Grafana Dashboards:**
+
+| Dashboard | Import ID | What it shows |
+|-----------|-----------|---------------|
+| Spring Boot Statistics | 12900 | JVM, HTTP, datasource metrics |
+| JVM (Micrometer) | 4701 | Detailed JVM internals |
+| PostgreSQL Database | 9628 | DB performance |
+
+```bash
+# Import via Grafana UI:
+# Dashboards → Import → Enter ID → Load → Select Prometheus datasource → Import
+```
+
+### Application Metrics Exposed
+
+The app exposes these custom metrics via Actuator:
+
+```bash
+# View all metrics
+curl http://localhost:8080/actuator/metrics | jq '.names[]' | grep -i secure
+
+# AI query count
+curl http://localhost:8080/actuator/metrics/ai.queries.total
+
+# Rate limit hits
+curl http://localhost:8080/actuator/metrics/ratelimit.exceeded.total
+
+# PII redaction count
+curl http://localhost:8080/actuator/metrics/pii.redactions.total
+
+# Full Prometheus format
+curl http://localhost:8080/actuator/prometheus
+```
+
+---
+
+## 12. API Reference & Testing
+
+### Authentication Endpoints
+
+```bash
+# Register new user
+curl -s -X POST http://localhost:8080/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "developer",
+    "password": "Dev@1234",
+    "email": "dev@example.com"
+  }' | jq .
+
+# Login and get JWT token
+TOKEN=$(curl -s -X POST http://localhost:8080/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"developer","password":"Dev@1234"}' | jq -r .token)
+
+echo "Token: $TOKEN"
+
+# Validate token (protected endpoint)
+curl -s http://localhost:8080/api/auth/validate \
+  -H "Authorization: Bearer $TOKEN" | jq .
+```
+
+### AI Query Endpoints
+
+```bash
+# Direct AI query
+curl -s -X POST http://localhost:8080/api/ai/query \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"prompt":"What are the OWASP Top 10 vulnerabilities?"}' | jq .
+
+# ReAct agent (multi-step reasoning — max 10 steps)
+curl -s -X POST http://localhost:8080/api/agent/run \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"task":"Explain how JWT tokens work and why they are secure"}' | jq .
+
+# Get audit log history (admin only)
+curl -s http://localhost:8080/api/audit/logs \
+  -H "Authorization: Bearer $TOKEN" | jq .
+```
+
+### Response Format
+
+```json
+{
+  "requestId": "a1b2c3d4-...",
+  "prompt": "What are the OWASP Top 10?",
+  "response": "The OWASP Top 10 are...",
+  "modelUsed": "llama3.1:8b",
+  "responseTimeMs": 2450,
+  "piiRedacted": false,
+  "timestamp": "2025-01-15T10:30:00Z"
+}
+```
+
+### HTTP Status Codes
+
+| Code | Meaning |
+|------|---------|
+| 200 | Success |
+| 201 | Created (registration) |
+| 400 | Bad request / validation error |
+| 401 | Missing or invalid JWT token |
+| 403 | Forbidden (insufficient role) |
+| 429 | Rate limit exceeded (100 req/hr) |
+| 500 | Internal server error |
+| 503 | Ollama LLM unavailable |
+
+---
+
+## 13. Troubleshooting
+
+### App Won't Start
+
+```bash
+# Check logs
+docker compose logs -f app
+# Or for JAR:
+java -jar target/secure-ai-gateway.jar 2>&1 | tail -50
+
+# Common cause 1: DB not ready
+# Fix: Ensure PostgreSQL is running and credentials are correct
+docker compose up -d postgres
+docker compose logs postgres | tail -20
+
+# Common cause 2: Port 8080 already in use
+lsof -i :8080
+kill -9 <PID>
+
+# Common cause 3: Wrong Java version
+java -version  # Must be 17
+update-alternatives --config java  # Select JDK 17
+```
+
+### Ollama / LLM Issues
+
+```bash
+# Model not found
+ollama list  # Check model is downloaded
+ollama pull llama3.1:8b  # Re-pull if missing
+
+# Ollama not responding
+curl http://localhost:11434/api/tags  # Should return JSON
+systemctl restart ollama  # Linux service restart
+# Or: kill $(pgrep ollama) && ollama serve &
+
+# LLM timeout (slow machine)
+# Increase in application.yml:
+# ollama.timeout-seconds: 300
+
+# Out of memory for model
+free -h  # Check available RAM
+# llama3.1:8b needs ~6 GB RAM
+# Use a smaller model: ollama pull llama3.2:1b
+# Then: OLLAMA_MODEL=llama3.2:1b mvn spring-boot:run
+```
+
+### JWT / Authentication Issues
+
+```bash
+# "401 Unauthorized" error
+# Ensure token is not expired (1 hour TTL by default)
+# Re-login to get a fresh token
+TOKEN=$(curl -s -X POST http://localhost:8080/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"developer","password":"Dev@1234"}' | jq -r .token)
+
+# Decode JWT to inspect claims
+echo "$TOKEN" | cut -d. -f2 | base64 -d 2>/dev/null | jq .
+# Check 'exp' field for expiry timestamp
+
+# JWT secret mismatch (common in Kubernetes)
+kubectl get secret secure-ai-secrets -n secure-ai-dev -o jsonpath='{.data.JWT_SECRET}' | base64 -d
+# Ensure this matches the running app's JWT_SECRET
+```
+
+### Database Issues
+
+```bash
+# Flyway migration failure
+docker compose logs app | grep -i flyway
+# Common fix: clean and retry (DEVELOPMENT ONLY — destructive!)
+mvn flyway:clean flyway:migrate -Dspring.profiles.active=dev
+
+# PostgreSQL connection refused
+docker compose ps postgres  # Is it running?
+docker exec -it secure-ai-postgres pg_isready -U secureai_user
+# Should output: /var/run/postgresql:5432 - accepting connections
+
+# Check Hikari pool exhaustion (common in load tests)
+curl http://localhost:8080/actuator/metrics/hikaricp.connections.active | jq .
+# If at max (20), scale up connections or investigate slow queries
+```
+
+### Kubernetes Issues
+
+```bash
+# Pod stuck in CrashLoopBackOff
+kubectl describe pod <pod-name> -n secure-ai-dev
+kubectl logs <pod-name> -n secure-ai-dev --previous
+
+# ImagePullBackOff (Minikube)
+eval $(minikube docker-env)  # Point Docker to Minikube
+docker build -t secure-ai-gateway:latest .
+# Update imagePullPolicy: Never in deployment.yaml
+
+# Secrets not mounted
+kubectl get events -n secure-ai-dev | grep -i secret
+kubectl describe deployment secure-ai-gateway -n secure-ai-dev | grep -A5 Env
+
+# HPA not scaling
+kubectl describe hpa secure-ai-gateway-hpa -n secure-ai-dev
+minikube addons enable metrics-server  # Ensure metrics-server is running
+kubectl top pods -n secure-ai-dev  # Must show CPU/memory data
+```
+
+### Jenkins Pipeline Failures
+
+```bash
+# SonarQube quality gate timeout
+# Jenkins waits up to 10 minutes for SonarQube analysis
+# Check SonarQube at http://localhost:9000 → Projects → secure-ai-gateway
+
+# OWASP check fails (CVE found)
+# Check: target/dependency-check-report.html for details
+# Add false positives to owasp-suppressions.xml
+
+# Docker push fails
+# Ensure dockerhub-credentials is configured correctly in Jenkins
+# Check: docker login registry.hub.docker.com
+
+# Trivy scan fails with network error
+# Trivy needs internet access to update CVE database
+# Pre-pull in offline mode: trivy image --download-db-only
+```
+
+### Rate Limiting (429 Too Many Requests)
+
+```bash
+# Check your remaining requests
+curl -v http://localhost:8080/api/ai/query \
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{"prompt":"test"}' 2>&1 | grep -E "X-Rate|Retry|429"
+
+# Response headers include:
+# X-RateLimit-Remaining: 0
+# Retry-After: 3600  (seconds until bucket refills)
+
+# Temporarily increase limit (development)
+# In application.yml:
+# rate-limit.capacity: 1000
+# rate-limit.refill-tokens: 1000
+```
+
+---
+
+## Appendix: Useful Commands Reference
+
+```bash
+# Build everything
+mvn clean package -DskipTests -Pprod
+
+# Run tests with full coverage
+mvn clean verify -Dspring.profiles.active=test
+
+# Docker build & run
+docker build -t secure-ai-gateway:latest .
+docker run -p 8080:8080 -e SPRING_PROFILES_ACTIVE=dev secure-ai-gateway:latest
+
+# Kubernetes quick deploy
+kubectl apply -f k8s/ -n secure-ai-dev -R
+
+# Watch all pods
+kubectl get pods -n secure-ai-dev -w
+
+# View app logs live
+kubectl logs -f deployment/secure-ai-gateway -n secure-ai-dev
 
 # Scale deployment
-oc scale deployment/secure-ai-gateway --replicas=5 -n secure-ai-gateway-dev
+kubectl scale deployment secure-ai-gateway --replicas=5 -n secure-ai-dev
 
-# Edit deployment
-oc edit deployment/secure-ai-gateway -n secure-ai-gateway-dev
-
-# Rollout restart
-oc rollout restart deployment/secure-ai-gateway -n secure-ai-gateway-dev
-
-# Check rollout status
-oc rollout status deployment/secure-ai-gateway -n secure-ai-gateway-dev
-
-# Rollback deployment
-oc rollout undo deployment/secure-ai-gateway -n secure-ai-gateway-dev
-```
-
-### Pod Management
-```bash
-# List pods
-oc get pods -n secure-ai-gateway-dev
-
-# Describe pod
-oc describe pod <pod-name> -n secure-ai-gateway-dev
-
-# Execute command in pod
-oc exec -it <pod-name> -n secure-ai-gateway-dev -- /bin/bash
-
-# Port forward
-oc port-forward <pod-name> 8080:8080 -n secure-ai-gateway-dev
-```
-
-### Service and Route Management
-```bash
-# List services
-oc get svc -n secure-ai-gateway-dev
-
-# Get route URL
-oc get route secure-ai-gateway -n secure-ai-gateway-dev \
-  -o jsonpath='{.spec.host}'
-
-# Create route
-oc expose service secure-ai-gateway -n secure-ai-gateway-dev
-```
-
-### Security Commands
-```bash
-# List SecurityContextConstraints
-oc get scc
-
-# View SCC details
-oc describe scc secure-ai-gateway-scc
-
-# List network policies
-oc get networkpolicies -n secure-ai-gateway-dev
-
-# View network policy
-oc describe networkpolicy <policy-name> -n secure-ai-gateway-dev
-
-# Check pod security
-oc get pod <pod-name> -n secure-ai-gateway-dev -o yaml | grep -A 10 securityContext
-```
-
-### Pipeline Commands (Tekton)
-```bash
-# List pipelines
-tkn pipeline list -n secure-ai-gateway-cicd
-
-# Start pipeline
-tkn pipeline start secure-ai-gateway-pipeline \
-  -n secure-ai-gateway-cicd \
-  --showlog
-
-# List pipeline runs
-tkn pipelinerun list -n secure-ai-gateway-cicd
-
-# View pipeline run logs
-tkn pipelinerun logs <run-name> -f -n secure-ai-gateway-cicd
-
-# Delete pipeline run
-tkn pipelinerun delete <run-name> -n secure-ai-gateway-cicd
-
-# List tasks
-tkn task list -n secure-ai-gateway-cicd
-```
-
-### GitOps/ArgoCD Commands
-```bash
-# Login to ArgoCD
-argocd login <argocd-url> --username admin
-
-# List applications
-argocd app list
-
-# Get application details
-argocd app get secure-ai-gateway-dev
-
-# Sync application
-argocd app sync secure-ai-gateway-dev
-
-# View application logs
-argocd app logs secure-ai-gateway-dev
-
-# Delete application
-argocd app delete secure-ai-gateway-dev
-```
-
-### Monitoring Commands
-```bash
-# View metrics
-oc get --raw /apis/metrics.k8s.io/v1beta1/namespaces/secure-ai-gateway-dev/pods
-
-# Top nodes
-oc adm top nodes
-
-# Top pods
-oc adm top pods -n secure-ai-gateway-dev
-
-# View events
-oc get events -n secure-ai-gateway-dev --sort-by='.lastTimestamp'
+# Full stack reset (Docker Compose)
+docker compose down -v && docker compose up -d
 ```
 
 ---
 
-## GUI Dashboard Configuration
-
-### OpenShift Console
-
-#### Access the Console
-1. URL: `https://console-openshift-console.apps.your-cluster.example.com`
-2. Login with credentials
-3. Switch between Administrator and Developer perspectives
-
-#### Developer Dashboard Setup
-1. Click **Developer** perspective (top-left)
-2. Select project: `secure-ai-gateway-dev`
-3. View:
-   - **Topology**: Visual representation of deployed resources
-   - **Builds**: CI/CD builds and image streams
-   - **Pipelines**: Tekton pipelines and runs
-   - **Helm**: Helm chart deployments
-   - **Project**: Overall project metrics
-
-#### Administrator Dashboard
-1. Click **Administrator** perspective
-2. Navigate to:
-   - **Workloads**: Deployments, Pods, StatefulSets, etc.
-   - **Networking**: Services, Routes, Network Policies
-   - **Storage**: PVCs, Storage Classes
-   - **Monitoring**: Dashboards, Alerts, Metrics
-   - **User Management**: Projects, Roles, Service Accounts
-
-### ArgoCD Dashboard
-
-#### Access and Login
-1. URL: `https://openshift-gitops-server-openshift-gitops.apps.your-cluster.example.com`
-2. Username: `admin`
-3. Password: Retrieved from secret (see Step 3)
-
-#### Application Management
-1. **Applications**: View all managed applications
-2. **Click on application** to see:
-   - Sync status
-   - Health status
-   - Resource tree
-   - Last sync details
-3. **Actions**:
-   - Sync: Deploy latest changes
-   - Refresh: Check for new changes
-   - Delete: Remove application
-   - App Diff: View differences
-
-#### Create Application
-1. Click **+ NEW APP**
-2. Configure:
-   - **General**: Name, Project, Sync Policy
-   - **Source**: Git repo, revision, path
-   - **Destination**: Cluster, Namespace
-   - **Sync Options**: Auto-sync, self-heal, prune
-3. Click **CREATE**
-
-### Tekton Dashboard
-
-#### Access
-1. Via OpenShift Console: **Pipelines** menu
-2. Or standalone: `https://tekton-dashboard.apps.your-cluster.example.com`
-
-#### Pipeline Management
-1. **Pipelines Tab**: List all pipelines
-2. **PipelineRuns Tab**: View pipeline executions
-3. **Tasks Tab**: View available tasks
-4. **Resources**: View pipeline resources
-
-#### Trigger Pipeline
-1. Select pipeline
-2. Click **Actions → Start**
-3. Fill parameters
-4. Monitor execution in real-time
-
-### Red Hat Advanced Cluster Security Dashboard
-
-#### Access
-1. URL: Retrieved from Central route
-2. Login with generated credentials
-
-#### Security Views
-1. **Dashboard**: Overall security posture
-2. **Violations**: Policy violations
-3. **Risk**: Risk assessment of deployments
-4. **Compliance**: Compliance status
-5. **Network Graph**: Network traffic visualization
-6. **Vulnerabilities**: CVE scanning results
-
-#### Key Features
-- **Policy Management**: Create and manage security policies
-- **Image Scanning**: Scan container images for vulnerabilities
-- **Runtime Protection**: Monitor and protect running containers
-- **Network Policies**: Visualize and manage network policies
-
-### Prometheus/Grafana
-
-#### Access Prometheus
-1. OpenShift Console → **Observe → Metrics**
-2. Enter PromQL queries
-3. Visualize metrics
-
-#### Sample Queries
-```promql
-# Application availability
-up{job="secure-ai-gateway"}
-
-# HTTP request rate
-rate(http_server_requests_seconds_count{job="secure-ai-gateway"}[5m])
-
-# Error rate
-rate(http_server_requests_seconds_count{job="secure-ai-gateway",status="500"}[5m])
-
-# Memory usage
-container_memory_usage_bytes{pod=~"secure-ai-gateway.*"}
-
-# CPU usage
-rate(container_cpu_usage_seconds_total{pod=~"secure-ai-gateway.*"}[5m])
-```
-
-### Logging (EFK Stack)
-
-#### Access Kibana
-1. OpenShift Console → **Observe → Logs**
-2. Or access Kibana directly if installed
-
-#### Create Dashboard
-1. Search for application logs:
-   ```
-   kubernetes.namespace_name: "secure-ai-gateway-dev"
-   ```
-2. Filter by severity, pod, etc.
-3. Create visualizations
-4. Save dashboard
-
----
-
-## Security Configuration
-
-### Network Policies
-
-**View Network Policies:**
-```bash
-oc get networkpolicy -n secure-ai-gateway-dev
-oc describe networkpolicy secure-ai-gateway-network-policy -n secure-ai-gateway-dev
-```
-
-**Test Network Connectivity:**
-```bash
-# From within a pod
-oc run test-pod --image=busybox -it --rm -- sh
-# Inside pod:
-wget -O- http://secure-ai-gateway:8080/actuator/health
-```
-
-### Pod Security
-
-**View Pod Security Context:**
-```bash
-oc get pod <pod-name> -n secure-ai-gateway-dev -o yaml | grep -A 20 securityContext
-```
-
-**Verify Running User:**
-```bash
-oc exec <pod-name> -n secure-ai-gateway-dev -- id
-```
-
-### Secrets Management
-
-**View Secrets (without values):**
-```bash
-oc get secrets -n secure-ai-gateway-dev
-```
-
-**Decode Secret:**
-```bash
-oc get secret secure-ai-gateway-secrets -n secure-ai-gateway-dev -o jsonpath='{.data.JWT_SECRET}' | base64 -d
-```
-
-**Rotate Secrets:**
-```bash
-# Generate new JWT secret
-NEW_JWT_SECRET=$(openssl rand -base64 32)
-
-# Update secret
-oc patch secret secure-ai-gateway-secrets \
-  -n secure-ai-gateway-dev \
-  -p "{\"data\":{\"JWT_SECRET\":\"$(echo -n $NEW_JWT_SECRET | base64)\"}}"
-
-# Restart pods to use new secret
-oc rollout restart deployment/secure-ai-gateway -n secure-ai-gateway-dev
-```
-
----
-
-## Monitoring and Observability
-
-### Application Health Checks
-
-**Check Health:**
-```bash
-# Get route
-ROUTE=$(oc get route secure-ai-gateway -n secure-ai-gateway-dev -o jsonpath='{.spec.host}')
-
-# Health check
-curl https://$ROUTE/actuator/health
-
-# Liveness
-curl https://$ROUTE/actuator/health/liveness
-
-# Readiness
-curl https://$ROUTE/actuator/health/readiness
-```
-
-### Metrics Collection
-
-**View Prometheus Metrics:**
-```bash
-curl https://$ROUTE/actuator/prometheus
-```
-
-**Create Custom Dashboard:**
-1. OpenShift Console → **Observe → Dashboards**
-2. Click **+ Add Dashboard**
-3. Add panels with PromQL queries
-4. Save dashboard
-
----
-
-## Troubleshooting
-
-### Pod Issues
-
-**Pod Not Starting:**
-```bash
-# Check pod status
-oc get pods -n secure-ai-gateway-dev
-
-# Describe pod
-oc describe pod <pod-name> -n secure-ai-gateway-dev
-
-# Check logs
-oc logs <pod-name> -n secure-ai-gateway-dev
-
-# Check previous logs (if pod crashed)
-oc logs <pod-name> -n secure-ai-gateway-dev --previous
-
-# Check events
-oc get events -n secure-ai-gateway-dev --sort-by='.lastTimestamp'
-```
-
-**Image Pull Issues:**
-```bash
-# Verify secret exists
-oc get secret quay-credentials -n secure-ai-gateway-dev
-
-# Check secret is linked to service account
-oc get sa secure-ai-gateway-sa -n secure-ai-gateway-dev -o yaml
-
-# Verify image exists in registry
-# Check ImagePullBackOff events
-```
-
-### Network Issues
-
-**Cannot Access Application:**
-```bash
-# Check route
-oc get route secure-ai-gateway -n secure-ai-gateway-dev
-
-# Check service
-oc get svc secure-ai-gateway -n secure-ai-gateway-dev
-
-# Check endpoints
-oc get endpoints secure-ai-gateway -n secure-ai-gateway-dev
-
-# Test service from within cluster
-oc run test --image=curlimages/curl -it --rm -- \
-  curl http://secure-ai-gateway:8080/actuator/health
-```
-
-**Network Policy Issues:**
-```bash
-# Temporarily disable network policy for testing
-oc delete networkpolicy deny-all-default -n secure-ai-gateway-dev
-
-# Re-apply after testing
-oc apply -f security/network-policy.yaml -n secure-ai-gateway-dev
-```
-
-### Pipeline Issues
-
-**Pipeline Failing:**
-```bash
-# View pipeline run details
-tkn pipelinerun describe <run-name> -n secure-ai-gateway-cicd
-
-# View logs of failed task
-tkn pipelinerun logs <run-name> -n secure-ai-gateway-cicd
-
-# Check task status
-tkn taskrun list -n secure-ai-gateway-cicd
-
-# View task logs
-tkn taskrun logs <task-run-name> -n secure-ai-gateway-cicd
-```
-
-### Permission Issues
-
-**RBAC Errors:**
-```bash
-# Check service account
-oc get sa secure-ai-gateway-sa -n secure-ai-gateway-dev
-
-# Check role bindings
-oc get rolebinding -n secure-ai-gateway-dev
-
-# Check SCC
-oc get scc secure-ai-gateway-scc
-
-# Verify SCC is assigned
-oc describe scc secure-ai-gateway-scc | grep Users
-```
-
-### Resource Issues
-
-**Out of Memory:**
-```bash
-# Check resource usage
-oc adm top pods -n secure-ai-gateway-dev
-
-# Increase memory limit
-oc set resources deployment/secure-ai-gateway \
-  --limits=memory=2Gi \
-  --requests=memory=1Gi \
-  -n secure-ai-gateway-dev
-```
-
-**CPU Throttling:**
-```bash
-# Check CPU usage
-oc adm top pods -n secure-ai-gateway-dev
-
-# Increase CPU limit
-oc set resources deployment/secure-ai-gateway \
-  --limits=cpu=2 \
-  --requests=cpu=500m \
-  -n secure-ai-gateway-dev
-```
-
----
-
-## Additional Resources
-
-### Documentation Links
-- [Red Hat OpenShift Documentation](https://docs.openshift.com/)
-- [OpenShift Pipelines (Tekton)](https://docs.openshift.com/container-platform/latest/cicd/pipelines/understanding-openshift-pipelines.html)
-- [OpenShift GitOps (ArgoCD)](https://docs.openshift.com/container-platform/latest/cicd/gitops/understanding-openshift-gitops.html)
-- [Red Hat Advanced Cluster Security](https://docs.openshift.com/acs/welcome/index.html)
-
-### Support
-- Red Hat Support Portal: https://access.redhat.com/
-- OpenShift Community: https://community.openshift.com/
-- GitHub Issues: https://github.com/your-org/secure-ai-gateway/issues
-
----
-
-**Version:** 1.0.0  
-**Last Updated:** 2024-02-15  
-**Maintained By:** Security Engineering Team
+*Document Version: 2.0.0 | Based on actual project source code | Spring Boot 3.2.12 · Ollama LLaMA 3.1 8B · Kubernetes · Jenkins*

@@ -1,9 +1,10 @@
 package com.secureai.config;
 
-import com.secureai.filter.JwtAuthenticationFilter;
-import lombok.RequiredArgsConstructor;
+import com.secureai.security.JwtAuthenticationFilter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -12,110 +13,107 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
-import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter.HeaderValue;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
- * Security configuration for the application.
- * Implements OWASP security best practices.
+ * Spring Security Configuration
+ *
+ * Security posture:
+ *  - Stateless JWT (no server-side sessions)
+ *  - BCrypt cost=12 (≈200ms hash — resists brute force)
+ *  - CORS restricted to known origins
+ *  - CSRF disabled (JWT is CSRF-immune — stateless)
+ *  - Security headers: CSP, HSTS, X-Frame-Options, etc.
+ *  - Role-based access: ADMIN routes require ROLE_ADMIN
  */
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
-@RequiredArgsConstructor
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    @Autowired
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        // Cost factor 12 ≈ 200ms — prevents brute-force attacks
+        return new BCryptPasswordEncoder(12);
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // CSRF protection disabled for stateless API (JWT-based)
-                // In production, consider using CSRF tokens for state-changing operations
-                .csrf(AbstractHttpConfigurer::disable)
-                
-                // CORS configuration
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                
-                // Session management - stateless for JWT
-                .sessionManagement(session -> 
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                
-                // Authorization rules
-                .authorizeHttpRequests(auth -> auth
-                        // Public endpoints
-                        .requestMatchers(
-                                "/auth/**",
-                                "/actuator/health",
-                                "/actuator/health/**",
-                                "/actuator/info",
-                                "/swagger-ui/**",
-                                "/swagger-ui.html",
-                                "/v3/api-docs/**",
-                                "/api-docs/**"
-                        ).permitAll()
-                        // Protected endpoints - require authentication
-                        .requestMatchers("/api/**").authenticated()
-                        // Actuator endpoints - require authentication
-                        .requestMatchers("/actuator/**").authenticated()
-                        // All other requests require authentication
-                        .anyRequest().authenticated()
-                )
-                
-                // Security headers
-                .headers(headers -> headers
-                        .contentSecurityPolicy(csp -> 
-                                csp.policyDirectives("default-src 'self'; frame-ancestors 'none'"))
-                        .frameOptions(frame -> frame.deny())
-                        .xssProtection(xss -> xss.headerValue(HeaderValue.ENABLED_MODE_BLOCK))
-                        .contentTypeOptions(contentType -> contentType.disable())
-                );
+            // ═══ Disable CSRF (stateless JWT — no cookies) ═══
+            .csrf(AbstractHttpConfigurer::disable)
 
-        // Add JWT filter before UsernamePasswordAuthenticationFilter
-        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+            // ═══ Stateless sessions ═══
+            .sessionManagement(sm ->
+                sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+            // ═══ CORS ═══
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
+            // ═══ Security Headers ═══
+            .headers(headers -> headers
+                .frameOptions(fo -> fo.sameOrigin())
+                .xssProtection(xss -> xss.disable())  // CSP handles XSS
+                .contentSecurityPolicy(csp ->
+                    csp.policyDirectives(
+                        "default-src 'self'; " +
+                        "script-src 'self' 'unsafe-inline'; " +
+                        "style-src 'self' 'unsafe-inline'; " +
+                        "img-src 'self' data:; " +
+                        "connect-src 'self'"
+                    ))
+                .httpStrictTransportSecurity(hsts ->
+                    hsts.includeSubDomains(true).maxAgeInSeconds(31536000))
+                .referrerPolicy(rp ->
+                    rp.policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
+            )
+
+            // ═══ Authorization Rules ═══
+            .authorizeHttpRequests(auth -> auth
+                // Public endpoints
+                .requestMatchers("/auth/**").permitAll()
+                .requestMatchers("/actuator/health", "/actuator/info").permitAll()
+                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                .requestMatchers("/h2-console/**").permitAll()
+                .requestMatchers("/", "/index.html", "/css/**", "/js/**", "/favicon.ico").permitAll()
+                // Admin endpoints
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/audit/**").hasAnyRole("ADMIN", "USER")
+                // All else requires auth
+                .anyRequest().authenticated()
+            )
+
+            // ═══ JWT Filter ═══
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
-    /**
-     * CORS configuration for cross-origin requests.
-     * In production, restrict to specific origins.
-     *
-     * @return CORS configuration source
-     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        
-        // In production, replace with specific allowed origins
-        configuration.setAllowedOrigins(List.of("*"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("*"));
-        configuration.setExposedHeaders(Arrays.asList("Authorization", "Content-Type"));
-        configuration.setAllowCredentials(false);
-        configuration.setMaxAge(3600L);
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOriginPatterns(List.of(
+            "http://localhost:*",
+            "http://127.0.0.1:*",
+            "https://*.secureai.local"
+        ));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With"));
+        config.setExposedHeaders(List.of("X-Rate-Limit-Remaining", "Retry-After"));
+        config.setAllowCredentials(true);
+        config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        
+        source.registerCorsConfiguration("/**", config);
         return source;
-    }
-
-    /**
-     * Password encoder bean using BCrypt.
-     * BCrypt is recommended by OWASP for password hashing.
-     *
-     * @return BCrypt password encoder
-     */
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(12); // Strength of 12 rounds
     }
 }

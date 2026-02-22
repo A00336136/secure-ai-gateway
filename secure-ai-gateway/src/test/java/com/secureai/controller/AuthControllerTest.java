@@ -1,193 +1,157 @@
 package com.secureai.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.secureai.dto.LoginRequest;
-import com.secureai.exception.GlobalExceptionHandler;
-import com.secureai.util.JwtUtil;
-import org.junit.jupiter.api.BeforeEach;
+import com.secureai.model.LoginRequest;
+import com.secureai.model.RegisterRequest;
+import com.secureai.service.AuthService;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.annotation.Transactional;
 
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-/**
- * Unit tests for AuthController class.
- * Tests authentication endpoints.
- */
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
+@AutoConfigureMockMvc
+@ActiveProfiles("test")
+@Transactional
+@DisplayName("AuthController Integration Tests")
 class AuthControllerTest {
 
-    private MockMvc mockMvc;
+    @Autowired MockMvc mockMvc;
+    @Autowired ObjectMapper objectMapper;
 
-    @Mock
-    private JwtUtil jwtUtil;
+    @Nested
+    @DisplayName("POST /auth/login")
+    class LoginTests {
 
-    @Mock
-    private PasswordEncoder passwordEncoder;
+        @Test
+        @DisplayName("Valid credentials should return 200 with JWT token")
+        void validCredentialsShouldReturn200() throws Exception {
+            LoginRequest req = new LoginRequest("admin", "Admin@123");
 
-    @InjectMocks
-    private AuthController authController;
+            mockMvc.perform(post("/auth/login")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(req)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.token").isNotEmpty())
+                    .andExpect(jsonPath("$.tokenType").value("Bearer"))
+                    .andExpect(jsonPath("$.username").value("admin"))
+                    .andExpect(jsonPath("$.expiresIn").isNumber());
+        }
 
-    private ObjectMapper objectMapper;
+        @Test
+        @DisplayName("Wrong password should return 401")
+        void wrongPasswordShouldReturn401() throws Exception {
+            LoginRequest req = new LoginRequest("admin", "wrongpassword");
 
-    @BeforeEach
-    void setUp() {
-        objectMapper = new ObjectMapper();
-        
-        // Ensure jwtUtil is initialized (it has a @PostConstruct)
-        ReflectionTestUtils.setField(jwtUtil, "secret", "a".repeat(32));
-        ReflectionTestUtils.setField(jwtUtil, "issuer", "secure-ai-gateway");
-        
-        mockMvc = MockMvcBuilders.standaloneSetup(authController)
-                .setControllerAdvice(new GlobalExceptionHandler())
-                .build();
+            mockMvc.perform(post("/auth/login")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(req)))
+                    .andExpect(status().isUnauthorized());
+        }
 
-        // Set test values
-        ReflectionTestUtils.setField(authController, "adminUsername", "admin");
-        ReflectionTestUtils.setField(authController, "adminPassword", "password123");
-        ReflectionTestUtils.setField(authController, "jwtExpiration", 3600000L);
+        @Test
+        @DisplayName("Non-existent user should return 401")
+        void nonExistentUserShouldReturn401() throws Exception {
+            LoginRequest req = new LoginRequest("nobody", "password");
+
+            mockMvc.perform(post("/auth/login")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(req)))
+                    .andExpect(status().isUnauthorized());
+        }
+
+        @Test
+        @DisplayName("Empty username should return 400")
+        void emptyUsernameShouldReturn400() throws Exception {
+            LoginRequest req = new LoginRequest("", "password");
+
+            mockMvc.perform(post("/auth/login")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(req)))
+                    .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        @DisplayName("Response should NOT expose password in body")
+        void responseShouldNotExposePassword() throws Exception {
+            LoginRequest req = new LoginRequest("admin", "Admin@123");
+
+            mockMvc.perform(post("/auth/login")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(req)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.password").doesNotExist());
+        }
     }
 
-    @Test
-    void testLogin_ValidCredentials_ReturnsToken() throws Exception {
-        // Given
-        LoginRequest request = new LoginRequest("admin", "password123");
-        String expectedToken = "test.jwt.token";
+    @Nested
+    @DisplayName("POST /auth/register")
+    class RegisterTests {
 
-        when(jwtUtil.generateToken(anyString())).thenReturn(expectedToken);
+        @Test
+        @DisplayName("New user registration should return 201")
+        void newUserShouldRegister() throws Exception {
+            RegisterRequest req = new RegisterRequest();
+            req.setUsername("newuser_test");
+            req.setPassword("SecurePass123!");
+            req.setEmail("newuser@test.com");
 
-        // When & Then
-        mockMvc.perform(post("/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").value(expectedToken))
-                .andExpect(jsonPath("$.tokenType").value("Bearer"))
-                .andExpect(jsonPath("$.expiresIn").value(3600));
+            mockMvc.perform(post("/auth/register")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(req)))
+                    .andExpect(status().isCreated())
+                    .andExpect(jsonPath("$.username").value("newuser_test"))
+                    .andExpect(jsonPath("$.role").value("USER"));
+        }
+
+        @Test
+        @DisplayName("Duplicate username should return 401")
+        void duplicateUsernameShouldFail() throws Exception {
+            RegisterRequest req = new RegisterRequest();
+            req.setUsername("admin");  // Already exists
+            req.setPassword("SecurePass123!");
+
+            mockMvc.perform(post("/auth/register")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(req)))
+                    .andExpect(status().isUnauthorized());
+        }
+
+        @Test
+        @DisplayName("Short password should return 400")
+        void shortPasswordShouldReturn400() throws Exception {
+            RegisterRequest req = new RegisterRequest();
+            req.setUsername("newuser2");
+            req.setPassword("short");  // Less than 8 chars
+
+            mockMvc.perform(post("/auth/register")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(req)))
+                    .andExpect(status().isBadRequest());
+        }
     }
 
-    @Test
-    void testLogin_InvalidUsername_ReturnsUnauthorized() throws Exception {
-        // Given
-        LoginRequest request = new LoginRequest("wronguser", "password123");
+    @Nested
+    @DisplayName("GET /auth/health")
+    class HealthTests {
 
-        // When & Then
-        mockMvc.perform(post("/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    void testLogin_InvalidPassword_ReturnsUnauthorized() throws Exception {
-        // Given
-        LoginRequest request = new LoginRequest("admin", "wrongpassword");
-
-        // When & Then
-        mockMvc.perform(post("/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    void testLogin_EmptyUsername_ReturnsBadRequest() throws Exception {
-        // Given
-        LoginRequest request = new LoginRequest("", "password123");
-
-        // When & Then
-        mockMvc.perform(post("/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void testLogin_EmptyPassword_ReturnsBadRequest() throws Exception {
-        // Given
-        LoginRequest request = new LoginRequest("admin", "");
-
-        // When & Then
-        mockMvc.perform(post("/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void testLogin_ShortUsername_ReturnsBadRequest() throws Exception {
-        // Given
-        LoginRequest request = new LoginRequest("ab", "password123");
-
-        // When & Then
-        mockMvc.perform(post("/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void testLogin_ShortPassword_ReturnsBadRequest() throws Exception {
-        // Given
-        LoginRequest request = new LoginRequest("admin", "short");
-
-        // When & Then
-        mockMvc.perform(post("/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void testValidateToken_ValidToken_ReturnsOk() throws Exception {
-        // Given
-        String token = "Bearer valid.jwt.token";
-        when(jwtUtil.validateToken(anyString())).thenReturn(true);
-
-        // When & Then
-        mockMvc.perform(post("/auth/validate")
-                        .header("Authorization", token))
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    void testValidateToken_InvalidToken_ReturnsUnauthorized() throws Exception {
-        // Given
-        String token = "Bearer invalid.jwt.token";
-        when(jwtUtil.validateToken(anyString())).thenReturn(false);
-
-        // When & Then
-        mockMvc.perform(post("/auth/validate")
-                        .header("Authorization", token))
-                .andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    void testValidateToken_MissingBearer_ReturnsUnauthorized() throws Exception {
-        // Given
-        String token = "invalid.jwt.token";
-
-        // When & Then
-        mockMvc.perform(post("/auth/validate")
-                        .header("Authorization", token))
-                .andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    void testValidateToken_NoToken_ReturnsUnauthorized() throws Exception {
-        // When & Then
-        mockMvc.perform(post("/auth/validate"))
-                .andExpect(status().isUnauthorized());
+        @Test
+        @DisplayName("Health endpoint should be publicly accessible")
+        void healthEndpointPublic() throws Exception {
+            mockMvc.perform(get("/auth/health"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.status").value("UP"));
+        }
     }
 }
