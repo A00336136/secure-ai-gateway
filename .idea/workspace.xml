@@ -4,6 +4,21 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
+    <list default="true" id="2c713ac9-0db2-4701-9ecc-44d9107bd702" name="Changes" comment="Add application-test.yml, fix JWT parser usage, and update dependencies for compatibility">
+      <change afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/go.imports.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/jarRepositories.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CODE_ANALYSIS_FIXES_COMPLETE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CVE_DETAILED_MAPPING.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CVE_REMEDIATION_CHECKLIST.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CVE_REMEDIATION_SUMMARY.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FINAL_VERIFICATION_REPORT.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/POM_CHANGES.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <list default="true" id="2c713ac9-0db2-4701-9ecc-44d9107bd702" name="Changes" comment="Add application-test.yml, fix JWT parser usage, and update dependencies for compatibility" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -16,6 +31,7 @@
     </persistenceIdMap>
   </component>
   <component name="EmbeddingIndexingInfo">
+    <option name="cachedIndexableFilesCount" value="344" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -34,10 +50,7 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
-  &quot;lastFilter&quot;: {
-    &quot;state&quot;: &quot;OPEN&quot;,
-    &quot;assignee&quot;: &quot;A00336136&quot;
-  }
+  &quot;lastFilter&quot;: {}
 }</component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
@@ -71,6 +84,7 @@
     <urls />
   </component>
   <component name="ProblemsViewState">
+    <option name="selectedTabId" value="Security Analysis" />
     <option name="selectedTabId" value="QODANA_PROBLEMS_VIEW_TAB" />
   </component>
   <component name="ProjectColorInfo">{
@@ -83,6 +97,57 @@
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Maven. [clean,compile,-f...].executor": "Run",
+    "Maven. [clean,compile].executor": "Run",
+    "Maven.secure-ai-gateway [-e,test].executor": "Run",
+    "Maven.secure-ai-gateway [clean,compile,-f...].executor": "Run",
+    "Maven.secure-ai-gateway [clean,compile].executor": "Run",
+    "Maven.secure-ai-gateway [clean,install].executor": "Run",
+    "Maven.secure-ai-gateway [clean,package...].executor": "Run",
+    "Maven.secure-ai-gateway [clean,test].executor": "Run",
+    "Maven.secure-ai-gateway [clean,verify].executor": "Run",
+    "Maven.secure-ai-gateway [dependency:tree...].executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.go.formatter.settings.were.checked": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "Spring Boot.SecureAiGatewayApplication.executor": "Run",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "git-widget-placeholder": "main",
+    "junie.onboarding.icon.badge.shown": "true",
+    "kotlin-language-version-configured": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.0",
+    "run.code.analysis.last.selected.profile": "pProject Default",
+    "settings.editor.selected.configurable": "ml.llm.LLMProjectConfigurable",
+    "to.speed.mode.migration.done": "true",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="QodanaCIConfigService">
+    <option name="path" value="$PROJECT_DIR$/.github/workflows/qodana_code_quality.yml" />
+  </component>
+  <component name="QodanaReportsService">
+    <option name="descriptions">
+      <ReportDescription localRun="true" path="/private/var/folders/34/gr0f2y2j0zs_pz5fbjz6cr_h0000gn/T/qodana_output/qodana.sarif.json" reportGuid="622e6edf-2178-4617-b4df-bcfd4b4bea1c" reportId="secure-ai-gateway/qodana/2026-02-22" />
+    </option>
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
@@ -114,8 +179,15 @@
 }</component>
   <component name="RunAnythingCache">
     <option name="myCommands">
-      <command value="mvn clean compile" />
       <command value="mvn clean compile -f secure-ai-gateway/pom.xml" />
+      <command value="mvn clean compile" />
+      <command value="mvn clean package spring-boot:repackage " />
+      <command value="mvn -e test" />
+      <command value="mvn clean test" />
+      <command value="mvn dependency:tree -Dincludes=org.springframework" />
+      <command value="mvn clean verify" />
+      <command value="mvn clean package -DskipTests " />
+      <command value="mvn clean install" />
     </option>
   </component>
   <component name="RunManager">
@@ -138,6 +210,81 @@
       <framework value="gotest" />
       <method v="2" />
     </configuration>
+    <configuration default="true" type="JetRunConfigurationType">
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <option name="filePath" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="PythonConfigurationType" factoryName="Python">
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="" />
+      <option name="RUN_TOOL" value="" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="SecureAiGatewayApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="secure-ai-gateway" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.secureai.SecureAiGatewayApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="Tox" factoryName="Tox">
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="RUN_TOOL" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="ccruntests" factoryName="Run Study Tests">
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="" />
+      <option name="RUN_TOOL" value="" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <option name="studyTest" value="" />
+      <method v="2" />
+    </configuration>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
@@ -158,6 +305,10 @@
       <workItem from="1771021751368" duration="8104000" />
       <workItem from="1771192613716" duration="7519000" />
       <workItem from="1771682113193" duration="4520000" />
+      <workItem from="1771715792049" duration="2624000" />
+      <workItem from="1771718426177" duration="2998000" />
+      <workItem from="1771721453201" duration="9165000" />
+      <workItem from="1771730725741" duration="826000" />
     </task>
     <task id="LOCAL-00001" summary="JUNIT">
       <option name="closed" value="true" />
@@ -287,6 +438,31 @@
       <option name="project" value="LOCAL" />
       <updated>1771682147135</updated>
     </task>
+    <task id="LOCAL-00017" summary="Update `.idea` configs to include task adjustments, Go imports, and recent branch merge settings">
+      <option name="closed" value="true" />
+      <created>1771715968143</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1771715968143</updated>
+    </task>
+    <task id="LOCAL-00018" summary="Update `.idea` configs to include task adjustments, Go imports, and recent branch merge settings">
+      <option name="closed" value="true" />
+      <created>1771716003067</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1771716003067</updated>
+    </task>
+    <task id="LOCAL-00019" summary="Add application-test.yml, fix JWT parser usage, and update dependencies for compatibility">
+      <option name="closed" value="true" />
+      <created>1771729791068</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1771729791068</updated>
+    </task>
+    <option name="localTasksCounter" value="20" />
     <task id="LOCAL-00017" summary="Add application-test.yml, fix JWT parser usage, and update dependencies for compatibility">
       <option name="closed" value="true" />
       <created>1771731914840</created>

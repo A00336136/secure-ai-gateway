@@ -2,14 +2,23 @@ package com.secureai;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
- * Main application class for Secure AI Gateway.
- * Provides secure access to AI services with PII redaction and JWT authentication.
+ * Secure AI Gateway — Enterprise-Grade Security for AI Model Interactions
+ *
+ * Components:
+ *  - JWT Authentication (HMAC-SHA256, BCrypt cost=12)
+ *  - PII Redaction Engine (Email, Phone, SSN, Credit Card, IP, Date-of-Birth)
+ *  - Rate Limiting via Bucket4j (100 req/hr per user)
+ *  - ReAct Agent (Think → Act → Observe, max 10 steps)
+ *  - Ollama Local LLM (LLaMA 3.1 / Mistral)
+ *  - PostgreSQL Audit Logging
+ *  - Spring Security Filter Chain
+ *  - DevSecOps: SonarQube · OWASP · SpotBugs · Trivy · Jenkins 12-Stage CI/CD
  */
 @SpringBootApplication
-@EnableCaching
+@EnableScheduling
 public class SecureAiGatewayApplication {
 
     public static void main(String[] args) {
