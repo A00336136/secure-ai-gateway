@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RateLimiterService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Secure AI Gateway</a> &gt; <a href="index.source.html" class="el_package">com.secureai.service</a> &gt; <span class="el_source">RateLimiterService.java</span></div><h1>RateLimiterService.java</h1><pre class="source lang-java linenums">package com.secureai.service;
+
+import io.github.bucket4j.Bandwidth;
+import io.github.bucket4j.Bucket;
+import io.github.bucket4j.Refill;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.time.Duration;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+/**
+ * Rate Limiter Service — Token Bucket Algorithm via Bucket4j
+ *
+ * Policy:
+ *  - Each user gets an independent bucket of 100 tokens
+ *  - Every API call consumes 1 token
+ *  - Bucket refills completely after 60 minutes
+ *  - Buckets are lazily created on first request
+ *  - In-memory — zero DB overhead, O(1) check
+ *
+ * Scale note: For multi-node deployments, replace ConcurrentHashMap
+ *  with Bucket4j Redis or Hazelcast backend (config only, no code change).
+ */
+@Service
+<span class="fc" id="L29">public class RateLimiterService {</span>
+
+<span class="fc" id="L31">    private static final Logger log = LoggerFactory.getLogger(RateLimiterService.class);</span>
+
+    @Value(&quot;${rate-limit.capacity:100}&quot;)
+    private int capacity;
+
+    @Value(&quot;${rate-limit.refill-tokens:100}&quot;)
+    private int refillTokens;
+
+    @Value(&quot;${rate-limit.refill-duration-minutes:60}&quot;)
+    private int refillDurationMinutes;
+
+    // One bucket per user (username as key)
+<span class="fc" id="L43">    private final Map&lt;String, Bucket&gt; userBuckets = new ConcurrentHashMap&lt;&gt;();</span>
+
+    /**
+     * Attempt to consume one token for the given user.
+     * @return true if allowed; false if rate limit exceeded (HTTP 429)
+     */
+    public boolean tryConsume(String username) {
+<span class="fc" id="L50">        Bucket bucket = getUserBucket(username);</span>
+<span class="fc" id="L51">        boolean allowed = bucket.tryConsume(1);</span>
+<span class="fc bfc" id="L52" title="All 2 branches covered.">        if (!allowed) {</span>
+<span class="fc" id="L53">            log.warn(&quot;Rate limit exceeded for user '{}'&quot;, username);</span>
+        }
+<span class="fc" id="L55">        return allowed;</span>
+    }
+
+    /**
+     * Get remaining tokens for the given user (for X-Rate-Limit-Remaining header).
+     */
+    public long getRemainingTokens(String username) {
+<span class="fc" id="L62">        return getUserBucket(username).getAvailableTokens();</span>
+    }
+
+    /**
+     * Reset the bucket for a user (admin operation).
+     */
+    public void resetBucket(String username) {
+<span class="fc" id="L69">        userBuckets.remove(username);</span>
+<span class="fc" id="L70">        log.info(&quot;Rate limit bucket reset for user '{}'&quot;, username);</span>
+<span class="fc" id="L71">    }</span>
+
+    /**
+     * Get current capacity (max tokens).
+     */
+    public int getCapacity() {
+<span class="fc" id="L77">        return capacity;</span>
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+
+    private Bucket getUserBucket(String username) {
+<span class="fc" id="L83">        return userBuckets.computeIfAbsent(username, this::createBucket);</span>
+    }
+
+    private Bucket createBucket(String username) {
+<span class="fc" id="L87">        log.debug(&quot;Creating rate limit bucket for user '{}'&quot;, username);</span>
+<span class="fc" id="L88">        Bandwidth limit = Bandwidth.classic(</span>
+                capacity,
+<span class="fc" id="L90">                Refill.greedy(refillTokens, Duration.ofMinutes(refillDurationMinutes))</span>
+        );
+<span class="fc" id="L92">        return Bucket.builder().addLimit(limit).build();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

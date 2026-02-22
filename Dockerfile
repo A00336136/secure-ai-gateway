@@ -20,9 +20,6 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /build
-# Build stage
-FROM maven:3.9-eclipse-temurin-17 AS build
-WORKDIR /app
 
 # Cache dependencies first (layer optimization)
 COPY pom.xml .
@@ -45,18 +42,6 @@ LABEL org.opencontainers.image.title="Secure AI Gateway"
 LABEL org.opencontainers.image.description="Enterprise-grade security gateway for AI model interactions"
 LABEL org.opencontainers.image.version="2.0.0"
 LABEL org.opencontainers.image.vendor="SecureAI Team"
-# Runtime stage
-FROM eclipse-temurin:17-jre
-
-# Install security updates
-RUN apt-get update && \
-    apt-get upgrade -y && \
-    apt-get install -y --no-install-recommends wget dumb-init && \
-    rm -rf /var/lib/apt/lists/*
-
-# Create non-root user
-RUN groupadd -r appgroup && \
-    useradd -r -g appgroup appuser
 
 WORKDIR /app
 
