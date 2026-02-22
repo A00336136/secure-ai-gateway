@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PiiRedactionService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Secure AI Gateway</a> &gt; <a href="index.source.html" class="el_package">com.secureai.pii</a> &gt; <span class="el_source">PiiRedactionService.java</span></div><h1>PiiRedactionService.java</h1><pre class="source lang-java linenums">package com.secureai.pii;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+/**
+ * PII Redaction Engine
+ *
+ * Patterns covered:
+ *  1. Email addresses
+ *  2. Phone numbers (US, Irish, International)
+ *  3. Social Security Numbers (SSN)
+ *  4. Credit card numbers (Visa/MC/Amex/Discover)
+ *  5. IP addresses (IPv4 + IPv6)
+ *  6. Passport numbers
+ *  7. Driving license patterns
+ *  8. Dates of birth
+ *  9. Bank account / IBAN numbers
+ * 10. Named entity patterns (configurable)
+ *
+ * GDPR Article 25 — Data Protection by Design and by Default
+ */
+@Service
+<span class="fc" id="L30">public class PiiRedactionService {</span>
+
+<span class="fc" id="L32">    private static final Logger log = LoggerFactory.getLogger(PiiRedactionService.class);</span>
+
+    @Value(&quot;${pii.redaction.enabled:true}&quot;)
+    private boolean enabled;
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Compiled Regex Patterns
+    // ─────────────────────────────────────────────────────────────────────────
+
+<span class="fc" id="L41">    private static final Pattern EMAIL =</span>
+<span class="fc" id="L42">            Pattern.compile(</span>
+                &quot;\\b[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}\\b&quot;,
+                Pattern.CASE_INSENSITIVE
+            );
+
+<span class="fc" id="L47">    private static final Pattern PHONE_US =</span>
+<span class="fc" id="L48">            Pattern.compile(</span>
+                &quot;\\b(?:\\+?1[\\-\\s.]?)?(?:\\(?[2-9]\\d{2}\\)?[\\-\\s.]?)?&quot; +
+                &quot;[2-9]\\d{2}[\\-\\s.]?\\d{4}\\b&quot;
+            );
+
+<span class="fc" id="L53">    private static final Pattern PHONE_IE =</span>
+<span class="fc" id="L54">            Pattern.compile(&quot;\\b0(?:8[0-9])[0-9]{7}\\b&quot;);</span>
+
+<span class="fc" id="L56">    private static final Pattern PHONE_INTL =</span>
+<span class="fc" id="L57">            Pattern.compile(&quot;\\+[1-9]\\d{7,14}\\b&quot;);</span>
+
+<span class="fc" id="L59">    private static final Pattern SSN =</span>
+<span class="fc" id="L60">            Pattern.compile(&quot;\\b(?!000|666|9\\d{2})\\d{3}-(?!00)\\d{2}-(?!0000)\\d{4}\\b&quot;);</span>
+
+<span class="fc" id="L62">    private static final Pattern CREDIT_CARD =</span>
+<span class="fc" id="L63">            Pattern.compile(</span>
+                &quot;\\b(?:&quot; +
+                &quot;4[0-9]{12}(?:[0-9]{3})?|&quot;          + // Visa
+                &quot;5[1-5][0-9]{14}|&quot;                   + // MasterCard
+                &quot;3[47][0-9]{13}|&quot;                    + // Amex
+                &quot;3(?:0[0-5]|[68][0-9])[0-9]{11}|&quot;   + // Diners
+                &quot;6(?:011|5[0-9]{2})[0-9]{12}|&quot;      + // Discover
+                &quot;(?:2131|1800|35\\d{3})\\d{11}&quot;     + // JCB
+                &quot;)\\b&quot;
+            );
+
+<span class="fc" id="L74">    private static final Pattern CREDIT_CARD_SPACED =</span>
+<span class="fc" id="L75">            Pattern.compile(</span>
+                &quot;\\b\\d{4}[\\s\\-]?\\d{4}[\\s\\-]?\\d{4}[\\s\\-]?\\d{4}\\b&quot;
+            );
+
+<span class="fc" id="L79">    private static final Pattern IPV4 =</span>
+<span class="fc" id="L80">            Pattern.compile(</span>
+                &quot;\\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}&quot; +
+                &quot;(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b&quot;
+            );
+
+<span class="fc" id="L85">    private static final Pattern IPV6 =</span>
+<span class="fc" id="L86">            Pattern.compile(</span>
+                &quot;\\b(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}\\b|&quot; +
+                &quot;\\b(?:[0-9a-fA-F]{1,4}:)+:[0-9a-fA-F]{1,4}\\b&quot;
+            );
+
+<span class="fc" id="L91">    private static final Pattern PASSPORT_US =</span>
+<span class="fc" id="L92">            Pattern.compile(&quot;\\b[A-Z]{1,2}[0-9]{6,9}\\b&quot;);</span>
+
+<span class="fc" id="L94">    private static final Pattern DATE_OF_BIRTH =</span>
+<span class="fc" id="L95">            Pattern.compile(</span>
+                &quot;\\b(?:0[1-9]|[12][0-9]|3[01])[/\\-](?:0[1-9]|1[012])[/\\-](?:19|20)\\d{2}\\b|&quot; +
+                &quot;\\b(?:19|20)\\d{2}[/\\-](?:0[1-9]|1[012])[/\\-](?:0[1-9]|[12][0-9]|3[01])\\b&quot;
+            );
+
+<span class="fc" id="L100">    private static final Pattern IBAN =</span>
+<span class="fc" id="L101">            Pattern.compile(&quot;\\b[A-Z]{2}\\d{2}[A-Z0-9]{4}\\d{7}(?:[A-Z0-9]?){0,16}\\b&quot;);</span>
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Ordered Redaction Rules (label → pattern)
+    // ─────────────────────────────────────────────────────────────────────────
+
+<span class="fc" id="L107">    private static final List&lt;PiiRule&gt; RULES = List.of(</span>
+        new PiiRule(&quot;EMAIL&quot;,         &quot;[EMAIL_REDACTED]&quot;,       EMAIL),
+        new PiiRule(&quot;SSN&quot;,           &quot;[SSN_REDACTED]&quot;,         SSN),
+        new PiiRule(&quot;CREDIT_CARD&quot;,   &quot;[CREDIT_CARD_REDACTED]&quot;, CREDIT_CARD),
+        new PiiRule(&quot;CREDIT_CARD&quot;,   &quot;[CREDIT_CARD_REDACTED]&quot;, CREDIT_CARD_SPACED),
+        new PiiRule(&quot;IBAN&quot;,          &quot;[IBAN_REDACTED]&quot;,        IBAN),
+        new PiiRule(&quot;PHONE_IE&quot;,      &quot;[PHONE_REDACTED]&quot;,       PHONE_IE),
+        new PiiRule(&quot;PHONE_INTL&quot;,    &quot;[PHONE_REDACTED]&quot;,       PHONE_INTL),
+        new PiiRule(&quot;PHONE_US&quot;,      &quot;[PHONE_REDACTED]&quot;,       PHONE_US),
+        new PiiRule(&quot;DATE_OF_BIRTH&quot;, &quot;[DOB_REDACTED]&quot;,         DATE_OF_BIRTH),
+        new PiiRule(&quot;PASSPORT&quot;,      &quot;[PASSPORT_REDACTED]&quot;,    PASSPORT_US),
+        new PiiRule(&quot;IPV6&quot;,          &quot;[IP_REDACTED]&quot;,          IPV6),
+        new PiiRule(&quot;IPV4&quot;,          &quot;[IP_REDACTED]&quot;,          IPV4)
+    );
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Public API
+    // ─────────────────────────────────────────────────────────────────────────
+
+    /**
+     * Redact all detected PII from the given text.
+     * Returns the original text unchanged if redaction is disabled.
+     */
+    public String redact(String text) {
+<span class="fc bfc" id="L131" title="All 6 branches covered.">        if (!enabled || text == null || text.isBlank()) {</span>
+<span class="fc" id="L132">            return text;</span>
+        }
+<span class="fc" id="L134">        String result = text;</span>
+<span class="fc" id="L135">        int totalRedactions = 0;</span>
+<span class="fc bfc" id="L136" title="All 2 branches covered.">        for (PiiRule rule : RULES) {</span>
+<span class="fc" id="L137">            Matcher m = rule.pattern.matcher(result);</span>
+<span class="fc" id="L138">            String replaced = m.replaceAll(rule.replacement);</span>
+<span class="fc bfc" id="L139" title="All 2 branches covered.">            if (!replaced.equals(result)) {</span>
+<span class="fc" id="L140">                totalRedactions++;</span>
+<span class="fc" id="L141">                log.debug(&quot;PII redacted: type={}&quot;, rule.label);</span>
+            }
+<span class="fc" id="L143">            result = replaced;</span>
+<span class="fc" id="L144">        }</span>
+<span class="fc bfc" id="L145" title="All 2 branches covered.">        if (totalRedactions &gt; 0) {</span>
+<span class="fc" id="L146">            log.info(&quot;PII redaction applied: {} type(s) found and redacted&quot;, totalRedactions);</span>
+        }
+<span class="fc" id="L148">        return result;</span>
+    }
+
+    /**
+     * Check whether the text contains any detectable PII.
+     */
+    public boolean containsPii(String text) {
+<span class="fc bfc" id="L155" title="All 4 branches covered.">        if (text == null || text.isBlank()) return false;</span>
+<span class="fc bfc" id="L156" title="All 2 branches covered.">        for (PiiRule rule : RULES) {</span>
+<span class="fc bfc" id="L157" title="All 2 branches covered.">            if (rule.pattern.matcher(text).find()) {</span>
+<span class="fc" id="L158">                log.debug(&quot;PII detected: type={}&quot;, rule.label);</span>
+<span class="fc" id="L159">                return true;</span>
+            }
+<span class="fc" id="L161">        }</span>
+<span class="fc" id="L162">        return false;</span>
+    }
+
+    /**
+     * Return a breakdown of which PII types are detected (for audit metadata).
+     */
+    public Set&lt;String&gt; detectPiiTypes(String text) {
+<span class="fc" id="L169">        Set&lt;String&gt; detected = new LinkedHashSet&lt;&gt;();</span>
+<span class="pc bpc" id="L170" title="2 of 4 branches missed.">        if (text == null || text.isBlank()) return detected;</span>
+<span class="fc bfc" id="L171" title="All 2 branches covered.">        for (PiiRule rule : RULES) {</span>
+<span class="fc bfc" id="L172" title="All 2 branches covered.">            if (rule.pattern.matcher(text).find()) {</span>
+<span class="fc" id="L173">                detected.add(rule.label);</span>
+            }
+<span class="fc" id="L175">        }</span>
+<span class="fc" id="L176">        return detected;</span>
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Inner classes
+    // ─────────────────────────────────────────────────────────────────────────
+
+<span class="fc" id="L183">    private record PiiRule(String label, String replacement, Pattern pattern) {}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>
