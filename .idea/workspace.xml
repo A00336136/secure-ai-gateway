@@ -4,83 +4,20 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2c713ac9-0db2-4701-9ecc-44d9107bd702" name="Changes" comment="Update `.idea` configs to include task adjustments, Go imports, and recent branch merge settings">
-      <change afterPath="$PROJECT_DIR$/COMPLETE_RESOLUTION.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/DEPENDENCY_VERSION_FIX.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/FINAL_FIXES_SUMMARY.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/FINAL_SOLUTION.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/FIX_SUMMARY.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/IMPLEMENTATION_REPORT.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/PRODUCTION_BUILD_FIX.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/QUICK_REFERENCE.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/QUICK_START.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SPRINGDOC_FIX_FINAL.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/WEBJARS_FIX_FINAL.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/resources/application-test.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_14_02_2026,_01_44_[Changes]/shelved.patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_14_02_2026__01_44__Changes_.xml" beforeDir="false" />
+    <list default="true" id="2c713ac9-0db2-4701-9ecc-44d9107bd702" name="Changes" comment="Add application-test.yml, fix JWT parser usage, and update dependencies for compatibility">
+      <change afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/go.imports.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/jarRepositories.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CODE_ANALYSIS_FIXES_COMPLETE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CVE_DETAILED_MAPPING.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CVE_REMEDIATION_CHECKLIST.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CVE_REMEDIATION_SUMMARY.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FINAL_VERIFICATION_REPORT.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/POM_CHANGES.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LICENSE" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/qodana.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/qodana.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/secure-ai-gateway/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/secure-ai-gateway/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/SECURITY.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/secure-ai-gateway/docker-compose.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/docs/COMPLETE_SETUP_GUIDE.md" beforeDir="false" afterPath="$PROJECT_DIR$/secure-ai-gateway/docs/COMPLETE_SETUP_GUIDE.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/docs/REDHAT_DEVSECOPS_COMPLIANCE.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/gitops/argocd-application.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/helm/Chart.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/helm/values.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/kubernetes/configmap.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/kubernetes/deployment.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/kubernetes/rbac.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/kubernetes/route.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/kubernetes/secret.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/kubernetes/service.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/maven_debug.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/owasp-suppressions.xml" beforeDir="false" afterPath="$PROJECT_DIR$/secure-ai-gateway/owasp-suppressions.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/secure-ai-gateway/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/scripts/setup.sh" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/security/network-policy.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/security/resource-limits.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/security/scc.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/src/main/java/com/secureai/SecureAiGatewayApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/secure-ai-gateway/src/main/java/com/secureai/SecureAiGatewayApplication.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/src/main/java/com/secureai/config/OpenAPIConfig.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/src/main/java/com/secureai/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/secure-ai-gateway/src/main/java/com/secureai/config/SecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/src/main/java/com/secureai/controller/AskController.java" beforeDir="false" afterPath="$PROJECT_DIR$/secure-ai-gateway/src/main/java/com/secureai/controller/AskController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/src/main/java/com/secureai/controller/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/secure-ai-gateway/src/main/java/com/secureai/controller/AuthController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/src/main/java/com/secureai/dto/AskRequest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/src/main/java/com/secureai/dto/AskResponse.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/src/main/java/com/secureai/dto/ErrorResponse.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/src/main/java/com/secureai/dto/LoginRequest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/src/main/java/com/secureai/dto/LoginResponse.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/src/main/java/com/secureai/exception/AiServiceException.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/src/main/java/com/secureai/exception/AuthenticationException.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/src/main/java/com/secureai/exception/GlobalExceptionHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/secure-ai-gateway/src/main/java/com/secureai/exception/GlobalExceptionHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/src/main/java/com/secureai/exception/InvalidTokenException.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/src/main/java/com/secureai/exception/RateLimitExceededException.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/src/main/java/com/secureai/exception/SecureAiException.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/src/main/java/com/secureai/filter/JwtAuthenticationFilter.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/src/main/java/com/secureai/service/OllamaService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/src/main/java/com/secureai/service/PiiRedactionService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/src/main/java/com/secureai/service/RateLimitService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/src/main/java/com/secureai/util/JwtUtil.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/secure-ai-gateway/src/main/resources/application.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/src/test/java/com/secureai/controller/AskControllerTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/secure-ai-gateway/src/test/java/com/secureai/controller/AskControllerTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/src/test/java/com/secureai/controller/AuthControllerTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/secure-ai-gateway/src/test/java/com/secureai/controller/AuthControllerTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/src/test/java/com/secureai/integration/SecureAiGatewayIntegrationTest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/src/test/java/com/secureai/service/PiiRedactionServiceTest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/src/test/java/com/secureai/service/RateLimitServiceTest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/src/test/java/com/secureai/util/JwtUtilTest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/src/test/resources/application-test.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/classes/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/secure-ai-gateway/target/classes/application.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/secure-ai-gateway/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/secure-ai-gateway/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/tekton/pipeline.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/tekton/pipelinerun.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/tekton/tasks.yaml" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -93,7 +30,7 @@
     </persistenceIdMap>
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="153" />
+    <option name="cachedIndexableFilesCount" value="344" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -169,6 +106,8 @@
     "Maven.secure-ai-gateway [clean,install].executor": "Run",
     "Maven.secure-ai-gateway [clean,package...].executor": "Run",
     "Maven.secure-ai-gateway [clean,test].executor": "Run",
+    "Maven.secure-ai-gateway [clean,verify].executor": "Run",
+    "Maven.secure-ai-gateway [dependency:tree...].executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RequestMappingsPanelOrder0": "0",
     "RequestMappingsPanelOrder1": "1",
@@ -180,7 +119,8 @@
     "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.go.formatter.settings.were.checked": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "Spring Boot.SecureAiGatewayApplication.executor": "Debug",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "Spring Boot.SecureAiGatewayApplication.executor": "Run",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
     "git-widget-placeholder": "main",
     "junie.onboarding.icon.badge.shown": "true",
@@ -194,25 +134,13 @@
     "project.structure.proportion": "0.0",
     "project.structure.side.proportion": "0.0",
     "run.code.analysis.last.selected.profile": "pProject Default",
-    "settings.editor.selected.configurable": "CodeWithMe",
+    "settings.editor.selected.configurable": "ml.llm.LLMProjectConfigurable",
     "to.speed.mode.migration.done": "true",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
   <component name="QodanaCIConfigService">
     <option name="path" value="$PROJECT_DIR$/.github/workflows/qodana_code_quality.yml" />
-  </component>
-  <component name="QodanaHighlightedReportService">
-    <option name="localRunNotPublishedPersistedInfo">
-      <LocalReportPersistedInfo>
-        <option name="path" value="/private/var/folders/34/gr0f2y2j0zs_pz5fbjz6cr_h0000gn/T/qodana_output/qodana.sarif.json" />
-        <option name="reportGuid" value="622e6edf-2178-4617-b4df-bcfd4b4bea1c" />
-        <option name="reportName" value="secure-ai-gateway/qodana/2026-02-22" />
-      </LocalReportPersistedInfo>
-    </option>
-  </component>
-  <component name="QodanaIsSelectedPersistenceService">
-    <option name="selectedOrLoading" value="true" />
   </component>
   <component name="QodanaReportsService">
     <option name="descriptions">
@@ -226,6 +154,8 @@
       <command value="mvn clean package spring-boot:repackage " />
       <command value="mvn -e test" />
       <command value="mvn clean test" />
+      <command value="mvn dependency:tree -Dincludes=org.springframework" />
+      <command value="mvn clean verify" />
       <command value="mvn clean package -DskipTests " />
       <command value="mvn clean install" />
     </option>
@@ -347,7 +277,8 @@
       <workItem from="1771682113193" duration="4520000" />
       <workItem from="1771715792049" duration="2624000" />
       <workItem from="1771718426177" duration="2998000" />
-      <workItem from="1771721453201" duration="8182000" />
+      <workItem from="1771721453201" duration="9165000" />
+      <workItem from="1771730725741" duration="826000" />
     </task>
     <task id="LOCAL-00001" summary="JUNIT">
       <option name="closed" value="true" />
@@ -493,7 +424,15 @@
       <option name="project" value="LOCAL" />
       <updated>1771716003067</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="Add application-test.yml, fix JWT parser usage, and update dependencies for compatibility">
+      <option name="closed" value="true" />
+      <created>1771729791068</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1771729791068</updated>
+    </task>
+    <option name="localTasksCounter" value="20" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -515,7 +454,8 @@
     <MESSAGE value="JUNIT tested authentication and rate" />
     <MESSAGE value="Merge remote-tracking branch 'origin/feature/a00336136' into feature/a00336136" />
     <MESSAGE value="Update `.idea` configs to include task adjustments, Go imports, and recent branch merge settings" />
-    <option name="LAST_COMMIT_MESSAGE" value="Update `.idea` configs to include task adjustments, Go imports, and recent branch merge settings" />
+    <MESSAGE value="Add application-test.yml, fix JWT parser usage, and update dependencies for compatibility" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add application-test.yml, fix JWT parser usage, and update dependencies for compatibility" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
