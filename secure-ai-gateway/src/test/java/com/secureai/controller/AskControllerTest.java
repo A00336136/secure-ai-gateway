@@ -1,205 +1,248 @@
 package com.secureai.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.secureai.dto.AskRequest;
-import com.secureai.exception.GlobalExceptionHandler;
-import com.secureai.exception.SecureAiException;
-import com.secureai.service.OllamaService;
-import com.secureai.service.PiiRedactionService;
-import com.secureai.service.RateLimitService;
+import com.secureai.agent.ReActAgentService;
+import com.secureai.model.AskRequest;
+import com.secureai.model.LoginRequest;
+import com.secureai.pii.PiiRedactionService;
+import com.secureai.service.AuditLogService;
+import com.secureai.service.OllamaClient;
+import com.secureai.service.RateLimiterService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
+import java.util.List;
 
+import static org.hamcrest.Matchers.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * Unit tests for AskController class.
- * Tests AI query endpoints.
- */
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
+@AutoConfigureMockMvc
+@ActiveProfiles("test")
+@Transactional
+@DisplayName("AskController Tests")
 class AskControllerTest {
 
-    private MockMvc mockMvc;
+    @Autowired MockMvc mockMvc;
+    @Autowired ObjectMapper objectMapper;
 
-    @Mock
-    private OllamaService ollamaService;
+    @MockBean OllamaClient ollamaClient;
+    @MockBean ReActAgentService reActAgentService;
+    @MockBean AuditLogService auditLogService;
+    @Autowired private com.secureai.repository.UserRepository userRepository;
+    @Autowired private org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
 
-    @Mock
-    private PiiRedactionService piiRedactionService;
-
-    @Mock
-    private RateLimitService rateLimitService;
-
-    @InjectMocks
-    private AskController askController;
-
-    private ObjectMapper objectMapper;
-    private Authentication authentication;
+    private String jwtToken;
 
     @BeforeEach
-    void setUp() {
-        objectMapper = new ObjectMapper();
-        mockMvc = MockMvcBuilders.standaloneSetup(askController)
-                .setControllerAdvice(new GlobalExceptionHandler())
-                .build();
+    void obtainToken() throws Exception {
+        // Ensure admin user exists for the test
+        if (!userRepository.existsByUsername("admin")) {
+            com.secureai.model.User admin = com.secureai.model.User.builder()
+                    .username("admin")
+                    .password(passwordEncoder.encode("Admin@123"))
+                    .role("ADMIN")
+                    .enabled(true)
+                    .build();
+            userRepository.save(admin);
+        }
 
-        authentication = new UsernamePasswordAuthenticationToken(
-                "testuser", null, Collections.emptyList());
-    }
+        when(ollamaClient.getModel()).thenReturn("test-model");
+        when(ollamaClient.isHealthy()).thenReturn(true);
 
-    @Test
-    void testAsk_ValidRequest_ReturnsResponse() throws Exception {
-        // Given
-        AskRequest request = new AskRequest("What is AI?");
-        String aiResponse = "AI stands for Artificial Intelligence";
-
-        when(rateLimitService.isAllowed(anyString())).thenReturn(true);
-        when(ollamaService.generateResponse(anyString())).thenReturn(aiResponse);
-        when(piiRedactionService.containsPii(anyString())).thenReturn(false);
-
-        // When & Then
-        mockMvc.perform(post("/api/ask")
-                        .principal(authentication)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+        LoginRequest loginReq = new LoginRequest("admin", "Admin@123");
+        MvcResult result = mockMvc.perform(post("/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(loginReq)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.response").value(aiResponse))
-                .andExpect(jsonPath("$.redacted").value(false))
-                .andExpect(jsonPath("$.requestId").exists())
-                .andExpect(jsonPath("$.timestamp").exists());
+                .andReturn();
+
+        String body = result.getResponse().getContentAsString();
+        jwtToken = objectMapper.readTree(body).get("token").asText();
     }
 
-    @Test
-    void testAsk_WithPII_RedactsResponse() throws Exception {
-        // Given
-        AskRequest request = new AskRequest("Tell me about test@example.com");
-        String aiResponse = "Contact test@example.com for details";
-        String redactedResponse = "Contact [REDACTED_EMAIL] for details";
+    @Nested
+    @DisplayName("POST /api/ask — Authentication")
+    class AuthTests {
 
-        when(rateLimitService.isAllowed(anyString())).thenReturn(true);
-        when(ollamaService.generateResponse(anyString())).thenReturn(aiResponse);
-        when(piiRedactionService.containsPii(anyString())).thenReturn(true);
-        when(piiRedactionService.redact(anyString())).thenReturn(redactedResponse);
-        when(piiRedactionService.detectPiiTypes(anyString())).thenReturn("Email");
+        @Test
+        @DisplayName("Request without token should return 403")
+        void noTokenShouldReturn403() throws Exception {
+            AskRequest req = new AskRequest();
+            req.setPrompt("Hello");
 
-        // When & Then
-        mockMvc.perform(post("/api/ask")
-                        .principal(authentication)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.response").value(redactedResponse))
-                .andExpect(jsonPath("$.redacted").value(true));
+            mockMvc.perform(post("/api/ask")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(req)))
+                    .andExpect(status().isForbidden());
+        }
+
+        @Test
+        @DisplayName("Invalid token should return 403")
+        void invalidTokenShouldReturn403() throws Exception {
+            AskRequest req = new AskRequest();
+            req.setPrompt("Hello");
+
+            mockMvc.perform(post("/api/ask")
+                    .header("Authorization", "Bearer invalid.token.here")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(req)))
+                    .andExpect(status().isForbidden());
+        }
     }
 
-    @Test
-    void testAsk_RateLimitExceeded_ReturnsTooManyRequests() throws Exception {
-        // Given
-        AskRequest request = new AskRequest("What is AI?");
+    @Nested
+    @DisplayName("POST /api/ask — Success Flows")
+    class SuccessTests {
 
-        when(rateLimitService.isAllowed(anyString())).thenReturn(false);
+        @Test
+        @DisplayName("Valid request should return 200 with AI response")
+        void validRequestShouldReturn200() throws Exception {
+            when(ollamaClient.generateResponse(anyString()))
+                    .thenReturn("The capital of France is Paris.");
 
-        // When & Then
-        mockMvc.perform(post("/api/ask")
-                        .principal(authentication)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isTooManyRequests())
-                .andExpect(jsonPath("$.response").value("Rate limit exceeded. Please try again later."));
+            AskRequest req = new AskRequest();
+            req.setPrompt("What is the capital of France?");
+
+            mockMvc.perform(post("/api/ask")
+                    .header("Authorization", "Bearer " + jwtToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(req)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.response").isNotEmpty())
+                    .andExpect(jsonPath("$.piiDetected").value(false))
+                    .andExpect(jsonPath("$.piiRedacted").value(false))
+                    .andExpect(jsonPath("$.model").value("test-model"))
+                    .andExpect(header().exists("X-Rate-Limit-Remaining"));
+        }
+
+        @Test
+        @DisplayName("Response with PII should be redacted")
+        void piiShouldBeRedacted() throws Exception {
+            when(ollamaClient.generateResponse(anyString()))
+                    .thenReturn("Contact john@evil.com or SSN 123-45-6789");
+
+            AskRequest req = new AskRequest();
+            req.setPrompt("Give me example PII data");
+
+            mockMvc.perform(post("/api/ask")
+                    .header("Authorization", "Bearer " + jwtToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(req)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.piiDetected").value(true))
+                    .andExpect(jsonPath("$.piiRedacted").value(true))
+                    .andExpect(jsonPath("$.response").value(not(containsString("@"))))
+                    .andExpect(jsonPath("$.response").value(not(containsString("123-45-6789"))))
+                    .andExpect(header().string("X-PII-Redacted", "true"));
+        }
+
+        @Test
+        @DisplayName("ReAct agent mode should use agent service")
+        void reactAgentShouldBeInvoked() throws Exception {
+            ReActAgentService.AgentResult result = new ReActAgentService.AgentResult(
+                    "The answer is 42.", List.of(), 3
+            );
+            when(reActAgentService.execute(anyString())).thenReturn(result);
+
+            AskRequest req = new AskRequest();
+            req.setPrompt("Complex multi-step question");
+            req.setUseReActAgent(true);
+
+            mockMvc.perform(post("/api/ask")
+                    .header("Authorization", "Bearer " + jwtToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(req)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.response").value("The answer is 42."))
+                    .andExpect(jsonPath("$.reactSteps").value(3));
+
+            verify(reActAgentService, times(1)).execute("Complex multi-step question");
+        }
     }
 
-    @Test
-    void testAsk_EmptyPrompt_ReturnsBadRequest() throws Exception {
-        // Given
-        AskRequest request = new AskRequest("");
+    @Nested
+    @DisplayName("POST /api/ask — Validation")
+    class ValidationTests {
 
-        // When & Then
-        mockMvc.perform(post("/api/ask")
-                        .principal(authentication)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest());
+        @Test
+        @DisplayName("Empty prompt should return 400")
+        void emptyPromptShouldReturn400() throws Exception {
+            AskRequest req = new AskRequest();
+            req.setPrompt("");
+
+            mockMvc.perform(post("/api/ask")
+                    .header("Authorization", "Bearer " + jwtToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(req)))
+                    .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        @DisplayName("Prompt over 4000 chars should return 400")
+        void tooLongPromptShouldReturn400() throws Exception {
+            AskRequest req = new AskRequest();
+            req.setPrompt("x".repeat(4001));
+
+            mockMvc.perform(post("/api/ask")
+                    .header("Authorization", "Bearer " + jwtToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(req)))
+                    .andExpect(status().isBadRequest());
+        }
     }
 
-    @Test
-    void testAsk_PromptTooLong_ReturnsBadRequest() throws Exception {
-        // Given
-        String longPrompt = "x".repeat(8193); // Exceeds 8192 limit
-        AskRequest request = new AskRequest(longPrompt);
+    @Nested
+    @DisplayName("Rate Limiting")
+    class RateLimitTests {
 
-        // When & Then
-        mockMvc.perform(post("/api/ask")
-                        .principal(authentication)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest());
+        @Test
+        @DisplayName("Rate limit headers should be present in successful response")
+        void rateLimitHeadersShouldBePresent() throws Exception {
+            when(ollamaClient.generateResponse(anyString())).thenReturn("Hello!");
+
+            AskRequest req = new AskRequest();
+            req.setPrompt("Hello");
+
+            mockMvc.perform(post("/api/ask")
+                    .header("Authorization", "Bearer " + jwtToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(req)))
+                    .andExpect(status().isOk())
+                    .andExpect(header().exists("X-Rate-Limit-Remaining"))
+                    .andExpect(header().exists("X-Rate-Limit-Capacity"));
+        }
     }
 
-    @Test
-    void testAsk_ServiceError_ReturnsInternalServerError() throws Exception {
-        // Given
-        AskRequest request = new AskRequest("What is AI?");
+    @Nested
+    @DisplayName("GET /api/status")
+    class StatusTests {
 
-        when(rateLimitService.isAllowed(anyString())).thenReturn(true);
-        when(ollamaService.generateResponse(anyString()))
-                .thenThrow(new SecureAiException("Service unavailable"));
-
-        // When & Then
-        mockMvc.perform(post("/api/ask")
-                        .principal(authentication)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isInternalServerError());
-    }
-
-    @Test
-    void testHealth_ServiceAvailable_ReturnsOk() throws Exception {
-        // Given
-        when(ollamaService.isAvailable()).thenReturn(true);
-
-        // When & Then
-        mockMvc.perform(get("/api/health")
-                        .principal(authentication))
-                .andExpect(status().isOk())
-                .andExpect(content().string("AI service is available"));
-    }
-
-    @Test
-    void testHealth_ServiceUnavailable_ReturnsServiceUnavailable() throws Exception {
-        // Given
-        when(ollamaService.isAvailable()).thenReturn(false);
-
-        // When & Then
-        mockMvc.perform(get("/api/health")
-                        .principal(authentication))
-                .andExpect(status().isServiceUnavailable())
-                .andExpect(content().string("AI service is unavailable"));
-    }
-
-    @Test
-    void testGetRateLimit_ReturnsRemainingTokens() throws Exception {
-        // Given
-        when(rateLimitService.getRemainingTokens(anyString())).thenReturn(95L);
-
-        // When & Then
-        mockMvc.perform(get("/api/rate-limit")
-                        .principal(authentication))
-                .andExpect(status().isOk())
-                .andExpect(content().string("95"));
+        @Test
+        @DisplayName("Status endpoint should return Ollama health")
+        void statusEndpointShouldWork() throws Exception {
+            mockMvc.perform(get("/api/status")
+                    .header("Authorization", "Bearer " + jwtToken))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.ollamaHealthy").isBoolean())
+                    .andExpect(jsonPath("$.model").value("test-model"));
+        }
     }
 }
