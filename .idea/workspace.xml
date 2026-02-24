@@ -5,167 +5,67 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2c713ac9-0db2-4701-9ecc-44d9107bd702" name="Changes" comment="Add application-test.yml, fix JWT parser usage, and update dependencies for compatibility">
-      <change afterPath="$PROJECT_DIR$/secure-ai-gateway/src/test/java/com/secureai/service/OllamaServiceTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.output.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/secure-ai-gateway/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/src/main/java/com/secureai/controller/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/secure-ai-gateway/src/main/java/com/secureai/controller/AuthController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/src/main/java/com/secureai/service/OllamaService.java" beforeDir="false" afterPath="$PROJECT_DIR$/secure-ai-gateway/src/main/java/com/secureai/service/OllamaService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/src/test/resources/application-test.yml" beforeDir="false" afterPath="$PROJECT_DIR$/secure-ai-gateway/src/test/resources/application-test.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/classes/application-dev.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/classes/application-prod.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/classes/application-test.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/classes/db/migration/V1__init_schema.sql" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/classes/static/index.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/jacoco.exec" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/createdFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.agent/ReActAgentService$AgentResult.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.agent/ReActAgentService$AgentStep.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.agent/ReActAgentService.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.agent/ReActAgentService.java.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.agent/index.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.agent/index.source.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.config/JpaConfig.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.config/JpaConfig.java.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.config/SecurityConfig.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.config/SecurityConfig.java.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.config/index.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.config/index.source.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.controller/AdminController.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.controller/AdminController.java.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.controller/AskController.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.controller/AskController.java.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.controller/AuthController.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.controller/AuthController.java.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.controller/index.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.controller/index.source.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.exception/GlobalExceptionHandler.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.exception/GlobalExceptionHandler.java.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.exception/index.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.exception/index.source.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.model/AskRequest.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.model/AskRequest.java.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.model/AskResponse.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.model/AskResponse.java.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.model/ErrorResponse.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.model/ErrorResponse.java.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.model/LoginRequest.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.model/LoginRequest.java.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.model/LoginResponse.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.model/LoginResponse.java.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.model/RegisterRequest.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.model/RegisterRequest.java.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.model/index.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.model/index.source.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.pii/PiiRedactionService$PiiRule.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.pii/PiiRedactionService.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.pii/PiiRedactionService.java.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.pii/index.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.pii/index.source.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.security/JwtAuthenticationFilter.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.security/JwtAuthenticationFilter.java.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.security/JwtUtil.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.security/JwtUtil.java.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.security/index.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.security/index.source.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.service/AuditLogService.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.service/AuditLogService.java.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.service/AuthService$AuthException.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.service/AuthService.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.service/AuthService.java.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.service/OllamaClient$OllamaException.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.service/OllamaClient.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.service/OllamaClient.java.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.service/RateLimiterService.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.service/RateLimiterService.java.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.service/index.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai.service/index.source.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai/SecureAiGatewayApplication.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai/SecureAiGatewayApplication.java.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai/index.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/com.secureai/index.source.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/index.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/jacoco-resources/branchfc.gif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/jacoco-resources/branchnc.gif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/jacoco-resources/branchpc.gif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/jacoco-resources/bundle.gif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/jacoco-resources/class.gif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/jacoco-resources/down.gif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/jacoco-resources/greenbar.gif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/jacoco-resources/group.gif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/jacoco-resources/method.gif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/jacoco-resources/package.gif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/jacoco-resources/prettify.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/jacoco-resources/prettify.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/jacoco-resources/redbar.gif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/jacoco-resources/report.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/jacoco-resources/report.gif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/jacoco-resources/session.gif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/jacoco-resources/sort.gif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/jacoco-resources/sort.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/jacoco-resources/source.gif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/jacoco-resources/up.gif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/jacoco-sessions.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/jacoco.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/site/jacoco/jacoco.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/TEST-com.secureai.controller.AskControllerTest$AuthTests.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/TEST-com.secureai.controller.AskControllerTest$RateLimitTests.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/TEST-com.secureai.controller.AskControllerTest$StatusTests.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/TEST-com.secureai.controller.AskControllerTest$SuccessTests.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/TEST-com.secureai.controller.AskControllerTest$ValidationTests.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/TEST-com.secureai.controller.AskControllerTest.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/TEST-com.secureai.controller.AuthControllerTest$HealthTests.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/TEST-com.secureai.controller.AuthControllerTest$LoginTests.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/TEST-com.secureai.controller.AuthControllerTest$RegisterTests.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/TEST-com.secureai.controller.AuthControllerTest.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/TEST-com.secureai.pii.PiiRedactionServiceTest$CombinedTests.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/TEST-com.secureai.pii.PiiRedactionServiceTest$CreditCardTests.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/TEST-com.secureai.pii.PiiRedactionServiceTest$DisabledTests.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/TEST-com.secureai.pii.PiiRedactionServiceTest$EmailTests.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/TEST-com.secureai.pii.PiiRedactionServiceTest$IbanTests.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/TEST-com.secureai.pii.PiiRedactionServiceTest$IpTests.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/TEST-com.secureai.pii.PiiRedactionServiceTest$PhoneTests.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/TEST-com.secureai.pii.PiiRedactionServiceTest$SsnTests.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/TEST-com.secureai.pii.PiiRedactionServiceTest$TypeDetectionTests.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/TEST-com.secureai.pii.PiiRedactionServiceTest.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/TEST-com.secureai.security.JwtUtilTest$ClaimsExtraction.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/TEST-com.secureai.security.JwtUtilTest$TokenGeneration.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/TEST-com.secureai.security.JwtUtilTest$TokenValidation.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/TEST-com.secureai.security.JwtUtilTest.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/TEST-com.secureai.service.RateLimiterServiceTest.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/TEST-com.secureai.service.ReActAgentServiceTest.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/com.secureai.controller.AskControllerTest$AuthTests.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/com.secureai.controller.AskControllerTest$RateLimitTests.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/com.secureai.controller.AskControllerTest$StatusTests.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/com.secureai.controller.AskControllerTest$SuccessTests.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/com.secureai.controller.AskControllerTest$ValidationTests.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/com.secureai.controller.AskControllerTest.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/com.secureai.controller.AuthControllerTest$HealthTests.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/com.secureai.controller.AuthControllerTest$LoginTests.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/com.secureai.controller.AuthControllerTest$RegisterTests.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/com.secureai.controller.AuthControllerTest.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/com.secureai.pii.PiiRedactionServiceTest$CombinedTests.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/com.secureai.pii.PiiRedactionServiceTest$CreditCardTests.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/com.secureai.pii.PiiRedactionServiceTest$DisabledTests.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/com.secureai.pii.PiiRedactionServiceTest$EmailTests.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/com.secureai.pii.PiiRedactionServiceTest$IbanTests.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/com.secureai.pii.PiiRedactionServiceTest$IpTests.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/com.secureai.pii.PiiRedactionServiceTest$PhoneTests.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/com.secureai.pii.PiiRedactionServiceTest$SsnTests.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/com.secureai.pii.PiiRedactionServiceTest$TypeDetectionTests.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/com.secureai.pii.PiiRedactionServiceTest.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/com.secureai.security.JwtUtilTest$ClaimsExtraction.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/com.secureai.security.JwtUtilTest$TokenGeneration.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/com.secureai.security.JwtUtilTest$TokenValidation.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/com.secureai.security.JwtUtilTest.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/com.secureai.service.RateLimiterServiceTest.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-ai-gateway/target/surefire-reports/com.secureai.service.ReActAgentServiceTest.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/secureai/model/Dtos.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/secureai/model/Dtos.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/secureai/pii/PiiRedactionService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/secureai/pii/PiiRedactionService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/secureai/security/JwtUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/secureai/security/JwtUtil.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application-test.yml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application-test.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/application-test.yml" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/application-test.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/jacoco.exec" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/createdFiles.lst" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/2026-02-24T23-00-38_860-jvmRun1-commands.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/2026-02-24T23-00-38_860-jvmRun1-events.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.controller.AskControllerTest$AuthTests.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.controller.AskControllerTest$RateLimitTests.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.controller.AskControllerTest$StatusTests.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.controller.AskControllerTest$SuccessTests.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.controller.AskControllerTest$ValidationTests.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.controller.AskControllerTest.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.controller.AuthControllerTest$HealthTests.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.controller.AuthControllerTest$LoginTests.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.controller.AuthControllerTest$RegisterTests.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.controller.AuthControllerTest.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.pii.PiiRedactionServiceTest$CombinedTests.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.pii.PiiRedactionServiceTest$CreditCardTests.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.pii.PiiRedactionServiceTest$DisabledTests.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.pii.PiiRedactionServiceTest$EmailTests.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.pii.PiiRedactionServiceTest$IbanTests.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.pii.PiiRedactionServiceTest$IpTests.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.pii.PiiRedactionServiceTest$PhoneTests.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.pii.PiiRedactionServiceTest$SsnTests.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.pii.PiiRedactionServiceTest$TypeDetectionTests.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.pii.PiiRedactionServiceTest.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.security.JwtUtilTest$ClaimsExtraction.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.security.JwtUtilTest$TokenGeneration.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.security.JwtUtilTest$TokenValidation.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.security.JwtUtilTest.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.service.RateLimiterServiceTest.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.service.ReActAgentServiceTest.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.controller.AskControllerTest$AuthTests.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.controller.AskControllerTest$RateLimitTests.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.controller.AskControllerTest$StatusTests.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.controller.AskControllerTest$SuccessTests.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.controller.AskControllerTest$ValidationTests.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.controller.AskControllerTest.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.controller.AuthControllerTest$HealthTests.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.controller.AuthControllerTest$LoginTests.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.controller.AuthControllerTest$RegisterTests.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.controller.AuthControllerTest.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.pii.PiiRedactionServiceTest$CombinedTests.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.pii.PiiRedactionServiceTest$CreditCardTests.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.pii.PiiRedactionServiceTest$DisabledTests.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.pii.PiiRedactionServiceTest$EmailTests.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.pii.PiiRedactionServiceTest$IbanTests.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.pii.PiiRedactionServiceTest$IpTests.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.pii.PiiRedactionServiceTest$PhoneTests.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.pii.PiiRedactionServiceTest$SsnTests.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.pii.PiiRedactionServiceTest$TypeDetectionTests.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.pii.PiiRedactionServiceTest.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.security.JwtUtilTest$ClaimsExtraction.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.security.JwtUtilTest$TokenGeneration.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.security.JwtUtilTest$TokenValidation.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.security.JwtUtilTest.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.service.RateLimiterServiceTest.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.service.ReActAgentServiceTest.txt" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -255,6 +155,7 @@
     "Maven. [test,-Dtest=PiiRedactionServiceTest].executor": "Run",
     "Maven. [test,-X].executor": "Run",
     "Maven. [test,-e].executor": "Run",
+    "Maven.secure-ai-gateway [clean,test].executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.MCP Project settings loaded": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
@@ -283,11 +184,11 @@
     <option name="myCommands">
       <command value="mvn clean compile -f secure-ai-gateway/pom.xml" />
       <command value="mvn clean compile" />
-      <command value="mvn clean test" />
       <command value="mvn test -Dtest=PiiRedactionServiceTest" />
       <command value="mvn test -e" />
       <command value="mvn test -X" />
       <command value="mvn -Dtest=PiiRedactionServiceTest test" />
+      <command value="mvn clean test" />
     </option>
   </component>
   <component name="RunManager">
@@ -309,6 +210,13 @@
       <filePath value="$PROJECT_DIR$" />
       <framework value="gotest" />
       <method v="2" />
+    </configuration>
+    <configuration name="SecureAiGatewayApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="secure-ai-gateway" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.secureai.SecureAiGatewayApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
     </configuration>
   </component>
   <component name="SharedIndexes">
@@ -478,7 +386,23 @@
       <option name="project" value="LOCAL" />
       <updated>1771732049152</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="Add application-test.yml, fix JWT parser usage, and update dependencies for compatibility">
+      <option name="closed" value="true" />
+      <created>1771974536956</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1771974536956</updated>
+    </task>
+    <task id="LOCAL-00020" summary="Add application-test.yml, fix JWT parser usage, and update dependencies for compatibility">
+      <option name="closed" value="true" />
+      <created>1771974563599</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1771974563599</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
