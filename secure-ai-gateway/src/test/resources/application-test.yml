@@ -25,9 +25,18 @@ ollama:
   max-retries: 3
 
 jwt:
+  # Keep old expiration for compatibility but also provide the exact key JwtUtil expects (expiration-ms)
   secret: test-secret-key-for-testing-must-be-at-least-32-characters-long
   expiration: 3600000
+  expiration-ms: 3600000
   issuer: secure-ai-gateway-test
+
+# Disable springdoc / swagger UI during tests to avoid classpath/startup issues
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
 
 rate-limit:
   enabled: true
