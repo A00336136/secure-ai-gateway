@@ -4,69 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2c713ac9-0db2-4701-9ecc-44d9107bd702" name="Changes" comment="Add application-test.yml, fix JWT parser usage, and update dependencies for compatibility">
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/application-test.yml" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/application-test.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/jacoco.exec" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/createdFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/2026-02-24T23-00-38_860-jvmRun1-commands.bin" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/2026-02-24T23-00-38_860-jvmRun1-events.bin" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.controller.AskControllerTest$AuthTests.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.controller.AskControllerTest$RateLimitTests.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.controller.AskControllerTest$StatusTests.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.controller.AskControllerTest$SuccessTests.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.controller.AskControllerTest$ValidationTests.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.controller.AskControllerTest.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.controller.AuthControllerTest$HealthTests.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.controller.AuthControllerTest$LoginTests.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.controller.AuthControllerTest$RegisterTests.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.controller.AuthControllerTest.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.pii.PiiRedactionServiceTest$CombinedTests.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.pii.PiiRedactionServiceTest$CreditCardTests.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.pii.PiiRedactionServiceTest$DisabledTests.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.pii.PiiRedactionServiceTest$EmailTests.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.pii.PiiRedactionServiceTest$IbanTests.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.pii.PiiRedactionServiceTest$IpTests.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.pii.PiiRedactionServiceTest$PhoneTests.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.pii.PiiRedactionServiceTest$SsnTests.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.pii.PiiRedactionServiceTest$TypeDetectionTests.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.pii.PiiRedactionServiceTest.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.security.JwtUtilTest$ClaimsExtraction.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.security.JwtUtilTest$TokenGeneration.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.security.JwtUtilTest$TokenValidation.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.security.JwtUtilTest.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.service.RateLimiterServiceTest.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.secureai.service.ReActAgentServiceTest.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.controller.AskControllerTest$AuthTests.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.controller.AskControllerTest$RateLimitTests.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.controller.AskControllerTest$StatusTests.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.controller.AskControllerTest$SuccessTests.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.controller.AskControllerTest$ValidationTests.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.controller.AskControllerTest.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.controller.AuthControllerTest$HealthTests.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.controller.AuthControllerTest$LoginTests.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.controller.AuthControllerTest$RegisterTests.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.controller.AuthControllerTest.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.pii.PiiRedactionServiceTest$CombinedTests.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.pii.PiiRedactionServiceTest$CreditCardTests.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.pii.PiiRedactionServiceTest$DisabledTests.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.pii.PiiRedactionServiceTest$EmailTests.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.pii.PiiRedactionServiceTest$IbanTests.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.pii.PiiRedactionServiceTest$IpTests.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.pii.PiiRedactionServiceTest$PhoneTests.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.pii.PiiRedactionServiceTest$SsnTests.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.pii.PiiRedactionServiceTest$TypeDetectionTests.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.pii.PiiRedactionServiceTest.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.security.JwtUtilTest$ClaimsExtraction.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.security.JwtUtilTest$TokenGeneration.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.security.JwtUtilTest$TokenValidation.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.security.JwtUtilTest.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.service.RateLimiterServiceTest.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.secureai.service.ReActAgentServiceTest.txt" beforeDir="false" />
-    </list>
+    <list default="true" id="2c713ac9-0db2-4701-9ecc-44d9107bd702" name="Changes" comment="Add application-test.yml, fix JWT parser usage, and update dependencies for compatibility" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -155,6 +93,7 @@
     "Maven. [test,-Dtest=PiiRedactionServiceTest].executor": "Run",
     "Maven. [test,-X].executor": "Run",
     "Maven. [test,-e].executor": "Run",
+    "Maven.secure-ai-gateway [clean,compile].executor": "Run",
     "Maven.secure-ai-gateway [clean,test].executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.MCP Project settings loaded": "true",
@@ -183,12 +122,12 @@
   <component name="RunAnythingCache">
     <option name="myCommands">
       <command value="mvn clean compile -f secure-ai-gateway/pom.xml" />
-      <command value="mvn clean compile" />
       <command value="mvn test -Dtest=PiiRedactionServiceTest" />
       <command value="mvn test -e" />
       <command value="mvn test -X" />
       <command value="mvn -Dtest=PiiRedactionServiceTest test" />
       <command value="mvn clean test" />
+      <command value="mvn clean compile" />
     </option>
   </component>
   <component name="RunManager">
@@ -402,7 +341,23 @@
       <option name="project" value="LOCAL" />
       <updated>1771974563599</updated>
     </task>
-    <option name="localTasksCounter" value="21" />
+    <task id="LOCAL-00021" summary="Add application-test.yml, fix JWT parser usage, and update dependencies for compatibility">
+      <option name="closed" value="true" />
+      <created>1771974839088</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1771974839088</updated>
+    </task>
+    <task id="LOCAL-00022" summary="Add application-test.yml, fix JWT parser usage, and update dependencies for compatibility">
+      <option name="closed" value="true" />
+      <created>1771974847585</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1771974847585</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
