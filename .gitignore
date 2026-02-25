@@ -1,0 +1,55 @@
+# ── Maven build output ──────────────────────────────────────
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# ── IDE files ───────────────────────────────────────────────
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+*.code-workspace
+.classpath
+.project
+.settings/
+.factorypath
+
+# ── Environment & secrets ────────────────────────────────────
+.env
+.env.*
+*.env
+application-local.yml
+application-local.properties
+
+# ── OS files ─────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Logs ─────────────────────────────────────────────────────
+*.log
+logs/
+
+# ── Compiled classes & archives ──────────────────────────────
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+*.zip
+*.tar.gz
+
+# ── JaCoCo coverage ──────────────────────────────────────────
+*.exec
+
+# ── SonarQube cache ──────────────────────────────────────────
+.sonar/
+.scannerwork/
+
+# ── Docker ───────────────────────────────────────────────────
+.docker/
+
+# ── OWASP dependency check cache ────────────────────────────
+dependency-check-data/
