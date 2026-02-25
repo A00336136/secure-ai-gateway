@@ -51,13 +51,13 @@ public class PiiRedactionService {
             );
 
     private static final Pattern PHONE_IE =
-            Pattern.compile("\\b0(?:8[0-9])[0-9]{7}\\b");
+            Pattern.compile("\\b0(?:8[0-9])[\\-\\s]?[0-9]{3}[\\-\\s]?[0-9]{4}\\b");
 
     private static final Pattern PHONE_INTL =
-            Pattern.compile("\\+[1-9]\\d{7,14}\\b");
+            Pattern.compile("\\+[1-9](?:[\\-\\s.]?\\d){7,14}\\b");
 
     private static final Pattern SSN =
-            Pattern.compile("\\b(?!000|666|9\\d{2})\\d{3}-(?!00)\\d{2}-(?!0000)\\d{4}\\b");
+            Pattern.compile("\\b(?!000|666)\\d{3}-(?!00)\\d{2}-(?!0000)\\d{4}\\b");
 
     private static final Pattern CREDIT_CARD =
             Pattern.compile(

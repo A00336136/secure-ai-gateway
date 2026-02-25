@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="2c713ac9-0db2-4701-9ecc-44d9107bd702" name="Changes" comment="Update `.idea` configs to include task adjustments, Go imports, and recent branch merge settings" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CopilotPersistence">
+    <persistenceIdMap>
+      <entry key="_/Users/ashaik/Downloads/secure-ai-gateway" value="39dMsZI76LLqXb3bcqkaW6O7iQj" />
+    </persistenceIdMap>
+  </component>
+  <component name="EmbeddingIndexingInfo">
+    <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="main" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {}
+}]]></component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/A00336136/secure-ai-gateway.git&quot;,
+    &quot;accountId&quot;: &quot;2e604d4e-2d83-45d3-b6b4-019d8d6a1e33&quot;
+  },
+  &quot;recentNewPullRequestHead&quot;: {
+    &quot;server&quot;: {
+      &quot;useHttp&quot;: false,
+      &quot;host&quot;: &quot;github.com&quot;,
+      &quot;port&quot;: null,
+      &quot;suffix&quot;: null
+    },
+    &quot;owner&quot;: &quot;A00336136&quot;,
+    &quot;repository&quot;: &quot;secure-ai-gateway&quot;
+  }
+}</component>
+  <component name="KubernetesApiPersistence">{}</component>
+  <component name="KubernetesApiProvider">{
+  &quot;isMigrated&quot;: true
+}</component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="mavenHomeTypeForPersistence" value="WRAPPER" />
+      </MavenGeneralSettings>
+    </option>
+  </component>
+  <component name="McpProjectServerCommands">
+    <commands />
+    <urls />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="QODANA_PROBLEMS_VIEW_TAB" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 6
+}</component>
+  <component name="ProjectId" id="39dMsZI76LLqXb3bcqkaW6O7iQj" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Maven. [clean,compile,-f...].executor&quot;: &quot;Run&quot;,
+    &quot;Maven. [clean,compile].executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;feature/a00336136&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settingsDialog.application.dockerConsole&quot;,
+    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RunAnythingCache">
+    <option name="myCommands">
+      <command value="mvn clean compile -f secure-ai-gateway/pom.xml" />
+      <command value="mvn clean compile" />
+    </option>
+  </component>
+  <component name="RunManager">
+    <configuration default="true" type="GoApplicationRunConfiguration" factoryName="Go Application">
+      <module name="secure-ai-gateway" />
+      <working_directory value="$PROJECT_DIR$" />
+      <go_parameters value="-i" />
+      <kind value="FILE" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="GoTestRunConfiguration" factoryName="Go Test">
+      <module name="secure-ai-gateway" />
+      <working_directory value="$PROJECT_DIR$" />
+      <go_parameters value="-i" />
+      <kind value="DIRECTORY" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-30f59d01ecdd-2fc7cc6b9a17-intellij.indexing.shared.core-IU-253.31033.145" />
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-IU-253.31033.145" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="2c713ac9-0db2-4701-9ecc-44d9107bd702" name="Changes" comment="" />
+      <created>1771021702475</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1771021702475</updated>
+      <workItem from="1771021703829" duration="24000" />
+      <workItem from="1771021751368" duration="8104000" />
+      <workItem from="1771192613716" duration="7519000" />
+      <workItem from="1771682113193" duration="4520000" />
+      <workItem from="1771715792049" duration="1802000" />
+    </task>
+    <task id="LOCAL-00001" summary="JUNIT">
+      <option name="closed" value="true" />
+      <created>1771024088909</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1771024088909</updated>
+    </task>
+    <task id="LOCAL-00002" summary="JUNIT">
+      <option name="closed" value="true" />
+      <created>1771024109629</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1771024109629</updated>
+    </task>
+    <task id="LOCAL-00003" summary="JUNIT tested authentication and rate">
+      <option name="closed" value="true" />
+      <created>1771192663578</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1771192663578</updated>
+    </task>
+    <task id="LOCAL-00004" summary="JUNIT tested authentication and rate">
+      <option name="closed" value="true" />
+      <created>1771192759557</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1771192759557</updated>
+    </task>
+    <task id="LOCAL-00005" summary="JUNIT tested authentication and rate">
+      <option name="closed" value="true" />
+      <created>1771192774813</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1771192774813</updated>
+    </task>
+    <task id="LOCAL-00006" summary="JUNIT tested authentication and rate">
+      <option name="closed" value="true" />
+      <created>1771192793804</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1771192793804</updated>
+    </task>
+    <task id="LOCAL-00007" summary="JUNIT tested authentication and rate">
+      <option name="closed" value="true" />
+      <created>1771192802401</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1771192802401</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Merge remote-tracking branch 'origin/feature/a00336136' into feature/a00336136">
+      <option name="closed" value="true" />
+      <created>1771192881919</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1771192881919</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Update `.idea` configs to include task adjustments, Go imports, and recent branch merge settings">
+      <option name="closed" value="true" />
+      <created>1771194472821</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1771194472821</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Update `.idea` configs to include task adjustments, Go imports, and recent branch merge settings">
+      <option name="closed" value="true" />
+      <created>1771194491064</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1771194491064</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Update `.idea` configs to include task adjustments, Go imports, and recent branch merge settings">
+      <option name="closed" value="true" />
+      <created>1771194500261</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1771194500261</updated>
+    </task>
+    <task id="LOCAL-00012" summary="Update `.idea` configs to include task adjustments, Go imports, and recent branch merge settings">
+      <option name="closed" value="true" />
+      <created>1771194520702</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1771194520702</updated>
+    </task>
+    <task id="LOCAL-00013" summary="Update `.idea` configs to include task adjustments, Go imports, and recent branch merge settings">
+      <option name="closed" value="true" />
+      <created>1771515061309</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1771515061309</updated>
+    </task>
+    <task id="LOCAL-00014" summary="Update `.idea` configs to include task adjustments, Go imports, and recent branch merge settings">
+      <option name="closed" value="true" />
+      <created>1771515077550</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1771515077550</updated>
+    </task>
+    <task id="LOCAL-00015" summary="Update `.idea` configs to include task adjustments, Go imports, and recent branch merge settings">
+      <option name="closed" value="true" />
+      <created>1771538351407</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1771538351407</updated>
+    </task>
+    <task id="LOCAL-00016" summary="Update `.idea` configs to include task adjustments, Go imports, and recent branch merge settings">
+      <option name="closed" value="true" />
+      <created>1771682147134</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1771682147135</updated>
+    </task>
+    <task id="LOCAL-00017" summary="Update `.idea` configs to include task adjustments, Go imports, and recent branch merge settings">
+      <option name="closed" value="true" />
+      <created>1771715968143</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1771715968143</updated>
+    </task>
+    <task id="LOCAL-00018" summary="Update `.idea` configs to include task adjustments, Go imports, and recent branch merge settings">
+      <option name="closed" value="true" />
+      <created>1771716003067</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1771716003067</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="JUNIT" />
+    <MESSAGE value="JUNIT tested authentication and rate" />
+    <MESSAGE value="Merge remote-tracking branch 'origin/feature/a00336136' into feature/a00336136" />
+    <MESSAGE value="Update `.idea` configs to include task adjustments, Go imports, and recent branch merge settings" />
+    <option name="LAST_COMMIT_MESSAGE" value="Update `.idea` configs to include task adjustments, Go imports, and recent branch merge settings" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
+  </component>
+  <component name="github-copilot-workspace">
+    <instructionFileLocations>
+      <option value=".github/instructions" />
+    </instructionFileLocations>
+    <promptFileLocations>
+      <option value=".github/prompts" />
+    </promptFileLocations>
+  </component>
+</project>

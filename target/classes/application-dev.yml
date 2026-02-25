@@ -1,24 +1,22 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:secureaidev;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    url: jdbc:h2:mem:secureaidb;DB_CLOSE_DELAY=-1;MODE=MySQL
     driver-class-name: org.h2.Driver
     username: sa
     password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    database-platform: org.hibernate.dialect.H2Dialect
+    show-sql: true
   h2:
     console:
       enabled: true
       path: /h2-console
-  jpa:
-    hibernate:
-      ddl-auto: validate
-    show-sql: true
   flyway:
-    locations: classpath:db/migration,classpath:db/dev
-
-ollama:
-  base-url: http://localhost:11434
+    enabled: false   # H2 doesn't support partial indexes in migration SQL
 
 logging:
   level:
     com.secureai: DEBUG
-    org.hibernate.SQL: DEBUG
+    org.springframework.security: DEBUG

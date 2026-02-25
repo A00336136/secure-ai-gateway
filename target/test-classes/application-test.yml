@@ -1,0 +1,36 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:secureaitest;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+  flyway:
+    enabled: false  # tests use Hibernate DDL
+  # Disable springdoc-openapi for tests to avoid initialization issues
+  jmx:
+    enabled: false
+
+ollama:
+  base-url: http://localhost:11434
+  model: test-model
+
+jwt:
+  secret: test-secret-key-minimum-32-chars-for-hs256-alg
+  expiration-ms: 3600000
+
+rate-limit:
+  capacity: 100
+  refill-tokens: 100
+  refill-duration-minutes: 60
+
+# Disable swagger for tests
+springdoc:
+  swagger-ui:
+    enabled: false
+  api-docs:
+    enabled: false
+
