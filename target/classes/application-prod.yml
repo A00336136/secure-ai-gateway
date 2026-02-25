@@ -1,10 +1,11 @@
 spring:
   datasource:
-    url: jdbc:postgresql://${DB_HOST:postgres}:${DB_PORT:5432}/${DB_NAME:secureai}
-    username: ${DB_USERNAME:secureai_user}
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:secureaidb}?useSSL=true&serverTimezone=UTC&allowPublicKeyRetrieval=false
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     hikari:
-      maximum-pool-size: 20
+      maximum-pool-size: 10
       minimum-idle: 5
       connection-timeout: 30000
       idle-timeout: 600000
@@ -12,17 +13,13 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
+    database-platform: org.hibernate.dialect.MySQLDialect
     show-sql: false
   flyway:
-    locations: classpath:db/migration
-
-server:
-  ssl:
-    enabled: false  # TLS terminated at ingress/load balancer
+    enabled: true
 
 logging:
   level:
     com.secureai: INFO
-    root: WARN
-  file:
-    name: /var/log/secure-ai-gateway/app.log
+    org.springframework.security: WARN
+    org.hibernate.SQL: WARN

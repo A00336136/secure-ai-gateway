@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.secureai.controller.AskControllerTest$StatusTests
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 8.822 s -- in com.secureai.controller.AskControllerTest$StatusTests

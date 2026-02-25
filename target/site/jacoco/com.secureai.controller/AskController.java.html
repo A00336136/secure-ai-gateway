@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AskController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Secure AI Gateway</a> &gt; <a href="index.source.html" class="el_package">com.secureai.controller</a> &gt; <span class="el_source">AskController.java</span></div><h1>AskController.java</h1><pre class="source lang-java linenums">package com.secureai.controller;
+
+import com.secureai.agent.ReActAgentService;
+import com.secureai.model.AskRequest;
+import com.secureai.model.AskResponse;
+import com.secureai.pii.PiiRedactionService;
+import com.secureai.service.AuditLogService;
+import com.secureai.service.OllamaClient;
+import com.secureai.service.RateLimiterService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal;
+
+/**
+ * Ask Controller — Main AI Gateway Endpoint
+ *
+ * Pipeline per request:
+ *  ① JWT auth (enforced by security filter, not this controller)
+ *  ② Rate limit check (Bucket4j — 100 req/hr per user)
+ *  ③ Route to OllamaClient or ReActAgent
+ *  ④ PII redaction on response
+ *  ⑤ Async audit log to PostgreSQL
+ *  ⑥ Return response with rate-limit headers
+ */
+@RestController
+@RequestMapping(&quot;/api&quot;)
+@Tag(name = &quot;AI Gateway&quot;, description = &quot;Secure AI inference endpoints&quot;)
+<span class="fc" id="L41">public class AskController {</span>
+
+<span class="fc" id="L43">    private static final Logger log = LoggerFactory.getLogger(AskController.class);</span>
+
+    @Autowired private OllamaClient ollamaClient;
+    @Autowired private PiiRedactionService piiRedactionService;
+    @Autowired private RateLimiterService rateLimiterService;
+    @Autowired private ReActAgentService reActAgentService;
+    @Autowired private AuditLogService auditLogService;
+
+    @PostMapping(&quot;/ask&quot;)
+    @Operation(
+        summary = &quot;Send a prompt to the AI gateway&quot;,
+        description = &quot;Authenticated, rate-limited, PII-redacted AI inference&quot;,
+        security = @SecurityRequirement(name = &quot;bearerAuth&quot;)
+    )
+    public ResponseEntity&lt;AskResponse&gt; ask(
+            @Valid @RequestBody AskRequest request,
+            Principal principal,
+            HttpServletRequest httpRequest) {
+
+<span class="fc" id="L62">        String username = principal.getName();</span>
+<span class="fc" id="L63">        long startTime = System.currentTimeMillis();</span>
+
+        // ② Rate Limiting
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">        if (!rateLimiterService.tryConsume(username)) {</span>
+<span class="nc" id="L67">            long remaining = rateLimiterService.getRemainingTokens(username);</span>
+<span class="nc" id="L68">            log.warn(&quot;Rate limit exceeded for user '{}'&quot;, username);</span>
+
+<span class="nc" id="L70">            auditLogService.logRequest(username, request.getPrompt(), null,</span>
+<span class="nc" id="L71">                    ollamaClient.getModel(), false, true, null,</span>
+<span class="nc" id="L72">                    429, 0L, httpRequest.getRemoteAddr());</span>
+
+<span class="nc" id="L74">            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)</span>
+<span class="nc" id="L75">                    .header(&quot;X-Rate-Limit-Remaining&quot;, String.valueOf(remaining))</span>
+<span class="nc" id="L76">                    .header(&quot;Retry-After&quot;, &quot;3600&quot;)</span>
+<span class="nc" id="L77">                    .header(&quot;X-Rate-Limit-Capacity&quot;, String.valueOf(rateLimiterService.getCapacity()))</span>
+<span class="nc" id="L78">                    .build();</span>
+        }
+
+        String rawResponse;
+<span class="fc" id="L82">        int reactSteps = 0;</span>
+
+        // ③ Route: ReAct agent or direct inference
+<span class="fc bfc" id="L85" title="All 2 branches covered.">        if (request.isUseReActAgent()) {</span>
+<span class="fc" id="L86">            log.info(&quot;ReAct agent invoked for user '{}'&quot;, username);</span>
+<span class="fc" id="L87">            ReActAgentService.AgentResult result = reActAgentService.execute(request.getPrompt());</span>
+<span class="fc" id="L88">            rawResponse = result.answer;</span>
+<span class="fc" id="L89">            reactSteps = result.totalSteps;</span>
+<span class="fc" id="L90">        } else {</span>
+<span class="fc" id="L91">            rawResponse = ollamaClient.generateResponse(request.getPrompt());</span>
+        }
+
+        // ④ PII Redaction
+<span class="fc" id="L95">        boolean piiDetected = piiRedactionService.containsPii(rawResponse);</span>
+<span class="fc bfc" id="L96" title="All 2 branches covered.">        String finalResponse = piiDetected ? piiRedactionService.redact(rawResponse) : rawResponse;</span>
+
+<span class="fc" id="L98">        long durationMs = System.currentTimeMillis() - startTime;</span>
+
+        // ⑤ Async Audit Log
+<span class="fc" id="L101">        auditLogService.logRequest(</span>
+<span class="fc" id="L102">                username, request.getPrompt(), finalResponse,</span>
+<span class="fc" id="L103">                ollamaClient.getModel(), piiDetected, false,</span>
+<span class="fc bfc" id="L104" title="All 2 branches covered.">                reactSteps &gt; 0 ? reactSteps : null,</span>
+<span class="fc" id="L105">                200, durationMs, httpRequest.getRemoteAddr()</span>
+        );
+
+<span class="fc" id="L108">        log.info(&quot;Request processed for '{}': pii={}, steps={}, ms={}&quot;,</span>
+<span class="fc" id="L109">                username, piiDetected, reactSteps, durationMs);</span>
+
+<span class="fc" id="L111">        long remaining = rateLimiterService.getRemainingTokens(username);</span>
+
+        // ⑥ Return response
+<span class="fc" id="L114">        AskResponse response = new AskResponse(</span>
+                finalResponse, piiDetected, piiDetected, reactSteps, durationMs,
+<span class="fc" id="L116">                ollamaClient.getModel()</span>
+        );
+
+<span class="fc" id="L119">        return ResponseEntity.ok()</span>
+<span class="fc" id="L120">                .header(&quot;X-Rate-Limit-Remaining&quot;, String.valueOf(remaining))</span>
+<span class="fc" id="L121">                .header(&quot;X-Rate-Limit-Capacity&quot;, String.valueOf(rateLimiterService.getCapacity()))</span>
+<span class="fc" id="L122">                .header(&quot;X-PII-Redacted&quot;, String.valueOf(piiDetected))</span>
+<span class="fc" id="L123">                .header(&quot;X-Duration-Ms&quot;, String.valueOf(durationMs))</span>
+<span class="fc" id="L124">                .body(response);</span>
+    }
+
+    @GetMapping(&quot;/status&quot;)
+    @Operation(summary = &quot;Check AI model connectivity&quot;, security = @SecurityRequirement(name = &quot;bearerAuth&quot;))
+    public ResponseEntity&lt;Object&gt; status(Principal principal) {
+<span class="fc" id="L130">        boolean ollamaHealthy = ollamaClient.isHealthy();</span>
+<span class="fc" id="L131">        return ResponseEntity.ok(java.util.Map.of(</span>
+<span class="fc" id="L132">            &quot;user&quot;, principal.getName(),</span>
+<span class="fc" id="L133">            &quot;ollamaHealthy&quot;, ollamaHealthy,</span>
+<span class="fc" id="L134">            &quot;model&quot;, ollamaClient.getModel(),</span>
+<span class="fc" id="L135">            &quot;rateLimitRemaining&quot;, rateLimiterService.getRemainingTokens(principal.getName())</span>
+        ));
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

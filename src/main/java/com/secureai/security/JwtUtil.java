@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.UUID;
 
 /**
  * JWT Utility — Stateless HMAC-SHA256 token management.
@@ -49,6 +50,7 @@ public class JwtUtil {
         return Jwts.builder()
                 .setSubject(username)
                 .claim(ROLE_CLAIM, role)
+                .setId(UUID.randomUUID().toString())  // jti: guarantees uniqueness per token
                 .setIssuedAt(now)
                 .setExpiration(expiry)
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
@@ -79,6 +81,8 @@ public class JwtUtil {
             return true;
         } catch (ExpiredJwtException e) {
             log.warn("JWT expired for token: ...{}", token.length() > 10 ? token.substring(token.length() - 10) : "");
+        } catch (io.jsonwebtoken.security.SignatureException e) {
+            log.warn("JWT signature invalid: {}", e.getMessage());
         } catch (UnsupportedJwtException e) {
             log.warn("JWT unsupported: {}", e.getMessage());
         } catch (MalformedJwtException e) {
