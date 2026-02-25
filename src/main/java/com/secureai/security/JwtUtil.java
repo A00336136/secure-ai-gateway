@@ -80,15 +80,16 @@ public class JwtUtil {
             parseClaims(token);
             return true;
         } catch (ExpiredJwtException e) {
-            log.warn("JWT expired for token: ...{}", token.length() > 10 ? token.substring(token.length() - 10) : "");
+            log.warn("JWT expired for token: ...{}", sanitizeLog(
+                    token != null && token.length() > 10 ? token.substring(token.length() - 10) : ""));
         } catch (io.jsonwebtoken.security.SignatureException e) {
-            log.warn("JWT signature invalid: {}", e.getMessage());
+            log.warn("JWT signature invalid: {}", sanitizeLog(e.getMessage()));
         } catch (UnsupportedJwtException e) {
-            log.warn("JWT unsupported: {}", e.getMessage());
+            log.warn("JWT unsupported: {}", sanitizeLog(e.getMessage()));
         } catch (MalformedJwtException e) {
-            log.warn("JWT malformed: {}", e.getMessage());
+            log.warn("JWT malformed: {}", sanitizeLog(e.getMessage()));
         } catch (IllegalArgumentException e) {
-            log.warn("JWT empty or null: {}", e.getMessage());
+            log.warn("JWT empty or null: {}", sanitizeLog(e.getMessage()));
         }
         return false;
     }
@@ -106,5 +107,11 @@ public class JwtUtil {
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
+    }
+
+    /** Strips CR and LF to prevent CRLF injection in log messages. */
+    private static String sanitizeLog(String value) {
+        if (value == null) return "(null)";
+        return value.replace("\r", "\\r").replace("\n", "\\n");
     }
 }

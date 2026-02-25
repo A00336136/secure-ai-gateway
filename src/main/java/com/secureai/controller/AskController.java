@@ -65,7 +65,7 @@ public class AskController {
         // ② Rate Limiting
         if (!rateLimiterService.tryConsume(username)) {
             long remaining = rateLimiterService.getRemainingTokens(username);
-            log.warn("Rate limit exceeded for user '{}'", username);
+            log.warn("Rate limit exceeded for user '{}'", sanitizeLog(username));
 
             auditLogService.logRequest(username, request.getPrompt(), null,
                     ollamaClient.getModel(), false, true, null,
@@ -83,7 +83,7 @@ public class AskController {
 
         // ③ Route: ReAct agent or direct inference
         if (request.isUseReActAgent()) {
-            log.info("ReAct agent invoked for user '{}'", username);
+            log.info("ReAct agent invoked for user '{}'", sanitizeLog(username));
             ReActAgentService.AgentResult result = reActAgentService.execute(request.getPrompt());
             rawResponse = result.answer;
             reactSteps = result.totalSteps;
@@ -106,7 +106,7 @@ public class AskController {
         );
 
         log.info("Request processed for '{}': pii={}, steps={}, ms={}",
-                username, piiDetected, reactSteps, durationMs);
+                sanitizeLog(username), piiDetected, reactSteps, durationMs);
 
         long remaining = rateLimiterService.getRemainingTokens(username);
 
@@ -134,5 +134,11 @@ public class AskController {
             "model", ollamaClient.getModel(),
             "rateLimitRemaining", rateLimiterService.getRemainingTokens(principal.getName())
         ));
+    }
+
+    /** Strips CR and LF to prevent CRLF injection in log messages. */
+    private static String sanitizeLog(String value) {
+        if (value == null) return "(null)";
+        return value.replace("\r", "\\r").replace("\n", "\\n");
     }
 }
