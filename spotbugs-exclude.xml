@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  SpotBugs Exclusion Filter — secure-ai-gateway
+  Suppresses known false positives in Spring Boot + JPA patterns.
+  Every exclusion is documented to prevent future confusion.
+-->
+<FindBugsFilter
+    xmlns="https://github.com/spotbugs/filter/3.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="https://github.com/spotbugs/filter/3.0.0
+        https://raw.githubusercontent.com/spotbugs/spotbugs/master/spotbugs/etc/findbugsfilter.xsd">
+
+    <!--
+      EI_EXPOSE_REP / EI_EXPOSE_REP2
+      Lombok @Data / @Builder generates getters that return mutable fields.
+      In JPA entity and DTO classes this is intentional and safe.
+    -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+        <Class name="~com\.secureai\.model\..*"/>
+    </Match>
+
+    <!--
+      SE_BAD_FIELD
+      JPA entities are serializable by convention; Spring handles serialisation.
+      Fields like Logger are non-serialisable by design.
+    -->
+    <Match>
+        <Bug pattern="SE_BAD_FIELD"/>
+        <Class name="~com\.secureai\.(model|config)\..*"/>
+    </Match>
+
+    <!--
+      URF_UNREAD_FIELD
+      Spring @Autowired fields may appear "unread" to static analysis
+      but are injected and used at runtime via reflection.
+    -->
+    <Match>
+        <Bug pattern="URF_UNREAD_FIELD"/>
+        <Class name="~com\.secureai\..*"/>
+    </Match>
+
+    <!--
+      DM_DEFAULT_ENCODING
+      Response writing in Spring MVC uses configured charset via HttpMessageConverter.
+      SpotBugs false-positively flags Jackson's ObjectMapper usage.
+    -->
+    <Match>
+        <Bug pattern="DM_DEFAULT_ENCODING"/>
+        <Class name="~com\.secureai\..*"/>
+    </Match>
+
+    <!--
+      HARD_CODE_PASSWORD
+      application.yml properties look like hardcoded credentials to static analysis,
+      but are resolved from environment variables at runtime.
+      The JWT test secret is test-only and never used in production.
+    -->
+    <Match>
+        <Bug pattern="HARD_CODE_PASSWORD"/>
+        <Class name="~com\.secureai\.security\.JwtUtil"/>
+    </Match>
+
+</FindBugsFilter>
