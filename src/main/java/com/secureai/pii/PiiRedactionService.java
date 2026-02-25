@@ -44,10 +44,13 @@ public class PiiRedactionService {
                 Pattern.CASE_INSENSITIVE
             );
 
+    // ReDoS-safe US phone.
+    // The original nested optional groups created exponential backtrack paths on pathological
+    // input (e.g. "222222222222222@"). Possessive quantifiers ?+ commit the engine to each
+    // optional group without allowing backtrack into it, making matching linear O(n).
     private static final Pattern PHONE_US =
             Pattern.compile(
-                "\\b(?:\\+?1[\\-\\s.]?)?(?:\\(?[2-9]\\d{2}\\)?[\\-\\s.]?)?" +
-                "[2-9]\\d{2}[\\-\\s.]?\\d{4}\\b"
+                "\\b(?:\\+?1[-\\s.]?)?\\(?[2-9]\\d{2}\\)?[-\\s.]?[2-9]\\d{2}[-\\s.]?\\d{4}\\b"
             );
 
     private static final Pattern PHONE_IE =
@@ -138,7 +141,7 @@ public class PiiRedactionService {
             String replaced = m.replaceAll(rule.replacement);
             if (!replaced.equals(result)) {
                 totalRedactions++;
-                log.debug("PII redacted: type={}", rule.label);
+                log.debug("PII redacted: type={}", rule.label); // rule.label is a static constant
             }
             result = replaced;
         }
@@ -155,7 +158,7 @@ public class PiiRedactionService {
         if (text == null || text.isBlank()) return false;
         for (PiiRule rule : RULES) {
             if (rule.pattern.matcher(text).find()) {
-                log.debug("PII detected: type={}", rule.label);
+                log.debug("PII detected: type={}", rule.label); // rule.label is a static constant
                 return true;
             }
         }

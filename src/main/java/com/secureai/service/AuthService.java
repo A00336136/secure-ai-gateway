@@ -48,12 +48,12 @@ public class AuthService {
         }
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            log.warn("Failed login attempt for user '{}'", request.getUsername());
+            log.warn("Failed login attempt for user '{}'", sanitizeLog(request.getUsername()));
             throw new AuthException("Invalid credentials");
         }
 
         String token = jwtUtil.generateToken(user.getUsername(), user.getRole());
-        log.info("User '{}' logged in successfully", user.getUsername());
+        log.info("User '{}' logged in successfully", sanitizeLog(user.getUsername()));
 
         return new LoginResponse(
                 token,
@@ -85,7 +85,7 @@ public class AuthService {
                 .build();
 
         User saved = userRepository.save(user);
-        log.info("New user registered: '{}'", saved.getUsername());
+        log.info("New user registered: '{}'", sanitizeLog(saved.getUsername()));
         return saved;
     }
 
@@ -93,5 +93,11 @@ public class AuthService {
 
     public static class AuthException extends RuntimeException {
         public AuthException(String message) { super(message); }
+    }
+
+    /** Strips CR and LF to prevent CRLF injection in log messages. */
+    private static String sanitizeLog(String value) {
+        if (value == null) return "(null)";
+        return value.replace("\r", "\\r").replace("\n", "\\n");
     }
 }
