@@ -20,51 +20,27 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
-/**
- * Spring Security Configuration
- *
- * Security posture:
- *  - Stateless JWT (no server-side sessions)
- *  - BCrypt cost=12 (≈200ms hash — resists brute force)
- *  - CORS restricted to known origins
- *  - CSRF disabled (JWT is CSRF-immune — stateless)
- *  - Security headers: CSP, HSTS, X-Frame-Options, etc.
- *  - Role-based access: ADMIN routes require ROLE_ADMIN
- */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
-
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
-        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-    }
-
     @Bean
     public PasswordEncoder passwordEncoder() {
-        // Cost factor 12 ≈ 200ms — prevents brute-force attacks
         return new BCryptPasswordEncoder(12);
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http,
+                                                   JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
         http
-            // ═══ Disable CSRF (stateless JWT — no cookies) ═══
             .csrf(AbstractHttpConfigurer::disable)
-
-            // ═══ Stateless sessions ═══
             .sessionManagement(sm ->
                 sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
-            // ═══ CORS ═══
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-
-            // ═══ Security Headers ═══
             .headers(headers -> headers
                 .frameOptions(fo -> fo.sameOrigin())
-                .xssProtection(xss -> xss.disable())  // CSP handles XSS
+                .xssProtection(xss -> xss.disable())
                 .contentSecurityPolicy(csp ->
                     csp.policyDirectives(
                         "default-src 'self'; " +
@@ -78,23 +54,16 @@ public class SecurityConfig {
                 .referrerPolicy(rp ->
                     rp.policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
             )
-
-            // ═══ Authorization Rules ═══
             .authorizeHttpRequests(auth -> auth
-                // Public endpoints
                 .requestMatchers("/auth/**").permitAll()
                 .requestMatchers("/actuator/health", "/actuator/info").permitAll()
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                 .requestMatchers("/h2-console/**").permitAll()
                 .requestMatchers("/", "/index.html", "/css/**", "/js/**", "/favicon.ico").permitAll()
-                // Admin endpoints
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET, "/api/audit/**").hasAnyRole("ADMIN", "USER")
-                // All else requires auth
                 .anyRequest().authenticated()
             )
-
-            // ═══ JWT Filter ═══
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
