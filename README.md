@@ -217,18 +217,21 @@ curl -s "$BASE_URL/actuator/health" | python3 -m json.tool
 ### 6. Run Tests
 
 ```bash
-# All unit tests
+# Unit tests only (*Test.java — runs under Maven Surefire, fast, no Spring context required for most)
 mvn test
 
 # Specific test class
 mvn test -Dtest=PiiRedactionServiceTest
 
-# Tests with coverage report
+# Unit tests with coverage report
 mvn test jacoco:report
 # View: open target/site/jacoco/index.html
 
-# Integration tests
-mvn failsafe:integration-test
+# Integration tests only (*IT.java — runs under Maven Failsafe, requires Spring context + H2 DB)
+mvn failsafe:integration-test failsafe:verify
+
+# Both unit + integration tests (runs Surefire then Failsafe)
+mvn verify
 
 # OWASP Dependency Check
 mvn dependency-check:check
