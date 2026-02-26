@@ -1,36 +1,55 @@
-spring:
-  datasource:
-    url: jdbc:h2:mem:secureaitest;DB_CLOSE_DELAY=-1
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
-  jpa:
-    hibernate:
-      ddl-auto: create-drop
-    show-sql: false
-  flyway:
-    enabled: false  # tests use Hibernate DDL
-  # Disable springdoc-openapi for tests to avoid initialization issues
-  jmx:
-    enabled: false
+# ─────────────────────────────────────────────────────────────────────────────
+# application-test.properties
+# Active profile: test  (@SpringBootTest sets activeProfiles = "test")
+#
+# Purpose: provide all mandatory properties so the Spring ApplicationContext
+# can start successfully during unit and integration tests WITHOUT needing
+# a real database, Ollama server, or external services.
+#
+# Place this file at:
+#   src/test/resources/application-test.properties
+# ─────────────────────────────────────────────────────────────────────────────
 
-ollama:
-  base-url: http://localhost:11434
-  model: test-model
+# ── JWT ──────────────────────────────────────────────────────────────────────
+# 64-char secret satisfies HS256 minimum key length (512 bits).
+# Must match what JwtUtilTest.setUp() sets via ReflectionTestUtils — but since
+# the test sets the field directly, this value only needs to be valid, not exact.
+jwt.secret=test-secret-key-for-unit-tests-must-be-at-least-64-characters-long-padding
+jwt.expiration=3600000
 
-jwt:
-  secret: test-secret-key-minimum-32-chars-for-hs256-alg
-  expiration-ms: 3600000
+# ── Database — H2 in-memory (replaces MySQL for tests) ───────────────────────
+spring.datasource.url=jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+spring.datasource.driver-class-name=org.h2.Driver
+spring.datasource.username=sa
+spring.datasource.password=
 
-rate-limit:
-  capacity: 100
-  refill-tokens: 100
-  refill-duration-minutes: 60
+# ── JPA ──────────────────────────────────────────────────────────────────────
+spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+spring.jpa.hibernate.ddl-auto=create-drop
+spring.jpa.show-sql=false
 
-# Disable swagger for tests
-springdoc:
-  swagger-ui:
-    enabled: false
-  api-docs:
-    enabled: false
+# ── Flyway — disable migrations in tests (schema created by Hibernate ddl-auto)
+spring.flyway.enabled=false
 
+# ── Ollama — no real server in CI; OllamaClient beans are mocked in tests ────
+ollama.base-url=http://localhost:11434
+ollama.model=llama3.1:8b
+ollama.timeout-seconds=5
+
+# ── Rate limiter ──────────────────────────────────────────────────────────────
+rate-limit.capacity=100
+rate-limit.refill-tokens=100
+rate-limit.refill-duration-minutes=60
+
+# ── PII redaction ─────────────────────────────────────────────────────────────
+pii.redaction.enabled=true
+
+# ── ReAct agent ───────────────────────────────────────────────────────────────
+ollama.react.max-steps=10
+
+# ── Logging — quieter output during tests ────────────────────────────────────
+logging.level.root=WARN
+logging.level.com.secureai=INFO
+
+# ── Actuator — disable for tests to avoid port conflicts ─────────────────────
+management.endpoints.web.exposure.include=health
