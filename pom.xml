@@ -280,6 +280,7 @@
                     <!-- Exclude integration tests from the unit test phase -->
                     <excludes>
                         <exclude>**/*IT.java</exclude>
+                        <exclude>**/*IT$*.java</exclude>
                     </excludes>
                 </configuration>
             </plugin>
@@ -305,6 +306,7 @@
                             <!-- Only run classes matching the *IT.java naming convention -->
                             <includes>
                                 <include>**/*IT.java</include>
+                                <include>**/*IT$*.java</include>
                             </includes>
                         </configuration>
                     </execution>

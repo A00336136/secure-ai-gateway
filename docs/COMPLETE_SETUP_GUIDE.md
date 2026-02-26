@@ -190,10 +190,10 @@ secure-ai-gateway/
 │   │       ├── db/migration/            # Flyway SQL migration scripts
 │   │       └── static/                  # Static resources
 │   └── test/
-│       └── java/com/secureai/           # 67+ JUnit 5 test cases
-│           ├── controller/              # @WebMvcTest controller tests
+│       └── java/com/secureai/           # 63+ JUnit 5 test cases (*Test.java) + 9 integration tests (*IT.java)
+│           ├── controller/              # @WebMvcTest slice tests (*Test.java) + @SpringBootTest ITs (*IT.java)
 │           ├── service/                 # Unit tests with Mockito
-│           └── integration/             # @SpringBootTest integration tests
+│           └── pii/                     # PII redaction unit tests
 ├── k8s/
 │   ├── namespace.yaml           # secure-ai-dev + secure-ai-prod namespaces
 │   ├── deployment.yaml          # Deployment + Service + HPA + Ingress
@@ -221,7 +221,7 @@ cd secure-ai-gateway
 # Compile (skips tests for speed)
 mvn clean compile -DskipTests
 
-# Run all unit tests
+# Run unit tests only (*Test.java — fast, no external services)
 mvn test -Dspring.profiles.active=test
 
 # Run with dev profile (H2 in-memory DB — no external DB needed)
@@ -270,7 +270,7 @@ curl http://localhost:8080/actuator/health
 ### Step 4: Running Tests
 
 ```bash
-# All unit tests
+# Unit tests only (*Test.java — Surefire, fast, no external services needed)
 mvn test -Dspring.profiles.active=test
 
 # With coverage report
@@ -280,10 +280,10 @@ mvn test jacoco:report -Dspring.profiles.active=test
 # Specific test class
 mvn test -Dtest=AiServiceTest -Dspring.profiles.active=test
 
-# Integration tests only
+# Integration tests only (*IT.java — Failsafe, loads Spring context + H2 DB)
 mvn failsafe:integration-test failsafe:verify -Dspring.profiles.active=test
 
-# Full build with all checks (mirrors CI pipeline)
+# Full build with all checks — unit + integration tests (mirrors CI pipeline)
 mvn clean verify -Dspring.profiles.active=test
 ```
 
