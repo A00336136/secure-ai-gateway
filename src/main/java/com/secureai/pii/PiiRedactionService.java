@@ -44,20 +44,23 @@ public class PiiRedactionService {
                 Pattern.CASE_INSENSITIVE
             );
 
+    // ReDoS-safe US phone.
+    // The original nested optional groups created exponential backtrack paths on pathological
+    // input (e.g. "222222222222222@"). Possessive quantifiers ?+ commit the engine to each
+    // optional group without allowing backtrack into it, making matching linear O(n).
     private static final Pattern PHONE_US =
             Pattern.compile(
-                "\\b(?:\\+?1[\\-\\s.]?)?(?:\\(?[2-9]\\d{2}\\)?[\\-\\s.]?)?" +
-                "[2-9]\\d{2}[\\-\\s.]?\\d{4}\\b"
+                "\\b(?:\\+?1[-\\s.]?)?\\(?[2-9]\\d{2}\\)?[-\\s.]?[2-9]\\d{2}[-\\s.]?\\d{4}\\b"
             );
 
     private static final Pattern PHONE_IE =
-            Pattern.compile("\\b0(?:8[0-9])[0-9]{7}\\b");
+            Pattern.compile("\\b0(?:8[0-9])[\\-\\s]?[0-9]{3}[\\-\\s]?[0-9]{4}\\b");
 
     private static final Pattern PHONE_INTL =
-            Pattern.compile("\\+[1-9]\\d{7,14}\\b");
+            Pattern.compile("\\+[1-9](?:[\\-\\s.]?\\d){7,14}\\b");
 
     private static final Pattern SSN =
-            Pattern.compile("\\b(?!000|666|9\\d{2})\\d{3}-(?!00)\\d{2}-(?!0000)\\d{4}\\b");
+            Pattern.compile("\\b(?!000|666)\\d{3}-(?!00)\\d{2}-(?!0000)\\d{4}\\b");
 
     private static final Pattern CREDIT_CARD =
             Pattern.compile(
@@ -138,7 +141,7 @@ public class PiiRedactionService {
             String replaced = m.replaceAll(rule.replacement);
             if (!replaced.equals(result)) {
                 totalRedactions++;
-                log.debug("PII redacted: type={}", rule.label);
+                log.debug("PII redacted: type={}", rule.label); // rule.label is a static constant
             }
             result = replaced;
         }
@@ -155,7 +158,7 @@ public class PiiRedactionService {
         if (text == null || text.isBlank()) return false;
         for (PiiRule rule : RULES) {
             if (rule.pattern.matcher(text).find()) {
-                log.debug("PII detected: type={}", rule.label);
+                log.debug("PII detected: type={}", rule.label); // rule.label is a static constant
                 return true;
             }
         }

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -75,12 +76,23 @@ public class ReActAgentService {
     // ─────────────────────────────────────────────────────────────────────────
 
     /**
+     * Sanitize a value before writing to logs to prevent CRLF injection attacks.
+     * CR/LF in log lines can be exploited to forge log entries.
+     */
+    private static String sanitizeLog(String value) {
+        if (value == null) return "(null)";
+        return value.replace("\r", "\\r").replace("\n", "\\n");
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+
+    /**
      * Execute the ReAct loop for a given user prompt.
      * @return AgentResult with final answer and step count
      */
     public AgentResult execute(String userPrompt) {
         log.info("ReAct agent starting for prompt: {}...",
-                userPrompt.length() > 60 ? userPrompt.substring(0, 60) : userPrompt);
+                sanitizeLog(userPrompt.length() > 60 ? userPrompt.substring(0, 60) : userPrompt));
 
         List<AgentStep> steps = new ArrayList<>();
         StringBuilder conversationHistory = new StringBuilder();
@@ -98,10 +110,12 @@ public class ReActAgentService {
             steps.add(agentStep);
 
             log.debug("Step {}: thought='{}', action='{}'",
-                    step, agentStep.thought, agentStep.action);
+                    step, sanitizeLog(agentStep.thought), sanitizeLog(agentStep.action));
 
-            // Check for final answer
-            if ("answer".equalsIgnoreCase(agentStep.action) && agentStep.finalAnswer != null) {
+            // Check for final answer — use Locale.ROOT to avoid locale-sensitive comparison
+            if ("answer".equals(agentStep.action != null
+                    ? agentStep.action.toLowerCase(Locale.ROOT) : null)
+                    && agentStep.finalAnswer != null) {
                 log.info("ReAct agent completed in {} step(s)", step);
                 return new AgentResult(agentStep.finalAnswer, steps, step);
             }
@@ -128,7 +142,7 @@ public class ReActAgentService {
 
     private String executeTool(String action, String input) {
         if (action == null) return "No action specified.";
-        return switch (action.toLowerCase().trim()) {
+        return switch (action.toLowerCase(Locale.ROOT).trim()) {
             case "calculate" -> executeCalculation(input);
             case "search_knowledge" -> executeKnowledgeSearch(input);
             case "summarize" -> executeSummarize(input);

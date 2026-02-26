@@ -53,9 +53,10 @@ public class AuditLogService {
                     .build();
 
             auditLogRepository.save(entry);
-            log.debug("Audit log saved for user '{}'", username);
+            log.debug("Audit log saved for user '{}'", sanitizeLog(username));
         } catch (Exception e) {
-            log.error("Failed to save audit log for user '{}': {}", username, e.getMessage(), e);
+            log.error("Failed to save audit log for user '{}': {}", sanitizeLog(username),
+                    sanitizeLog(e.getMessage()), e);
         }
     }
 
@@ -87,5 +88,11 @@ public class AuditLogService {
     private String truncate(String text, int maxLength) {
         if (text == null) return null;
         return text.length() <= maxLength ? text : text.substring(0, maxLength) + "...[truncated]";
+    }
+
+    /** Strips CR and LF to prevent CRLF injection in log messages. */
+    private static String sanitizeLog(String value) {
+        if (value == null) return "(null)";
+        return value.replace("\r", "\\r").replace("\n", "\\n");
     }
 }
