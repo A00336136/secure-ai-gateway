@@ -46,7 +46,7 @@
         <!-- sonar.token is the current property name (sonar.login is deprecated since SonarQube 10) -->
         <!-- Pass on the command line to avoid storing credentials in pom.xml:                       -->
         <!--   mvn sonar:sonar -Dsonar.token=<your-token>                                           -->
-        <sonar.token>${env.SONAR_TOKEN}</sonar.token>
+        <sonar.token>${env.OSS_INDEX_TOKEN}</sonar.token>
 
         <!-- Point Sonar at JaCoCo's XML report so coverage appears in the UI -->
         <sonar.coverage.jacoco.xmlReportPaths>
