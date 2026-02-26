@@ -1,0 +1,54 @@
+---
+# ═══════════════════════════════════════════════════════
+# k8s/namespace.yaml
+# ═══════════════════════════════════════════════════════
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: secure-ai-dev
+  labels:
+    app: secure-ai-gateway
+    env: dev
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: secure-ai-prod
+  labels:
+    app: secure-ai-gateway
+    env: prod
+---
+# ═══════════════════════════════════════════════════════
+# ConfigMap — non-sensitive application config
+# ═══════════════════════════════════════════════════════
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: secure-ai-config
+  namespace: secure-ai-dev
+data:
+  SPRING_PROFILES_ACTIVE: "prod"
+  DB_HOST: "postgres-service"
+  DB_PORT: "5432"
+  DB_NAME: "secureai"
+  DB_USERNAME: "secureai_user"
+  OLLAMA_BASE_URL: "http://ollama-service:11434"
+  OLLAMA_MODEL: "llama3.1:8b"
+  RATE_LIMIT_CAPACITY: "100"
+  RATE_LIMIT_REFILL_MINUTES: "60"
+  MANAGEMENT_ENDPOINTS_INCLUDE: "health,info,metrics,prometheus"
+---
+# ═══════════════════════════════════════════════════════
+# Secret — sensitive credentials (base64 encoded)
+# In production: use Kubernetes Vault integration or
+# External Secrets Operator instead of raw secrets
+# ═══════════════════════════════════════════════════════
+apiVersion: v1
+kind: Secret
+metadata:
+  name: secure-ai-secrets
+  namespace: secure-ai-dev
+type: Opaque
+stringData:
+  DB_PASSWORD: "secureai_password"
+  JWT_SECRET: "change-this-in-production-to-a-very-long-random-secret-key"

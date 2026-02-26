@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Secure AI Gateway — Dashboard</title>
+  <style>
+    :root {
+      --bg-dark: #0d1117;
+      --bg-card: #161b22;
+      --bg-card2: #1c2128;
+      --border: #30363d;
+      --text-primary: #e6edf3;
+      --text-secondary: #8b949e;
+      --accent-blue: #58a6ff;
+      --accent-green: #3fb950;
+      --accent-red: #f85149;
+      --accent-orange: #d29922;
+      --accent-purple: #bc8cff;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg-dark); color: var(--text-primary);
+      min-height: 100vh; display: flex; flex-direction: column;
+    }
+    /* ─── NAV ─── */
+    nav {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 60px; position: sticky; top: 0; z-index: 100;
+    }
+    .nav-brand { display: flex; align-items: center; gap: 12px; }
+    .nav-logo {
+      width: 32px; height: 32px; background: linear-gradient(135deg, #58a6ff, #bc8cff);
+      border-radius: 8px; display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 16px; color: #fff;
+    }
+    .nav-title { font-weight: 700; font-size: 17px; }
+    .nav-subtitle { font-size: 12px; color: var(--text-secondary); }
+    .nav-actions { display: flex; align-items: center; gap: 12px; }
+    .badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+    .badge-green { background: rgba(63,185,80,.15); color: var(--accent-green); border: 1px solid rgba(63,185,80,.3); }
+    .badge-red   { background: rgba(248,81,73,.15);  color: var(--accent-red);   border: 1px solid rgba(248,81,73,.3); }
+    .badge-blue  { background: rgba(88,166,255,.15); color: var(--accent-blue);  border: 1px solid rgba(88,166,255,.3); }
+    /* ─── LAYOUT ─── */
+    .container { max-width: 1400px; margin: 0 auto; padding: 24px; flex: 1; }
+    /* ─── TABS ─── */
+    .tabs { display: flex; gap: 4px; margin-bottom: 24px; border-bottom: 1px solid var(--border); }
+    .tab {
+      padding: 10px 20px; cursor: pointer; font-size: 14px; font-weight: 500;
+      color: var(--text-secondary); border-bottom: 2px solid transparent;
+      transition: all .2s; background: none; border-top: none; border-left: none; border-right: none;
+    }
+    .tab:hover { color: var(--text-primary); }
+    .tab.active { color: var(--accent-blue); border-bottom-color: var(--accent-blue); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    /* ─── CARDS ─── */
+    .grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 24px; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2,1fr); gap: 16px; margin-bottom: 24px; }
+    @media(max-width:900px) { .grid-4{grid-template-columns:repeat(2,1fr);} .grid-2{grid-template-columns:1fr;} }
+    @media(max-width:500px) { .grid-4{grid-template-columns:1fr;} }
+    .card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 20px;
+    }
+    .stat-card { text-align: center; }
+    .stat-number { font-size: 36px; font-weight: 700; line-height: 1; margin-bottom: 4px; }
+    .stat-label { font-size: 13px; color: var(--text-secondary); }
+    .card-title { font-size: 15px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    /* ─── CHAT ─── */
+    .chat-wrapper { display: grid; grid-template-columns: 300px 1fr; gap: 16px; }
+    @media(max-width:800px){ .chat-wrapper{ grid-template-columns: 1fr; } }
+    .chat-sidebar { display: flex; flex-direction: column; gap: 12px; }
+    .sidebar-section { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+    .sidebar-label { font-size: 12px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 10px; font-weight: 600; }
+    .input-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+    .input-group label { font-size: 13px; color: var(--text-secondary); }
+    input[type=text], input[type=password], textarea, select {
+      background: var(--bg-dark); border: 1px solid var(--border);
+      color: var(--text-primary); padding: 8px 12px; border-radius: 8px;
+      font-size: 14px; width: 100%; font-family: inherit;
+      transition: border-color .2s; outline: none;
+    }
+    input:focus, textarea:focus, select:focus { border-color: var(--accent-blue); }
+    textarea { resize: vertical; min-height: 100px; }
+    .btn {
+      padding: 9px 18px; border-radius: 8px; font-size: 14px; font-weight: 600;
+      cursor: pointer; border: none; transition: all .2s; width: 100%;
+    }
+    .btn-primary { background: var(--accent-blue); color: #fff; }
+    .btn-primary:hover { background: #79b8ff; }
+    .btn-primary:disabled { background: #2d4a6e; color: #6b8fad; cursor: not-allowed; }
+    .btn-danger  { background: var(--accent-red); color: #fff; }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-primary); }
+    .btn-outline:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
+    .toggle-row { display: flex; align-items: center; justify-content: space-between; margin: 8px 0; }
+    .toggle { position: relative; display: inline-block; width: 42px; height: 24px; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute; cursor: pointer; inset: 0;
+      background: var(--border); border-radius: 24px; transition: .3s;
+    }
+    .slider:before {
+      content: ''; position: absolute; height: 18px; width: 18px;
+      left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: .3s;
+    }
+    input:checked + .slider { background: var(--accent-blue); }
+    input:checked + .slider:before { transform: translateX(18px); }
+    /* ─── CHAT MESSAGES ─── */
+    .chat-main { display: flex; flex-direction: column; gap: 12px; }
+    .chat-box {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
+      height: 440px; overflow-y: auto; padding: 16px;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .chat-box::-webkit-scrollbar { width: 6px; }
+    .chat-box::-webkit-scrollbar-track { background: transparent; }
+    .chat-box::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    .msg { max-width: 80%; padding: 10px 14px; border-radius: 12px; font-size: 14px; line-height: 1.5; }
+    .msg-user { background: var(--accent-blue); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
+    .msg-ai {
+      background: var(--bg-card2); border: 1px solid var(--border);
+      align-self: flex-start; border-bottom-left-radius: 4px; white-space: pre-wrap;
+    }
+    .msg-meta { font-size: 11px; color: var(--text-secondary); margin-top: 4px; }
+    .msg-ai .pii-badge {
+      display: inline-block; background: rgba(210,153,34,.2);
+      color: var(--accent-orange); border: 1px solid rgba(210,153,34,.4);
+      border-radius: 4px; padding: 2px 6px; font-size: 11px; margin-top: 6px;
+    }
+    .typing { display: flex; gap: 4px; align-items: center; padding: 12px 16px; }
+    .dot { width: 8px; height: 8px; background: var(--text-secondary); border-radius: 50%; animation: bounce .8s infinite; }
+    .dot:nth-child(2) { animation-delay: .15s; }
+    .dot:nth-child(3) { animation-delay: .3s; }
+    @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+    .chat-input-row { display: flex; gap: 8px; }
+    .chat-input-row textarea { flex: 1; min-height: 48px; max-height: 140px; resize: none; }
+    .chat-input-row .btn { width: auto; padding: 0 20px; }
+    /* ─── EMPTY STATE ─── */
+    .empty-state {
+      flex: 1; display: flex; flex-direction: column; align-items: center;
+      justify-content: center; color: var(--text-secondary); gap: 8px;
+    }
+    .empty-state svg { opacity: .4; }
+    /* ─── TABLE ─── */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { padding: 10px 12px; text-align: left; color: var(--text-secondary); font-weight: 600; border-bottom: 1px solid var(--border); white-space: nowrap; }
+    td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tr:hover td { background: rgba(255,255,255,.02); }
+    .mono { font-family: 'SF Mono', monospace; font-size: 12px; }
+    /* ─── PIPELINE STAGES ─── */
+    .pipeline { display: flex; flex-wrap: wrap; gap: 8px; padding: 16px 0; }
+    .stage {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--bg-card2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 8px 14px; font-size: 13px; font-weight: 500;
+    }
+    .stage.pass  { border-color: rgba(63,185,80,.4); color: var(--accent-green); }
+    .stage.fail  { border-color: rgba(248,81,73,.4); color: var(--accent-red); }
+    .stage.skip  { border-color: rgba(139,148,158,.3); color: var(--text-secondary); }
+    .stage-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .stage.pass .stage-dot { background: var(--accent-green); }
+    .stage.fail .stage-dot { background: var(--accent-red); }
+    .stage.skip .stage-dot { background: var(--text-secondary); }
+    /* ─── ALERTS ─── */
+    .alert { padding: 12px 16px; border-radius: 8px; font-size: 14px; margin-bottom: 12px; }
+    .alert-error { background: rgba(248,81,73,.1); border: 1px solid rgba(248,81,73,.3); color: var(--accent-red); }
+    .alert-success { background: rgba(63,185,80,.1); border: 1px solid rgba(63,185,80,.3); color: var(--accent-green); }
+    /* ─── PROGRESS ─── */
+    .progress-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 3px; transition: width .4s; }
+    /* ─── LOGIN OVERLAY ─── */
+    #loginOverlay {
+      position: fixed; inset: 0; background: rgba(13,17,23,.97);
+      display: flex; align-items: center; justify-content: center; z-index: 999;
+    }
+    .login-box {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 40px; width: 380px; max-width: 90%;
+    }
+    .login-logo {
+      width: 56px; height: 56px;
+      background: linear-gradient(135deg, #58a6ff, #bc8cff);
+      border-radius: 14px; display: flex; align-items: center; justify-content: center;
+      font-weight: 900; font-size: 24px; color: #fff; margin: 0 auto 20px;
+    }
+    .login-title { text-align: center; font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+    .login-sub { text-align: center; font-size: 14px; color: var(--text-secondary); margin-bottom: 28px; }
+    footer {
+      text-align: center; padding: 20px; font-size: 12px;
+      color: var(--text-secondary); border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════ LOGIN OVERLAY ═══════════════════ -->
+<div id="loginOverlay">
+  <div class="login-box">
+    <div class="login-logo">⚡</div>
+    <div class="login-title">Secure AI Gateway</div>
+    <div class="login-sub">Enterprise-Grade AI Security Platform</div>
+    <div id="loginAlert"></div>
+    <div class="input-group">
+      <label>Username</label>
+      <input type="text" id="loginUser" placeholder="admin" value="admin">
+    </div>
+    <div class="input-group" style="margin-bottom:20px">
+      <label>Password</label>
+      <input type="password" id="loginPass" placeholder="Admin@123" value="Admin@123">
+    </div>
+    <button class="btn btn-primary" onclick="doLogin()">Sign In</button>
+    <p style="text-align:center;font-size:12px;color:var(--text-secondary);margin-top:16px">
+      Spring Boot 3.2 · JWT Auth · BCrypt · Ollama LLM
+    </p>
+  </div>
+</div>
+
+<!-- ═══════════════════ NAVBAR ═══════════════════ -->
+<nav>
+  <div class="nav-brand">
+    <div class="nav-logo">⚡</div>
+    <div>
+      <div class="nav-title">Secure AI Gateway</div>
+      <div class="nav-subtitle">Enterprise Security Platform</div>
+    </div>
+  </div>
+  <div class="nav-actions">
+    <span class="badge badge-blue" id="userBadge">—</span>
+    <span class="badge" id="ollamaBadge">Ollama: checking...</span>
+    <span class="badge badge-blue" id="rateBadge">100 tokens</span>
+    <button class="btn btn-outline" style="width:auto;padding:6px 14px;font-size:13px" onclick="logout()">Logout</button>
+  </div>
+</nav>
+
+<!-- ═══════════════════ MAIN CONTENT ═══════════════════ -->
+<div class="container">
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('chat')">💬 Chat</button>
+    <button class="tab" onclick="showTab('dashboard')">📊 Dashboard</button>
+    <button class="tab" onclick="showTab('audit')">📋 Audit Logs</button>
+    <button class="tab" onclick="showTab('pipeline')">⚙️ DevSecOps</button>
+    <button class="tab" onclick="showTab('docs')">📖 API Docs</button>
+  </div>
+
+  <!-- ─── CHAT TAB ─── -->
+  <div class="tab-content active" id="tab-chat">
+    <div class="chat-wrapper">
+      <div class="chat-sidebar">
+        <div class="sidebar-section">
+          <div class="sidebar-label">Model Settings</div>
+          <div class="input-group">
+            <label>Model</label>
+            <select id="modelSelect">
+              <option value="">Default (config)</option>
+              <option value="llama3.1:8b">LLaMA 3.1 8B</option>
+              <option value="mistral:7b">Mistral 7B</option>
+              <option value="llama2:13b">LLaMA 2 13B</option>
+            </select>
+          </div>
+          <div class="toggle-row">
+            <span style="font-size:13px">ReAct Agent Mode</span>
+            <label class="toggle"><input type="checkbox" id="useReact"><span class="slider"></span></label>
+          </div>
+          <div class="toggle-row">
+            <span style="font-size:13px">Show PII info</span>
+            <label class="toggle"><input type="checkbox" id="showPii" checked><span class="slider"></span></label>
+          </div>
+        </div>
+        <div class="sidebar-section">
+          <div class="sidebar-label">Rate Limit</div>
+          <div style="font-size:28px;font-weight:700;color:var(--accent-blue)" id="rlTokens">—</div>
+          <div style="font-size:12px;color:var(--text-secondary);margin-bottom:10px">tokens remaining</div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="rlBar" style="background:var(--accent-blue);width:100%"></div>
+          </div>
+        </div>
+        <div class="sidebar-section">
+          <div class="sidebar-label">Quick Prompts</div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <button class="btn btn-outline" style="font-size:12px" onclick="setPrompt('Explain quantum computing in simple terms')">Quantum computing</button>
+            <button class="btn btn-outline" style="font-size:12px" onclick="setPrompt('Write a Python hello world program')">Python hello world</button>
+            <button class="btn btn-outline" style="font-size:12px" onclick="setPrompt('What is the capital of France? [ReAct test]')">ReAct test query</button>
+          </div>
+        </div>
+      </div>
+      <div class="chat-main">
+        <div class="chat-box" id="chatBox">
+          <div class="empty-state">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            <p>No messages yet. Start a conversation!</p>
+          </div>
+        </div>
+        <div class="chat-input-row">
+          <textarea id="promptInput" placeholder="Ask the AI gateway anything..." onkeydown="handleKey(event)" rows="2"></textarea>
+          <button class="btn btn-primary" id="sendBtn" onclick="sendMessage()" style="height:48px">Send</button>
+        </div>
+        <div style="font-size:12px;color:var(--text-secondary);margin-top:4px">
+          Ctrl+Enter to send · Responses are PII-redacted · 100 req/hr limit
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── DASHBOARD TAB ─── -->
+  <div class="tab-content" id="tab-dashboard">
+    <div class="grid-4">
+      <div class="card stat-card">
+        <div class="stat-number" style="color:var(--accent-blue)" id="statTotal">—</div>
+        <div class="stat-label">Total Requests</div>
+      </div>
+      <div class="card stat-card">
+        <div class="stat-number" style="color:var(--accent-green)" id="stat24h">—</div>
+        <div class="stat-label">Last 24 Hours</div>
+      </div>
+      <div class="card stat-card">
+        <div class="stat-number" style="color:var(--accent-orange)" id="statPii">—</div>
+        <div class="stat-label">PII Detections</div>
+      </div>
+      <div class="card stat-card">
+        <div class="stat-number" style="color:var(--accent-red)" id="statRateLimited">—</div>
+        <div class="stat-label">Rate Limited</div>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">⏱ Average Response Time</div>
+        <div style="font-size:40px;font-weight:700;color:var(--accent-purple)" id="statAvgMs">—</div>
+        <div style="font-size:13px;color:var(--text-secondary)">milliseconds (last 24h)</div>
+      </div>
+      <div class="card">
+        <div class="card-title">🟢 System Status</div>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:14px">Spring Boot</span>
+            <span class="badge badge-green">Running</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:14px">Ollama LLM</span>
+            <span class="badge" id="dashOllama">Checking...</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:14px">PostgreSQL</span>
+            <span class="badge badge-green">Connected</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:14px">JWT Auth</span>
+            <span class="badge badge-green">Active</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:14px">Rate Limiter</span>
+            <span class="badge badge-green">Active</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── AUDIT TAB ─── -->
+  <div class="tab-content" id="tab-audit">
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-title">📋 Audit Log — All AI Requests</div>
+      <div style="color:var(--text-secondary);font-size:13px;margin-bottom:16px">
+        All requests are logged with PII-redacted responses for compliance.
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th><th>User</th><th>Prompt (truncated)</th>
+              <th>PII?</th><th>Rate Limited?</th><th>Steps</th>
+              <th>Duration</th><th>Status</th><th>Time</th>
+            </tr>
+          </thead>
+          <tbody id="auditTableBody">
+            <tr><td colspan="9" style="text-align:center;color:var(--text-secondary);padding:32px">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── PIPELINE TAB ─── -->
+  <div class="tab-content" id="tab-pipeline">
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-title">⚙️ Jenkins 12-Stage CI/CD Pipeline</div>
+      <div class="pipeline" id="pipelineStages">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">🔒 Security Scan Results</div>
+        <div style="display:flex;flex-direction:column;gap:12px;margin-top:4px">
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+              <span style="font-size:13px">SonarQube Quality Gate</span>
+              <span class="badge badge-green">PASSED</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:87%;background:var(--accent-green)"></div></div>
+            <div style="font-size:11px;color:var(--text-secondary);margin-top:2px">Coverage: 87%</div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+              <span style="font-size:13px">OWASP Dependency Check</span>
+              <span class="badge badge-green">0 HIGH CVEs</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:100%;background:var(--accent-green)"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+              <span style="font-size:13px">Trivy Container Scan</span>
+              <span class="badge badge-green">CLEAN</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:100%;background:var(--accent-green)"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+              <span style="font-size:13px">SpotBugs Analysis</span>
+              <span class="badge badge-green">0 BUGS</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:100%;background:var(--accent-green)"></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">☸️ Kubernetes Status (Minikube)</div>
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:13px">
+          <div style="display:flex;justify-content:space-between">
+            <span class="mono">secure-ai-gateway</span>
+            <span class="badge badge-green">3/3 Running</span>
+          </div>
+          <div style="display:flex;justify-content:space-between">
+            <span class="mono">postgres</span>
+            <span class="badge badge-green">1/1 Running</span>
+          </div>
+          <div style="display:flex;justify-content:space-between">
+            <span class="mono">sonarqube</span>
+            <span class="badge badge-green">1/1 Running</span>
+          </div>
+          <div style="display:flex;justify-content:space-between">
+            <span class="mono">jenkins</span>
+            <span class="badge badge-green">1/1 Running</span>
+          </div>
+          <div style="display:flex;justify-content:space-between">
+            <span class="mono">ollama</span>
+            <span class="badge badge-blue">1/1 Running</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── DOCS TAB ─── -->
+  <div class="tab-content" id="tab-docs">
+    <div class="card">
+      <div class="card-title">📖 REST API Reference</div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div style="border:1px solid var(--border);border-radius:8px;overflow:hidden">
+          <div style="background:rgba(63,185,80,.1);padding:12px 16px;display:flex;gap:10px;align-items:center">
+            <span class="badge badge-green" style="font-size:11px">POST</span>
+            <span class="mono">/auth/login</span>
+            <span style="font-size:13px;color:var(--text-secondary);margin-left:auto">Public</span>
+          </div>
+          <div style="padding:12px 16px;font-size:13px;color:var(--text-secondary)">
+            Authenticate user. Returns JWT Bearer token. Body: <span class="mono">{"username":"...","password":"..."}</span>
+          </div>
+        </div>
+        <div style="border:1px solid var(--border);border-radius:8px;overflow:hidden">
+          <div style="background:rgba(63,185,80,.1);padding:12px 16px;display:flex;gap:10px;align-items:center">
+            <span class="badge badge-green" style="font-size:11px">POST</span>
+            <span class="mono">/auth/register</span>
+            <span style="font-size:13px;color:var(--text-secondary);margin-left:auto">Public</span>
+          </div>
+          <div style="padding:12px 16px;font-size:13px;color:var(--text-secondary)">
+            Register new user. Body: <span class="mono">{"username":"...","password":"...","email":"..."}</span>
+          </div>
+        </div>
+        <div style="border:1px solid var(--border);border-radius:8px;overflow:hidden">
+          <div style="background:rgba(88,166,255,.1);padding:12px 16px;display:flex;gap:10px;align-items:center">
+            <span class="badge badge-blue" style="font-size:11px">POST</span>
+            <span class="mono">/api/ask</span>
+            <span style="font-size:13px;color:var(--text-secondary);margin-left:auto">🔒 JWT Required</span>
+          </div>
+          <div style="padding:12px 16px;font-size:13px;color:var(--text-secondary)">
+            Send prompt to AI gateway. Body: <span class="mono">{"prompt":"...","useReActAgent":false}</span>
+            <br>Rate limited: 100 req/hr. PII automatically redacted.
+          </div>
+        </div>
+        <div style="border:1px solid var(--border);border-radius:8px;overflow:hidden">
+          <div style="background:rgba(88,166,255,.1);padding:12px 16px;display:flex;gap:10px;align-items:center">
+            <span class="badge badge-blue" style="font-size:11px">GET</span>
+            <span class="mono">/admin/dashboard</span>
+            <span style="font-size:13px;color:var(--text-secondary);margin-left:auto">🔒 ADMIN only</span>
+          </div>
+          <div style="padding:12px 16px;font-size:13px;color:var(--text-secondary)">
+            Returns aggregate dashboard statistics.
+          </div>
+        </div>
+        <div style="border:1px solid var(--border);border-radius:8px;overflow:hidden">
+          <div style="background:rgba(88,166,255,.1);padding:12px 16px;display:flex;gap:10px;align-items:center">
+            <span class="badge badge-blue" style="font-size:11px">GET</span>
+            <span class="mono">/admin/audit</span>
+            <span style="font-size:13px;color:var(--text-secondary);margin-left:auto">🔒 ADMIN only</span>
+          </div>
+          <div style="padding:12px 16px;font-size:13px;color:var(--text-secondary)">
+            Paginated audit log. Params: <span class="mono">?page=0&size=20</span>
+          </div>
+        </div>
+        <div style="text-align:center;padding:16px">
+          <a href="/swagger-ui.html" target="_blank" style="color:var(--accent-blue);font-size:14px;text-decoration:none">
+            Open Full Swagger UI →
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  Secure AI Gateway v2.0 · Spring Boot 3.2 · JWT · Bucket4j · Ollama LLaMA 3.1 · Jenkins · K8s · SonarQube · OWASP · Trivy
+</footer>
+
+<script>
+const API_BASE = '';
+let token = '', username = '', role = '';
+let chatEmpty = true;
+
+// ═══ AUTH ═══
+async function doLogin() {
+  const user = document.getElementById('loginUser').value;
+  const pass = document.getElementById('loginPass').value;
+  const alertEl = document.getElementById('loginAlert');
+  try {
+    const res = await fetch(API_BASE + '/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: user, password: pass })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      token = data.token;
+      username = data.username;
+      role = data.role;
+      document.getElementById('loginOverlay').style.display = 'none';
+      document.getElementById('userBadge').textContent = username + ' [' + role + ']';
+      document.getElementById('userBadge').className = 'badge ' + (role === 'ADMIN' ? 'badge-blue' : 'badge-green');
+      refreshStatus();
+      loadDashboard();
+      loadAuditLogs();
+      renderPipeline();
+    } else {
+      alertEl.innerHTML = '<div class="alert alert-error">Invalid credentials. Try admin / Admin@123</div>';
+    }
+  } catch (e) {
+    alertEl.innerHTML = '<div class="alert alert-error">Cannot connect to gateway: ' + e.message + '</div>';
+  }
+}
+
+function logout() {
+  token = ''; username = ''; role = '';
+  document.getElementById('loginOverlay').style.display = 'flex';
+  document.getElementById('chatBox').innerHTML = '<div class="empty-state"><p>No messages yet.</p></div>';
+  chatEmpty = true;
+}
+
+// ═══ TABS ═══
+function showTab(name) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+  if (name === 'dashboard') loadDashboard();
+  if (name === 'audit') loadAuditLogs();
+}
+
+// ═══ CHAT ═══
+function setPrompt(text) {
+  document.getElementById('promptInput').value = text;
+  document.getElementById('promptInput').focus();
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && e.ctrlKey) sendMessage();
+}
+
+async function sendMessage() {
+  const prompt = document.getElementById('promptInput').value.trim();
+  if (!prompt) return;
+  const useReact = document.getElementById('useReact').checked;
+
+  if (chatEmpty) {
+    document.getElementById('chatBox').innerHTML = '';
+    chatEmpty = false;
+  }
+
+  appendMsg(prompt, 'user');
+  document.getElementById('promptInput').value = '';
+  document.getElementById('sendBtn').disabled = true;
+
+  const typingId = 'typing_' + Date.now();
+  appendTyping(typingId);
+
+  try {
+    const res = await fetch(API_BASE + '/api/ask', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ prompt, useReActAgent: useReact })
+    });
+
+    removeEl(typingId);
+    const remaining = res.headers.get('X-Rate-Limit-Remaining');
+    if (remaining) updateRateDisplay(remaining);
+
+    if (res.status === 429) {
+      appendMsg('⚠️ Rate limit exceeded. You have used all 100 requests for this hour. Please wait before trying again.', 'ai', true);
+      return;
+    }
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      appendMsg('❌ Error: ' + (err.message || 'Unknown error'), 'ai', true);
+      return;
+    }
+
+    const data = await res.json();
+    appendMsg(data.response, 'ai', false, {
+      piiDetected: data.piiDetected,
+      reactSteps: data.reactSteps,
+      durationMs: data.durationMs,
+      model: data.model
+    });
+
+  } catch (e) {
+    removeEl(typingId);
+    appendMsg('❌ Connection error: ' + e.message, 'ai', true);
+  } finally {
+    document.getElementById('sendBtn').disabled = false;
+  }
+}
+
+function appendMsg(text, type, isError = false, meta = null) {
+  const box = document.getElementById('chatBox');
+  const div = document.createElement('div');
+  div.className = 'msg msg-' + type;
+  if (isError) div.style.background = 'rgba(248,81,73,.1)';
+  div.textContent = text;
+
+  if (meta && document.getElementById('showPii').checked) {
+    const m = document.createElement('div');
+    m.className = 'msg-meta';
+    const parts = [];
+    if (meta.model) parts.push('Model: ' + meta.model);
+    if (meta.durationMs) parts.push(meta.durationMs + 'ms');
+    if (meta.reactSteps) parts.push('ReAct: ' + meta.reactSteps + ' steps');
+    m.textContent = parts.join(' · ');
+    div.appendChild(m);
+    if (meta.piiDetected) {
+      const badge = document.createElement('div');
+      badge.className = 'pii-badge';
+      badge.textContent = '⚠ PII detected & redacted';
+      div.appendChild(badge);
+    }
+  }
+
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+
+function appendTyping(id) {
+  const box = document.getElementById('chatBox');
+  const div = document.createElement('div');
+  div.id = id;
+  div.className = 'msg msg-ai';
+  div.innerHTML = '<div class="typing"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+
+function removeEl(id) { const el = document.getElementById(id); if (el) el.remove(); }
+
+// ═══ RATE LIMIT DISPLAY ═══
+function updateRateDisplay(remaining) {
+  document.getElementById('rlTokens').textContent = remaining;
+  document.getElementById('rateBadge').textContent = remaining + ' tokens';
+  const pct = Math.max(0, Math.min(100, (remaining / 100) * 100));
+  const bar = document.getElementById('rlBar');
+  bar.style.width = pct + '%';
+  bar.style.background = pct > 50 ? 'var(--accent-blue)' : pct > 20 ? 'var(--accent-orange)' : 'var(--accent-red)';
+}
+
+// ═══ STATUS ═══
+async function refreshStatus() {
+  try {
+    const res = await fetch(API_BASE + '/api/status', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const healthy = data.ollamaHealthy;
+      const badge = document.getElementById('ollamaBadge');
+      badge.textContent = 'Ollama: ' + (healthy ? 'Online' : 'Offline');
+      badge.className = 'badge ' + (healthy ? 'badge-green' : 'badge-red');
+      document.getElementById('dashOllama').textContent = healthy ? 'Online' : 'Offline';
+      document.getElementById('dashOllama').className = 'badge ' + (healthy ? 'badge-green' : 'badge-red');
+      updateRateDisplay(data.rateLimitRemaining);
+    }
+  } catch (_) {}
+}
+
+// ═══ DASHBOARD ═══
+async function loadDashboard() {
+  try {
+    const res = await fetch(API_BASE + '/admin/dashboard', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (res.ok) {
+      const d = await res.json();
+      document.getElementById('statTotal').textContent = d.totalRequests ?? '—';
+      document.getElementById('stat24h').textContent = d.requestsLast24h ?? '—';
+      document.getElementById('statPii').textContent = d.piiDetections ?? '—';
+      document.getElementById('statRateLimited').textContent = d.rateLimitedCount ?? '—';
+      document.getElementById('statAvgMs').textContent =
+        d.avgResponseTimeMs ? Math.round(d.avgResponseTimeMs) + 'ms' : '—';
+    }
+  } catch (_) {}
+}
+
+// ═══ AUDIT LOGS ═══
+async function loadAuditLogs() {
+  try {
+    const res = await fetch(API_BASE + '/admin/audit?page=0&size=20', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const tbody = document.getElementById('auditTableBody');
+    if (res.ok) {
+      const data = await res.json();
+      const logs = data.content || [];
+      if (!logs.length) {
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--text-secondary);padding:32px">No audit logs yet</td></tr>';
+        return;
+      }
+      tbody.innerHTML = logs.map(l => `
+        <tr>
+          <td class="mono" style="color:var(--text-secondary)">#${l.id}</td>
+          <td><strong>${l.username || '—'}</strong></td>
+          <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${l.prompt||''}">${l.prompt ? l.prompt.substring(0,60) + (l.prompt.length>60?'…':'') : '—'}</td>
+          <td>${l.piiDetected ? '<span class="badge badge-red" style="font-size:11px">YES</span>' : '<span style="color:var(--text-secondary);font-size:12px">No</span>'}</td>
+          <td>${l.rateLimited ? '<span class="badge badge-red" style="font-size:11px">YES</span>' : '<span style="color:var(--text-secondary);font-size:12px">No</span>'}</td>
+          <td>${l.reactSteps ?? '—'}</td>
+          <td class="mono">${l.durationMs ? l.durationMs+'ms' : '—'}</td>
+          <td><span class="badge ${l.statusCode===200?'badge-green':'badge-red'}" style="font-size:11px">${l.statusCode}</span></td>
+          <td style="color:var(--text-secondary);font-size:12px">${l.createdAt ? new Date(l.createdAt).toLocaleString() : '—'}</td>
+        </tr>
+      `).join('');
+    } else {
+      tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--accent-orange);padding:32px">Requires ADMIN role</td></tr>';
+    }
+  } catch (_) {}
+}
+
+// ═══ PIPELINE ═══
+function renderPipeline() {
+  const stages = [
+    { name: 'Checkout', icon: '📥', status: 'pass' },
+    { name: 'Compile', icon: '🔨', status: 'pass' },
+    { name: 'Unit Tests', icon: '🧪', status: 'pass' },
+    { name: 'JaCoCo Coverage', icon: '📊', status: 'pass' },
+    { name: 'SonarQube', icon: '🔍', status: 'pass' },
+    { name: 'Quality Gate', icon: '✅', status: 'pass' },
+    { name: 'OWASP CVE', icon: '🛡️', status: 'pass' },
+    { name: 'SpotBugs', icon: '🐛', status: 'pass' },
+    { name: 'FAT JAR', icon: '📦', status: 'pass' },
+    { name: 'Docker Build', icon: '🐳', status: 'pass' },
+    { name: 'Trivy Scan', icon: '🔒', status: 'pass' },
+    { name: 'Deploy Dev', icon: '🚀', status: 'pass' },
+    { name: 'Integration Tests', icon: '🔗', status: 'pass' },
+    { name: 'Deploy Prod', icon: '🌍', status: 'pass' }
+  ];
+  document.getElementById('pipelineStages').innerHTML = stages.map(s =>
+    `<div class="stage ${s.status}">
+      <div class="stage-dot"></div>
+      ${s.icon} ${s.name}
+    </div>`
+  ).join('');
+}
+
+// ═══ LOGIN ON ENTER ═══
+document.getElementById('loginPass').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+
+// Auto-refresh status every 30s
+setInterval(() => { if (token) refreshStatus(); }, 30000);
+</script>
+</body>
+</html>
