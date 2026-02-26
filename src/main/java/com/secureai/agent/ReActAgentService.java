@@ -3,7 +3,6 @@ package com.secureai.agent;
 import com.secureai.service.OllamaClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -38,8 +37,11 @@ public class ReActAgentService {
     @Value("${ollama.react.max-steps:10}")
     private int maxSteps;
 
-    @Autowired
-    private OllamaClient ollamaClient;
+    private final OllamaClient ollamaClient;
+
+    public ReActAgentService(OllamaClient ollamaClient) {
+        this.ollamaClient = ollamaClient;
+    }
 
     private static final Pattern THOUGHT_PATTERN =
             Pattern.compile("Thought:\\s*(.+?)(?=Action:|$)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
