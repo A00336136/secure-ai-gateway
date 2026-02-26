@@ -58,7 +58,7 @@ RUN mkdir -p /var/log/secure-ai-gateway && \
 # Security: Switch to non-root
 USER secureai
 
-EXPOSE 8080
+EXPOSE 8090
 
 # JVM tuning for containers
 ENV JAVA_OPTS="-XX:+UseContainerSupport \

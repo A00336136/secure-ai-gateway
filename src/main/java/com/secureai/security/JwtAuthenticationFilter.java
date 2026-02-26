@@ -16,6 +16,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * JWT Authentication Filter — intercepts every request once.
@@ -47,8 +48,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String username = jwtUtil.getUsernameFromToken(token);
             String role = jwtUtil.getRoleFromToken(token);
 
+            // Locale.ROOT prevents locale-sensitive casing issues (e.g. Turkish dotted-I)
             String authority = (role != null && !role.isBlank())
-                    ? "ROLE_" + role.toUpperCase()
+                    ? "ROLE_" + role.toUpperCase(Locale.ROOT)
                     : "ROLE_USER";
 
             var authentication = new UsernamePasswordAuthenticationToken(
@@ -60,7 +62,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             log.debug("Authenticated user '{}' with role '{}' from IP {}",
-                    username, role, request.getRemoteAddr());
+                    sanitizeLog(username), sanitizeLog(role), sanitizeLog(request.getRemoteAddr()));
         }
 
         filterChain.doFilter(request, response);
@@ -72,5 +74,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return header.substring(BEARER_PREFIX.length()).trim();
         }
         return null;
+    }
+
+    /** Strips CR and LF to prevent CRLF injection in log messages. */
+    private static String sanitizeLog(String value) {
+        if (value == null) return "(null)";
+        return value.replace("\r", "\\r").replace("\n", "\\n");
     }
 }

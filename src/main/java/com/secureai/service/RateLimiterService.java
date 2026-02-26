@@ -50,7 +50,7 @@ public class RateLimiterService {
         Bucket bucket = getUserBucket(username);
         boolean allowed = bucket.tryConsume(1);
         if (!allowed) {
-            log.warn("Rate limit exceeded for user '{}'", username);
+            log.warn("Rate limit exceeded for user '{}'", sanitizeLog(username));
         }
         return allowed;
     }
@@ -67,7 +67,7 @@ public class RateLimiterService {
      */
     public void resetBucket(String username) {
         userBuckets.remove(username);
-        log.info("Rate limit bucket reset for user '{}'", username);
+        log.info("Rate limit bucket reset for user '{}'", sanitizeLog(username));
     }
 
     /**
@@ -84,11 +84,17 @@ public class RateLimiterService {
     }
 
     private Bucket createBucket(String username) {
-        log.debug("Creating rate limit bucket for user '{}'", username);
+        log.debug("Creating rate limit bucket for user '{}'", sanitizeLog(username));
         Bandwidth limit = Bandwidth.classic(
                 capacity,
                 Refill.greedy(refillTokens, Duration.ofMinutes(refillDurationMinutes))
         );
         return Bucket.builder().addLimit(limit).build();
+    }
+
+    /** Strips CR and LF to prevent CRLF injection in log messages. */
+    private static String sanitizeLog(String value) {
+        if (value == null) return "(null)";
+        return value.replace("\r", "\\r").replace("\n", "\\n");
     }
 }

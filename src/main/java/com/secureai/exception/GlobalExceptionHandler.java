@@ -29,14 +29,14 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AuthException.class)
     public ResponseEntity<ErrorResponse> handleAuth(AuthException ex, HttpServletRequest request) {
-        log.warn("Auth error at {}: {}", request.getRequestURI(), ex.getMessage());
+        log.warn("Auth error at {}: {}", sanitizeLog(request.getRequestURI()), sanitizeLog(ex.getMessage()));
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(new ErrorResponse(401, "Unauthorized", ex.getMessage(), request.getRequestURI()));
     }
 
     @ExceptionHandler(OllamaException.class)
     public ResponseEntity<ErrorResponse> handleOllama(OllamaException ex, HttpServletRequest request) {
-        log.error("Ollama error: {}", ex.getMessage());
+        log.error("Ollama error: {}", sanitizeLog(ex.getMessage()));
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                 .body(new ErrorResponse(503, "Service Unavailable",
                         "AI model is currently unavailable. Please try again.", request.getRequestURI()));
@@ -70,9 +70,16 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneric(Exception ex, HttpServletRequest request) {
-        log.error("Unhandled exception at {}: {}", request.getRequestURI(), ex.getMessage(), ex);
+        log.error("Unhandled exception at {}: {}", sanitizeLog(request.getRequestURI()),
+                sanitizeLog(ex.getMessage()), ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ErrorResponse(500, "Internal Server Error",
                         "An unexpected error occurred", request.getRequestURI()));
+    }
+
+    /** Strips CR and LF to prevent CRLF injection in log messages. */
+    private static String sanitizeLog(String value) {
+        if (value == null) return "(null)";
+        return value.replace("\r", "\\r").replace("\n", "\\n");
     }
 }
