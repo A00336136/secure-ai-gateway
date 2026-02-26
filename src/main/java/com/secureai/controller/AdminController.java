@@ -6,7 +6,6 @@ import com.secureai.service.RateLimiterService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,8 +20,13 @@ import java.util.Map;
 @SecurityRequirement(name = "bearerAuth")
 public class AdminController {
 
-    @Autowired private AuditLogService auditLogService;
-    @Autowired private RateLimiterService rateLimiterService;
+    private final AuditLogService auditLogService;
+    private final RateLimiterService rateLimiterService;
+
+    public AdminController(AuditLogService auditLogService, RateLimiterService rateLimiterService) {
+        this.auditLogService = auditLogService;
+        this.rateLimiterService = rateLimiterService;
+    }
 
     @GetMapping("/dashboard")
     @PreAuthorize("hasRole('ADMIN')")
