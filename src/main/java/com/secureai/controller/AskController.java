@@ -14,7 +14,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,11 +41,21 @@ public class AskController {
 
     private static final Logger log = LoggerFactory.getLogger(AskController.class);
 
-    @Autowired private OllamaClient ollamaClient;
-    @Autowired private PiiRedactionService piiRedactionService;
-    @Autowired private RateLimiterService rateLimiterService;
-    @Autowired private ReActAgentService reActAgentService;
-    @Autowired private AuditLogService auditLogService;
+    private final OllamaClient ollamaClient;
+    private final PiiRedactionService piiRedactionService;
+    private final RateLimiterService rateLimiterService;
+    private final ReActAgentService reActAgentService;
+    private final AuditLogService auditLogService;
+
+    public AskController(OllamaClient ollamaClient, PiiRedactionService piiRedactionService,
+                         RateLimiterService rateLimiterService, ReActAgentService reActAgentService,
+                         AuditLogService auditLogService) {
+        this.ollamaClient = ollamaClient;
+        this.piiRedactionService = piiRedactionService;
+        this.rateLimiterService = rateLimiterService;
+        this.reActAgentService = reActAgentService;
+        this.auditLogService = auditLogService;
+    }
 
     @PostMapping("/ask")
     @Operation(
