@@ -16,35 +16,59 @@
     <groupId>com.secureai</groupId>
     <artifactId>secure-ai-gateway</artifactId>
     <version>2.0.0</version>
-    <packaging>jar</packaging>
     <name>Secure AI Gateway</name>
+    <description>Enterprise-Grade Security Gateway for AI Model Interactions</description>
+    <packaging>jar</packaging>
 
-    <!-- ================= PROPERTIES ================= -->
     <properties>
         <java.version>17</java.version>
-
-        <!-- Security pinned versions -->
-        <tomcat.version>10.1.52</tomcat.version>
         <jjwt.version>0.11.5</jjwt.version>
         <bucket4j.version>8.10.1</bucket4j.version>
         <springdoc.version>2.6.0</springdoc.version>
+        <!-- Tomcat version override: pins the embedded server to a fully patched release.
+             Spring Boot 3.5.9 ships Tomcat 10.1.x but the explicit override below
+             ensures all 6 critical CVEs are closed regardless of what the BOM includes.
+             CVE-2024-50379 / CVE-2024-52316 / CVE-2024-56337 — fixed in 10.1.34+
+             CVE-2025-24813                                    — fixed in 10.1.35+
+             CVE-2025-31651                                    — fixed in 10.1.40+
+             CVE-2025-55754                                    — fixed in 10.1.52  -->
+        <tomcat.version>10.1.52</tomcat.version>
 
-        <!-- Sonar -->
+        <!-- SonarQube / SonarCloud -->
+        <!-- Override sonar.host.url on the command line for SonarCloud:        -->
+        <!--   mvn sonar:sonar -Dsonar.host.url=https://sonarcloud.io           -->
+        <!--   mvn sonar:sonar -Dsonar.organization=<your-org>                  -->
+        <!-- Token is read from the SONAR_TOKEN environment variable — never    -->
+        <!-- hard-code credentials in pom.xml.                                  -->
         <sonar.projectKey>secure-ai-gateway</sonar.projectKey>
+        <sonar.projectName>Secure AI Gateway</sonar.projectName>
         <sonar.host.url>http://localhost:9000</sonar.host.url>
+        <!-- sonar.token is the current property name (sonar.login is deprecated since SonarQube 10) -->
+        <!-- Pass on the command line to avoid storing credentials in pom.xml:                       -->
+        <!--   mvn sonar:sonar -Dsonar.token=<your-token>                                           -->
         <sonar.token>${env.SONAR_TOKEN}</sonar.token>
+
+        <!-- Point Sonar at JaCoCo's XML report so coverage appears in the UI -->
         <sonar.coverage.jacoco.xmlReportPaths>
             ${project.build.directory}/site/jacoco/jacoco.xml
         </sonar.coverage.jacoco.xmlReportPaths>
+
+        <!-- Exclude generated / boilerplate code from Sonar analysis -->
+        <sonar.exclusions>
+            **/model/**,
+            **/*Application.java,
+            **/config/**
+        </sonar.exclusions>
+
+        <!-- Map SpotBugs report into Sonar so both tools share one dashboard -->
         <sonar.java.spotbugs.reportPaths>
             ${project.build.directory}/spotbugsXml.xml
         </sonar.java.spotbugs.reportPaths>
     </properties>
 
-    <!-- ================= DEPENDENCIES ================= -->
     <dependencies>
 
-        <!-- Spring Core -->
+        <!-- Core Spring Boot -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -103,23 +127,27 @@
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
 
+        <!-- MySQL - production database -->
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
             <scope>runtime</scope>
         </dependency>
 
+        <!-- H2 - local development database -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <scope>runtime</scope>
         </dependency>
 
+        <!-- Flyway core -->
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
         </dependency>
 
+        <!-- Flyway MySQL support -->
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-mysql</artifactId>
@@ -132,7 +160,7 @@
             <version>${bucket4j.version}</version>
         </dependency>
 
-        <!-- API Docs -->
+        <!-- API Documentation -->
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
@@ -166,15 +194,25 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- Mockito — explicit declaration required by professor's lab standards.
+             spring-boot-starter-test bundles Mockito but pinning the version here
+             makes the dependency visible, controllable, and CI-auditable.
+             Used for: mock(), when().thenReturn(), verify(), verifyNoInteractions() -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>5.8.0</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
-    <!-- ================= BUILD ================= -->
     <build>
         <finalName>secure-ai-gateway</finalName>
 
         <plugins>
 
-            <!-- Spring Boot -->
+            <!-- Spring Boot Plugin -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
@@ -186,15 +224,22 @@
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.8.11</version>
                 <executions>
+
                     <execution>
                         <id>prepare-agent</id>
-                        <goals><goal>prepare-agent</goal></goals>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
                     </execution>
+
                     <execution>
                         <id>report</id>
                         <phase>test</phase>
-                        <goals><goal>report</goal></goals>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
                     </execution>
+
                 </executions>
             </plugin>
 
@@ -205,20 +250,69 @@
                 <version>12.1.1</version>
                 <configuration>
                     <failBuildOnCVSS>9</failBuildOnCVSS>
+
+                    <!-- Disable OSS Index analyzer (Sonatype).
+                         It requires credentials and rate-limits anonymous callers
+                         with HTTP 401 / 429, breaking offline and CI builds.
+                         The NVD analyzer covers the same CVEs without credentials. -->
                     <ossIndexAnalyzerEnabled>false</ossIndexAnalyzerEnabled>
+
+                    <!-- NVD API key removes the 50-req/30s rate limit (raises it to 300).
+                         Register free at https://nvd.nist.gov/developers/request-an-api-key
+                         then: export NVD_API_KEY=your-key in ~/.zshrc
+                         Or pass on command line: mvn verify -Dnvd.api.key=$NVD_API_KEY     -->
                     <nvdApiKey>${env.NVD_API_KEY}</nvdApiKey>
+
+                    <!-- Cache the NVD database locally — first run ~200MB download,
+                         subsequent runs only pull incremental diffs.                        -->
                     <autoUpdate>true</autoUpdate>
                 </configuration>
             </plugin>
 
-            <!-- Surefire -->
+            <!-- Surefire — runs Unit Tests (*Test.java) only.
+                 Excludes *IT.java so integration tests never leak into the unit stage.
+                 Professor's pipeline uses: mvn -DskipITs=true clean test             -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.2.5</version>
+                <configuration>
+                    <!-- Exclude integration tests from the unit test phase -->
+                    <excludes>
+                        <exclude>**/*IT.java</exclude>
+                    </excludes>
+                </configuration>
             </plugin>
 
-            <!-- SpotBugs -->
+            <!-- Failsafe — runs Integration Tests (*IT.java) only.
+                 Triggered by: mvn verify
+                 Professor's pipeline uses two separate stages:
+                   Stage 1 (Unit):        mvn -DskipITs=true clean test
+                   Stage 2 (Integration): mvn verify
+                 Failsafe binds to the verify phase and will NOT fail the build
+                 until after post-integration-test, allowing teardown to always run. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>3.2.5</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                        <configuration>
+                            <!-- Only run classes matching the *IT.java naming convention -->
+                            <includes>
+                                <include>**/*IT.java</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+
+            <!-- SpotBugs + FindSecBugs -->
             <plugin>
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-maven-plugin</artifactId>
@@ -227,11 +321,33 @@
                     <effort>Max</effort>
                     <threshold>Low</threshold>
                     <failOnError>true</failOnError>
+                    <!-- Also write spotbugsXml.xml so Sonar can import it -->
                     <xmlOutput>true</xmlOutput>
+                    <plugins>
+                        <!-- FindSecBugs: security-focused bug patterns -->
+                        <plugin>
+                            <groupId>com.h3xstream.findsecbugs</groupId>
+                            <artifactId>findsecbugs-plugin</artifactId>
+                            <version>1.12.0</version>
+                        </plugin>
+                    </plugins>
+                    <excludeFilterFile>spotbugs-exclude.xml</excludeFilterFile>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>spotbugs-check</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
 
-            <!-- Sonar -->
+            <!-- SonarQube / SonarCloud Scanner                                -->
+            <!-- Pin the version explicitly to prevent silent breaking changes. -->
+            <!-- Run with: mvn sonar:sonar                                      -->
+            <!-- Ensure SONAR_TOKEN env var is set before running.              -->
             <plugin>
                 <groupId>org.sonarsource.scanner.maven</groupId>
                 <artifactId>sonar-maven-plugin</artifactId>
