@@ -5,39 +5,92 @@ import com.secureai.model.AuditLog;
 import com.secureai.security.JwtAuthenticationFilter;
 import com.secureai.service.AuditLogService;
 import com.secureai.service.RateLimiterService;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(AdminController.class)
-@Import(SecurityConfig.class)
+@AutoConfigureMockMvc(addFilters = true)
+@Import({
+    SecurityConfig.class,
+    AdminControllerTest.MethodSecurityTestConfig.class,
+    AdminControllerTest.TestJwtFilterConfig.class
+})
 @DisplayName("AdminController Tests")
 class AdminControllerTest {
 
-    @Autowired MockMvc mockMvc;
+    @TestConfiguration
+    @EnableMethodSecurity(prePostEnabled = true)
+    static class MethodSecurityTestConfig {
+        // empty: ensures @PreAuthorize processing for the slice (belt + suspenders)
+    }
 
-    // Needed because SecurityConfig autowires it and adds it to the filter chain
-    @MockBean JwtAuthenticationFilter jwtAuthenticationFilter;
+    @TestConfiguration
+    static class TestJwtFilterConfig {
+        @Bean
+        JwtAuthenticationFilter jwtAuthenticationFilter() {
+            // Pass-through filter: lets requests reach the controller in tests.
+            // We do not validate tokens here because tests use @WithMockUser.
+            return new JwtAuthenticationFilter(null) {
+                @Override
+                protected void doFilterInternal(
+                        HttpServletRequest request,
+                        HttpServletResponse response,
+                        FilterChain filterChain
+                ) throws ServletException, IOException {
+                    filterChain.doFilter(request, response);
+                }
+            };
+        }
+    }
 
-    @MockBean AuditLogService auditLogService;
-    @MockBean RateLimiterService rateLimiterService;
+    @Autowired
+    MockMvc mockMvc;
+
+    @MockBean
+    AuditLogService auditLogService;
+
+    @MockBean
+    RateLimiterService rateLimiterService;
+
+    @BeforeEach
+    void clearMockInvocations() {
+        // Spring may reuse the same mock instances across test methods in the cached context.
+        // Clear recorded invocations so verifyNoInteractions(...) is reliable.
+        clearInvocations(auditLogService, rateLimiterService);
+    }
 
     @Nested
     @DisplayName("GET /admin/dashboard")
@@ -87,7 +140,9 @@ class AdminControllerTest {
             Page<AuditLog> page = new PageImpl<>(List.of());
             when(auditLogService.getRecentLogs(2, 50)).thenReturn(page);
 
-            mockMvc.perform(get("/admin/audit").param("page", "2").param("size", "50"))
+            mockMvc.perform(get("/admin/audit")
+                    .param("page", "2")
+                    .param("size", "50"))
                 .andExpect(status().isOk());
 
             verify(auditLogService).getRecentLogs(2, 50);

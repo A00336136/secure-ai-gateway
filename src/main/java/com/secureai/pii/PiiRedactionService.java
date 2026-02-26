@@ -44,10 +44,6 @@ public class PiiRedactionService {
                 Pattern.CASE_INSENSITIVE
             );
 
-    // ReDoS-safe US phone.
-    // The original nested optional groups created exponential backtrack paths on pathological
-    // input (e.g. "222222222222222@"). Possessive quantifiers ?+ commit the engine to each
-    // optional group without allowing backtrack into it, making matching linear O(n).
     private static final Pattern PHONE_US =
             Pattern.compile(
                 "\\b(?:\\+?1[-\\s.]?)?\\(?[2-9]\\d{2}\\)?[-\\s.]?[2-9]\\d{2}[-\\s.]?\\d{4}\\b"
@@ -122,14 +118,6 @@ public class PiiRedactionService {
         new PiiRule("IPV4",          "[IP_REDACTED]",          IPV4)
     );
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // Public API
-    // ─────────────────────────────────────────────────────────────────────────
-
-    /**
-     * Redact all detected PII from the given text.
-     * Returns the original text unchanged if redaction is disabled.
-     */
     public String redact(String text) {
         if (!enabled || text == null || text.isBlank()) {
             return text;
@@ -141,7 +129,7 @@ public class PiiRedactionService {
             String replaced = m.replaceAll(rule.replacement);
             if (!replaced.equals(result)) {
                 totalRedactions++;
-                log.debug("PII redacted: type={}", rule.label); // rule.label is a static constant
+                log.debug("PII redacted: type={}", rule.label);
             }
             result = replaced;
         }
@@ -151,23 +139,17 @@ public class PiiRedactionService {
         return result;
     }
 
-    /**
-     * Check whether the text contains any detectable PII.
-     */
     public boolean containsPii(String text) {
         if (text == null || text.isBlank()) return false;
         for (PiiRule rule : RULES) {
             if (rule.pattern.matcher(text).find()) {
-                log.debug("PII detected: type={}", rule.label); // rule.label is a static constant
+                log.debug("PII detected: type={}", rule.label);
                 return true;
             }
         }
         return false;
     }
 
-    /**
-     * Return a breakdown of which PII types are detected (for audit metadata).
-     */
     public Set<String> detectPiiTypes(String text) {
         Set<String> detected = new LinkedHashSet<>();
         if (text == null || text.isBlank()) return detected;
@@ -178,10 +160,6 @@ public class PiiRedactionService {
         }
         return detected;
     }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // Inner classes
-    // ─────────────────────────────────────────────────────────────────────────
 
     private record PiiRule(String label, String replacement, Pattern pattern) {}
 }
