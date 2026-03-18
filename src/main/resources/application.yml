@@ -48,6 +48,23 @@ rate-limit:
   refill-tokens: 100
   refill-duration-minutes: 60
 
+# ═══════════════════ 3-Layer Guardrails ═══════════════════
+guardrails:
+  nemo:
+    base-url: ${NEMO_GUARDRAILS_URL:http://localhost:8001}
+    timeout-ms: 5000
+    enabled: true
+  llamaguard:
+    model: ${LLAMAGUARD_MODEL:llamaguard3:8b}
+    timeout-ms: 5000
+    enabled: true
+  presidio:
+    base-url: ${PRESIDIO_URL:http://localhost:5002}
+    timeout-ms: 3000
+    enabled: true
+    language: en
+    min-score: 0.6
+
 # ═══════════════════ PII Redaction ═══════════════════
 pii:
   redaction:

@@ -1,0 +1,16 @@
+# Colang 2.0 — Content Safety Flow
+
+define user ask harmful content
+  "how to make a bomb"
+  "how to hack into"
+  "how to create a virus"
+  "how to make weapons"
+  "how to synthesize drugs"
+  "how to exploit vulnerabilities"
+
+define flow content safety
+  user ask harmful content
+  bot refuse harmful
+
+define bot refuse harmful
+  "I cannot provide information on harmful or illegal activities. This request has been blocked by our content safety guardrails."

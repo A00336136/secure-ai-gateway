@@ -5,7 +5,7 @@ version: '3.9'
 #
 # Services:
 #   app         — Spring Boot gateway (port 8080)
-#   postgres    — PostgreSQL 16 (port 5432)
+#   postgres    — PostgreSQL 17.2 (port 5432)
 #   ollama      — Local LLM server (port 11434)
 #   sonarqube   — Code quality (port 9000)
 #   jenkins     — CI/CD server (port 8090)
@@ -50,10 +50,17 @@ services:
       OLLAMA_BASE_URL: http://ollama:11434
       OLLAMA_MODEL: llama3.1:8b
       JWT_SECRET: "your-super-secret-jwt-key-change-in-production-32chars"
+      NEMO_GUARDRAILS_URL: http://nemo-guardrails:8001
+      PRESIDIO_URL: http://presidio:5002
+      LLAMAGUARD_MODEL: llamaguard3:8b
     depends_on:
       postgres:
         condition: service_healthy
       ollama:
+        condition: service_started
+      nemo-guardrails:
+        condition: service_started
+      presidio:
         condition: service_started
     networks:
       - secure-ai-net
@@ -67,7 +74,7 @@ services:
 
   # ─── PostgreSQL ─────────────────────────────────────────────────
   postgres:
-    image: postgres:16-alpine
+    image: postgres:17.2-alpine
     container_name: secure-ai-postgres
     ports:
       - "5432:5432"
@@ -113,6 +120,50 @@ services:
       start_period: 30s
     restart: unless-stopped
 
+  # ─── NVIDIA NeMo Guardrails (Layer 1 — Colang DSL) ─────────────
+  nemo-guardrails:
+    build:
+      context: ./nemo-guardrails
+      dockerfile: Dockerfile
+    container_name: secure-ai-nemo-guardrails
+    ports:
+      - "8001:8001"
+    environment:
+      OLLAMA_BASE_URL: http://ollama:11434
+      GUARDRAILS_MODEL: mistral:7b
+    volumes:
+      - ./nemo-guardrails/config:/app/config
+    networks:
+      - secure-ai-net
+    depends_on:
+      ollama:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+    restart: unless-stopped
+
+  # ─── Microsoft Presidio (Layer 3 — PII Detection) ─────────────
+  presidio:
+    image: mcr.microsoft.com/presidio-analyzer:latest
+    container_name: secure-ai-presidio
+    ports:
+      - "5002:5002"
+    environment:
+      PORT: 5002
+    networks:
+      - secure-ai-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+
   # ─── SonarQube ──────────────────────────────────────────────────
   sonarqube:
     image: sonarqube:community
@@ -140,7 +191,7 @@ services:
 
   # ─── Jenkins ────────────────────────────────────────────────────
   jenkins:
-    image: jenkins/jenkins:lts-jdk17
+    image: jenkins/jenkins:2.504-lts-jdk21
     container_name: secure-ai-jenkins
     ports:
       - "8090:8080"

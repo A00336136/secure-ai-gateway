@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════════════════════
 // Jenkinsfile — Secure AI Gateway
-// Multi-Branch Pipeline · 12-Stage DevSecOps CI/CD
+// Multi-Branch Pipeline · 14-Stage DevSecOps CI/CD
 //
 // Stages:
 //  1.  Checkout         — Fetch source, set build metadata
@@ -21,7 +21,7 @@
 pipeline {
     agent {
         docker {
-            image 'maven:3.9.6-eclipse-temurin-17'
+            image 'maven:3.9.9-eclipse-temurin-21'
             args '-v /root/.m2:/root/.m2 --network host'
         }
     }

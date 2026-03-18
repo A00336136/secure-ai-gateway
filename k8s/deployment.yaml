@@ -80,10 +80,89 @@ spec:
               mountPath: /tmp
             - name: logs-dir
               mountPath: /var/log/secure-ai-gateway
+
+        # ─── Sidecar: NVIDIA NeMo Guardrails v0.10.0 (Layer 1) ───
+        - name: nemo-guardrails
+          image: nemo-guardrails:0.10.0
+          ports:
+            - containerPort: 8001
+              name: nemo
+          env:
+            - name: OLLAMA_BASE_URL
+              value: "http://localhost:11434"
+            - name: GUARDRAILS_MODEL
+              value: "mistral:7b"
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "200m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /v1/health
+              port: 8001
+            initialDelaySeconds: 45
+            periodSeconds: 30
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+
+        # ─── Sidecar: Microsoft Presidio v2.2 (Layer 3) ───────────
+        - name: presidio-analyzer
+          image: mcr.microsoft.com/presidio-analyzer:latest
+          ports:
+            - containerPort: 5002
+              name: presidio
+          env:
+            - name: PORT
+              value: "5002"
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "200m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5002
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+
+        # ─── Sidecar: Ollama (LLaMA 3.1 8B + LlamaGuard 3) ──────
+        - name: ollama
+          image: ollama/ollama:0.6.2
+          ports:
+            - containerPort: 11434
+              name: ollama
+          resources:
+            requests:
+              memory: "2Gi"
+              cpu: "1000m"
+            limits:
+              memory: "4Gi"
+              cpu: "2000m"
+          volumeMounts:
+            - name: ollama-data
+              mountPath: /root/.ollama
+          livenessProbe:
+            exec:
+              command: ["ollama", "list"]
+            initialDelaySeconds: 30
+            periodSeconds: 30
+
       volumes:
         - name: tmp-dir
           emptyDir: {}
         - name: logs-dir
+          emptyDir: {}
+        - name: ollama-data
           emptyDir: {}
 ---
 # ═══════════════════════════════════════════════════════

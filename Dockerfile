@@ -1,8 +1,8 @@
 # ═══════════════════════════════════════════════════════
 # Secure AI Gateway — Multi-Stage Dockerfile
 #
-# Stage 1: Build (Maven + JDK 17)
-# Stage 2: Runtime (JRE 17 — minimal attack surface)
+# Stage 1: Build (Maven + JDK 21 LTS)
+# Stage 2: Runtime (JRE 21 — minimal attack surface)
 #
 # Security hardening:
 #  - Non-root user (uid 1001)
@@ -12,7 +12,7 @@
 # ═══════════════════════════════════════════════════════
 
 # ─── Stage 1: Build ─────────────────────────────────────
-FROM eclipse-temurin:17-jdk-jammy AS builder
+FROM eclipse-temurin:21-jdk-jammy AS builder
 
 # Install Maven
 RUN apt-get update && \
@@ -31,7 +31,7 @@ RUN mvn -B clean package -DskipTests -Pprod && \
     java -Djarmode=layertools -jar target/secure-ai-gateway.jar extract
 
 # ─── Stage 2: Runtime ───────────────────────────────────
-FROM eclipse-temurin:17-jre-jammy
+FROM eclipse-temurin:21-jre-jammy
 
 # Security: Create non-root user
 RUN groupadd --gid 1001 secureai && \

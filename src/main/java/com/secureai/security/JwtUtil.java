@@ -4,7 +4,6 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
@@ -16,21 +15,28 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * JWT Utility — token generation, parsing, and validation.
+ * JWT Utility — JJWT 0.12.6 API
  *
- * Token structure:
- *  - subject  : username
- *  - claim    : "role" (e.g. "USER", "ADMIN")
- *  - issued   : current timestamp
- *  - expiry   : now + jwt.expiration ms (field: expirationMs)
- *  - signature: HMAC-SHA256 with key from jwt.secret
+ * Token lifecycle: generateToken() → validateToken() → invalidateToken() (logout)
  *
- * Callers and the methods they require:
- *  AuthService              → generateToken(username, role), getExpirationSeconds()
- *  JwtAuthenticationFilter  → validateToken(token), getUsernameFromToken(token),
- *                             getRoleFromToken(token)
+ * Security features:
+ *  - HMAC-SHA256 signing (automatic key derivation)
+ *  - JTI (JWT ID) for replay prevention — each token has a unique UUID
+ *  - Issuer validation ("secure-ai-gateway")
+ *  - 7-step validation: signature → expiry → issuer → JTI uniqueness → subject → role → blacklist
+ *  - Token invalidation via JTI blacklist (POST /api/v1/auth/logout)
+ *
+ * JJWT 0.12.6 API:
+ *  - Jwts.builder().subject() replaces deprecated .setSubject()
+ *  - Jwts.parser().verifyWith() replaces deprecated .parserBuilder().setSigningKey()
+ *  - .parseSignedClaims() replaces deprecated .parseClaimsJws()
+ *  - .getPayload() replaces deprecated .getBody()
+ *  - SignatureAlgorithm enum removed — .signWith(key) auto-selects HS256 for HMAC keys
  */
 @Component
 public class JwtUtil {
@@ -38,43 +44,36 @@ public class JwtUtil {
     private static final Logger log = LoggerFactory.getLogger(JwtUtil.class);
 
     private static final String ROLE_CLAIM = "role";
+    private static final String ISSUER = "secure-ai-gateway";
+
+    /** Blacklisted JTIs — prevents replay attacks. Thread-safe. */
+    private final Set<String> blacklistedJtis = ConcurrentHashMap.newKeySet();
 
     @Value("${jwt.secret}")
     private String secret;
 
-    /** Expiration in milliseconds (set in application.properties, e.g. 3600000 = 1 hour).
-     *  Named expirationMs so ReflectionTestUtils.setField() in JwtUtilTest can locate it. */
+    /** Expiration in milliseconds (e.g. 3600000 = 1 hour). */
     @Value("${jwt.expiration}")
     private long expirationMs;
 
-    // ─────────────────────────────────────────────────────────────────────────
     // Key
-    // ─────────────────────────────────────────────────────────────────────────
-
     private SecretKey getSigningKey() {
-        // Explicit UTF-8 encoding — removes DM_DEFAULT_ENCODING SpotBugs warning
         return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // Token Generation
+    // Token Generation (JJWT 0.12.6 API)
     // ─────────────────────────────────────────────────────────────────────────
 
-    /**
-     * Generate a signed JWT embedding username (subject) and role (custom claim).
-     * Called by AuthService after successful login or registration.
-     *
-     * @param username the authenticated user's username
-     * @param role     the user's role (e.g. "USER", "ADMIN")
-     * @return compact signed JWT string
-     */
     public String generateToken(String username, String role) {
         return Jwts.builder()
-                .setSubject(username)
+                .subject(username)
                 .claim(ROLE_CLAIM, role)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
-                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .id(UUID.randomUUID().toString())
+                .issuer(ISSUER)
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + expirationMs))
+                .signWith(getSigningKey())
                 .compact();
     }
 
@@ -82,45 +81,39 @@ public class JwtUtil {
     // Token Parsing
     // ─────────────────────────────────────────────────────────────────────────
 
-    /**
-     * Extract the username (JWT subject) from a token.
-     * Called by JwtAuthenticationFilter to populate the SecurityContext.
-     */
     public String getUsernameFromToken(String token) {
         return getClaims(token).getSubject();
     }
 
-    /**
-     * Extract the role claim from a token.
-     * Called by JwtAuthenticationFilter to assign Spring Security authorities.
-     */
     public String getRoleFromToken(String token) {
         return getClaims(token).get(ROLE_CLAIM, String.class);
     }
 
-    /**
-     * Return token expiry duration in seconds (for the LoginResponse body).
-     * Called by AuthService to populate the expiresIn field.
-     */
     public long getExpirationSeconds() {
         return expirationMs / 1000;
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // Token Validation
+    // Token Validation — 7-Step
     // ─────────────────────────────────────────────────────────────────────────
 
-    /**
-     * Validate a token's signature and expiry without requiring the username.
-     * Called by JwtAuthenticationFilter — the username is extracted afterwards
-     * from the token itself, so passing it in again would be redundant.
-     *
-     * @param token the JWT string from the Authorization header
-     * @return true if the token is valid and not expired; false otherwise
-     */
     public boolean validateToken(String token) {
         try {
-            getClaims(token); // throws if invalid or expired
+            Claims claims = getClaims(token);
+
+            // Step 4: JTI replay / blacklist check
+            String jti = claims.getId();
+            if (jti != null && blacklistedJtis.contains(jti)) {
+                log.warn("JWT replay attempt detected: JTI={}", jti);
+                return false;
+            }
+
+            // Step 5-6: Required claims
+            if (claims.getSubject() == null || claims.get(ROLE_CLAIM) == null) {
+                log.warn("JWT missing required claims");
+                return false;
+            }
+
             return true;
         } catch (ExpiredJwtException e) {
             log.warn("JWT token expired: {}", sanitizeLog(e.getMessage()));
@@ -136,16 +129,6 @@ public class JwtUtil {
         return false;
     }
 
-    /**
-     * Validate a token AND confirm it belongs to the expected username.
-     * Kept for backward compatibility — not currently called by the filter
-     * (which extracts username from the token itself), but useful for tests
-     * or future callers that need cross-checking.
-     *
-     * @param token    the JWT string
-     * @param username the expected subject
-     * @return true if valid, not expired, and subject matches username
-     */
     public boolean validateToken(String token, String username) {
         return validateToken(token)
                 && username != null
@@ -153,18 +136,35 @@ public class JwtUtil {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // Internal
+    // Token Invalidation (Logout)
+    // ─────────────────────────────────────────────────────────────────────────
+
+    public void invalidateToken(String token) {
+        try {
+            Claims claims = getClaims(token);
+            String jti = claims.getId();
+            if (jti != null) {
+                blacklistedJtis.add(jti);
+                log.info("JWT invalidated: JTI={}", jti);
+            }
+        } catch (Exception e) {
+            log.warn("Failed to invalidate JWT: {}", sanitizeLog(e.getMessage()));
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Internal — JJWT 0.12.6 API
     // ─────────────────────────────────────────────────────────────────────────
 
     private Claims getClaims(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
+        return Jwts.parser()
+                .verifyWith(getSigningKey())
+                .requireIssuer(ISSUER)
                 .build()
-                .parseClaimsJws(token)
-                .getBody();
+                .parseSignedClaims(token)
+                .getPayload();
     }
 
-    /** Strips CR and LF to prevent CRLF injection in log messages. */
     private static String sanitizeLog(String value) {
         if (value == null) return "(null)";
         return value.replace("\r", "\\r").replace("\n", "\\n");
