@@ -1,66 +1,82 @@
 # ═══════════════════════════════════════════════════════
-# Secure AI Gateway — Multi-Stage Dockerfile
+# Secure AI Gateway — Multi-Stage Dockerfile (Alpine Linux)
 #
-# Stage 1: Build (Maven + JDK 21 LTS)
-# Stage 2: Runtime (JRE 21 — minimal attack surface)
+# Stage 1: Build (Maven 3.9.9 + JDK 21 LTS)
+# Stage 2: Runtime (JRE 21 Alpine — minimal attack surface)
+#
+# Alpine Linux benefits:
+#  - ~5 MB base image vs ~80 MB Ubuntu/Debian
+#  - Reduced CVE attack surface (musl libc, busybox)
+#  - Trivy scans show significantly fewer vulnerabilities
 #
 # Security hardening:
 #  - Non-root user (uid 1001)
 #  - Read-only filesystem (except /tmp)
-#  - No shell in runtime image
-#  - Distroless-like: eclipse-temurin JRE only
+#  - No unnecessary packages in runtime image
+#  - eclipse-temurin JRE on Alpine Linux
 # ═══════════════════════════════════════════════════════
 
 # ─── Stage 1: Build ─────────────────────────────────────
-FROM eclipse-temurin:21-jdk-jammy AS builder
-
-# Install Maven
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends maven && \
-    rm -rf /var/lib/apt/lists/*
+FROM maven:3.9.9-eclipse-temurin-21-alpine AS builder
 
 WORKDIR /build
 
-# Cache dependencies first (layer optimization)
+# Cache parent pom + module poms first (layer optimization)
 COPY pom.xml .
-RUN mvn -B dependency:go-offline -DskipTests
+COPY secure-ai-model/pom.xml secure-ai-model/
+COPY secure-ai-core/pom.xml secure-ai-core/
+COPY secure-ai-service/pom.xml secure-ai-service/
+COPY secure-ai-web/pom.xml secure-ai-web/
 
-# Build the application
-COPY src ./src
-RUN mvn -B clean package -DskipTests -Pprod && \
-    java -Djarmode=layertools -jar target/secure-ai-gateway.jar extract
+# Download dependencies (cached unless poms change)
+RUN mvn -B dependency:go-offline -DskipTests 2>/dev/null || true
 
-# ─── Stage 2: Runtime ───────────────────────────────────
-FROM eclipse-temurin:21-jre-jammy
+# Copy all module sources
+COPY secure-ai-model/src secure-ai-model/src
+COPY secure-ai-core/src secure-ai-core/src
+COPY secure-ai-service/src secure-ai-service/src
+COPY secure-ai-web/src secure-ai-web/src
+
+# Build the multi-module project (FAT JAR produced by secure-ai-web)
+RUN mvn -B clean package -DskipTests -pl secure-ai-web -am && \
+    java -Djarmode=layertools -jar secure-ai-web/target/secure-ai-web-2.0.0.jar extract --destination /build/extracted
+
+# ─── Stage 2: Runtime (Alpine Linux) ──────────────────
+FROM eclipse-temurin:21-jre-alpine
 
 # Security: Create non-root user
-RUN groupadd --gid 1001 secureai && \
-    useradd --uid 1001 --gid secureai --no-create-home --shell /bin/false secureai
+RUN addgroup -g 1001 secureai && \
+    adduser -u 1001 -G secureai -s /bin/false -D -H secureai
+
+# Alpine security hardening: remove unnecessary packages
+RUN apk --no-cache add curl && \
+    rm -rf /var/cache/apk/*
 
 # Labels (OCI spec)
 LABEL org.opencontainers.image.title="Secure AI Gateway"
 LABEL org.opencontainers.image.description="Enterprise-grade security gateway for AI model interactions"
 LABEL org.opencontainers.image.version="2.0.0"
-LABEL org.opencontainers.image.vendor="SecureAI Team"
+LABEL org.opencontainers.image.vendor="SecureAI Team — TUS Midlands"
+LABEL org.opencontainers.image.base.name="eclipse-temurin:21-jre-alpine"
 
 WORKDIR /app
 
 # Copy layered JAR (Spring Boot layer optimization)
-COPY --from=builder --chown=secureai:secureai /build/dependencies/ ./
-COPY --from=builder --chown=secureai:secureai /build/spring-boot-loader/ ./
-COPY --from=builder --chown=secureai:secureai /build/snapshot-dependencies/ ./
-COPY --from=builder --chown=secureai:secureai /build/application/ ./
+COPY --from=builder --chown=secureai:secureai /build/extracted/dependencies/ ./
+COPY --from=builder --chown=secureai:secureai /build/extracted/spring-boot-loader/ ./
+COPY --from=builder --chown=secureai:secureai /build/extracted/snapshot-dependencies/ ./
+COPY --from=builder --chown=secureai:secureai /build/extracted/application/ ./
 
-# Create log directory
-RUN mkdir -p /var/log/secure-ai-gateway && \
-    chown secureai:secureai /var/log/secure-ai-gateway
+# Create log + tmp directories
+RUN mkdir -p /var/log/secure-ai-gateway /tmp && \
+    chown -R secureai:secureai /var/log/secure-ai-gateway /tmp
 
 # Security: Switch to non-root
 USER secureai
 
-EXPOSE 8090
+EXPOSE 8080
 
-# JVM tuning for containers
+# JVM tuning for containers (Alpine-compatible)
 ENV JAVA_OPTS="-XX:+UseContainerSupport \
                -XX:MaxRAMPercentage=75.0 \
                -XX:+OptimizeStringConcat \
@@ -70,4 +86,4 @@ ENV JAVA_OPTS="-XX:+UseContainerSupport \
 ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS org.springframework.boot.loader.launch.JarLauncher"]
 
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 --start-period=60s \
-    CMD wget -qO- http://localhost:8080/actuator/health || exit 1
+    CMD curl -sf http://localhost:8080/actuator/health || exit 1

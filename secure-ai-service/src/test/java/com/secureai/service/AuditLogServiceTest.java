@@ -1,0 +1,89 @@
+package com.secureai.service;
+
+import com.secureai.model.AuditLog;
+import com.secureai.repository.AuditLogRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+@DisplayName("AuditLogService Unit Tests")
+class AuditLogServiceTest {
+
+    @Mock
+    private AuditLogRepository auditLogRepository;
+
+    private AuditLogService auditLogService;
+
+    @BeforeEach
+    void setUp() {
+        auditLogService = new AuditLogService(auditLogRepository);
+    }
+
+    @Test
+    @DisplayName("logRequest should save an AuditLog entry with truncated fields")
+    void logRequestShouldSaveAuditLog() {
+        String longPrompt = "a".repeat(5000);
+        String longResponse = "b".repeat(9000);
+
+        auditLogService.logRequest("testuser", longPrompt, longResponse, "gpt-4", false, false, 0, 200, 100L, "127.0.0.1");
+
+        ArgumentCaptor<AuditLog> captor = ArgumentCaptor.forClass(AuditLog.class);
+        verify(auditLogRepository).save(captor.capture());
+
+        AuditLog saved = captor.getValue();
+        assertEquals("testuser", saved.getUsername());
+        assertTrue(saved.getPrompt().length() <= 4015); // 4000 + "...[truncated]"
+        assertTrue(saved.getPrompt().endsWith("...[truncated]"));
+        assertTrue(saved.getResponse().length() <= 8015);
+        assertTrue(saved.getResponse().endsWith("...[truncated]"));
+        assertEquals("gpt-4", saved.getModel());
+        assertEquals(200, saved.getStatusCode());
+        assertEquals(100L, saved.getDurationMs());
+    }
+
+    @Test
+    @DisplayName("getRecentLogs should call repository and return a page")
+    void getRecentLogsShouldReturnPage() {
+        Page<AuditLog> expectedPage = new PageImpl<>(List.of(new AuditLog()));
+        when(auditLogRepository.findAllByOrderByCreatedAtDesc(any(PageRequest.class))).thenReturn(expectedPage);
+
+        Page<AuditLog> result = auditLogService.getRecentLogs(0, 10);
+
+        assertEquals(expectedPage, result);
+        verify(auditLogRepository).findAllByOrderByCreatedAtDesc(PageRequest.of(0, 10));
+    }
+
+    @Test
+    @DisplayName("getDashboardStats should return correct metrics")
+    void getDashboardStatsShouldReturnMetrics() {
+        when(auditLogRepository.count()).thenReturn(100L);
+        when(auditLogRepository.countRequestsSince(any(LocalDateTime.class))).thenReturn(50L);
+        when(auditLogRepository.countByPiiDetectedTrue()).thenReturn(5L);
+        when(auditLogRepository.countByRateLimitedTrue()).thenReturn(2L);
+        when(auditLogRepository.avgResponseTimeSince(any(LocalDateTime.class))).thenReturn(150.5);
+
+        Map<String, Object> stats = auditLogService.getDashboardStats();
+
+        assertEquals(100L, stats.get("totalRequests"));
+        assertEquals(50L, stats.get("requestsLast24h"));
+        assertEquals(5L, stats.get("piiDetections"));
+        assertEquals(2L, stats.get("rateLimitedCount"));
+        assertEquals(150.5, stats.get("avgResponseTimeMs"));
+    }
+}
