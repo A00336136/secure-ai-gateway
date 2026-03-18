@@ -1,0 +1,14 @@
+# Colang 2.0 — Topic Control Flow
+
+define user ask off topic
+  "what is the weather"
+  "tell me a joke"
+  "write me a poem"
+  "what are your personal opinions"
+
+define flow topic control
+  user ask off topic
+  bot redirect to topic
+
+define bot redirect to topic
+  "I'm designed to assist with tasks related to the Secure AI Gateway system. Please ask questions related to security, AI, development, or system administration."
