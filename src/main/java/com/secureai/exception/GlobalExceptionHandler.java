@@ -1,5 +1,6 @@
 package com.secureai.exception;
 
+import com.secureai.guardrails.GuardrailsBlockedException;
 import com.secureai.model.ErrorResponse;
 import com.secureai.service.AuthService.AuthException;
 import com.secureai.service.OllamaClient.OllamaException;
@@ -32,6 +33,19 @@ public class GlobalExceptionHandler {
         log.warn("Auth error at {}: {}", sanitizeLog(request.getRequestURI()), sanitizeLog(ex.getMessage()));
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(new ErrorResponse(401, "Unauthorized", ex.getMessage(), request.getRequestURI()));
+    }
+
+    @ExceptionHandler(GuardrailsBlockedException.class)
+    public ResponseEntity<ErrorResponse> handleGuardrailsBlocked(
+            GuardrailsBlockedException ex, HttpServletRequest request) {
+        log.warn("Guardrails blocked request at {}: {}", sanitizeLog(request.getRequestURI()),
+                sanitizeLog(ex.getBlockedBy()));
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .header("X-Guardrails-Status", "BLOCKED")
+                .header("X-Guardrails-Blocked-By", ex.getBlockedBy())
+                .body(new ErrorResponse(422, "Content Blocked",
+                        "Your request was blocked by the AI safety guardrails. guardrails_status=BLOCKED",
+                        request.getRequestURI()));
     }
 
     @ExceptionHandler(OllamaException.class)

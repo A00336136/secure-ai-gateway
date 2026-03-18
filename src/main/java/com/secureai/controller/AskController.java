@@ -1,6 +1,8 @@
 package com.secureai.controller;
 
 import com.secureai.agent.ReActAgentService;
+import com.secureai.guardrails.GuardrailsBlockedException;
+import com.secureai.guardrails.GuardrailsOrchestrator;
 import com.secureai.model.AskRequest;
 import com.secureai.model.AskResponse;
 import com.secureai.pii.PiiRedactionService;
@@ -29,10 +31,11 @@ import java.security.Principal;
  * Pipeline per request:
  *  ① JWT auth (enforced by security filter, not this controller)
  *  ② Rate limit check (Bucket4j — 100 req/hr per user)
- *  ③ Route to OllamaClient or ReActAgent
- *  ④ PII redaction on response
- *  ⑤ Async audit log to PostgreSQL
- *  ⑥ Return response with rate-limit headers
+ *  ③ 3-Layer Guardrails (NeMo + LlamaGuard + Presidio in parallel via Mono.zip())
+ *  ④ Route to OllamaClient or ReActAgent
+ *  ⑤ PII redaction on response
+ *  ⑥ Async audit log to PostgreSQL
+ *  ⑦ Return response with rate-limit headers
  */
 @RestController
 @RequestMapping("/api")
@@ -46,15 +49,17 @@ public class AskController {
     private final RateLimiterService rateLimiterService;
     private final ReActAgentService reActAgentService;
     private final AuditLogService auditLogService;
+    private final GuardrailsOrchestrator guardrailsOrchestrator;
 
     public AskController(OllamaClient ollamaClient, PiiRedactionService piiRedactionService,
                          RateLimiterService rateLimiterService, ReActAgentService reActAgentService,
-                         AuditLogService auditLogService) {
+                         AuditLogService auditLogService, GuardrailsOrchestrator guardrailsOrchestrator) {
         this.ollamaClient = ollamaClient;
         this.piiRedactionService = piiRedactionService;
         this.rateLimiterService = rateLimiterService;
         this.reActAgentService = reActAgentService;
         this.auditLogService = auditLogService;
+        this.guardrailsOrchestrator = guardrailsOrchestrator;
     }
 
     @PostMapping("/ask")
@@ -87,10 +92,22 @@ public class AskController {
                     .build();
         }
 
+        // ③ 3-Layer Guardrails (NeMo + LlamaGuard + Presidio — parallel Mono.zip())
+        var guardrailsResult = guardrailsOrchestrator.evaluate(request.getPrompt());
+        if (guardrailsResult.blocked()) {
+            log.warn("Guardrails BLOCKED for user '{}': {}", sanitizeLog(username), guardrailsResult.blockedBy());
+
+            auditLogService.logRequest(username, request.getPrompt(), null,
+                    ollamaClient.getModel(), false, false, null,
+                    422, guardrailsResult.totalLatencyMs(), httpRequest.getRemoteAddr());
+
+            throw new GuardrailsBlockedException(guardrailsResult.blockedBy());
+        }
+
         String rawResponse;
         int reactSteps = 0;
 
-        // ③ Route: ReAct agent or direct inference
+        // ④ Route: ReAct agent or direct inference
         if (request.isUseReActAgent()) {
             log.info("ReAct agent invoked for user '{}'", sanitizeLog(username));
             ReActAgentService.AgentResult result = reActAgentService.execute(request.getPrompt());
