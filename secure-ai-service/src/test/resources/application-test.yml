@@ -1,0 +1,46 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    database-platform: org.hibernate.dialect.H2Dialect
+  flyway:
+    enabled: false
+
+app:
+  jwt:
+    secret: test-secret-key-for-unit-tests-minimum-32-chars
+    expiration: 3600000
+  ollama:
+    base-url: http://localhost:11434
+    model: llama3.1:8b
+    timeout: 5000
+  rate-limit:
+    capacity: 100
+    refill-tokens: 100
+    refill-duration: 60
+  guardrails:
+    nemo:
+      base-url: http://localhost:8001
+      timeout: 5000
+      enabled: true
+    llamaguard:
+      model: llamaguard3:8b
+      timeout: 5000
+      enabled: true
+    presidio:
+      base-url: http://localhost:5002
+      timeout: 3000
+      enabled: true
+      min-score: 0.6
+  pii:
+    redaction-enabled: true
+    audit-redaction: true
+
+logging:
+  level:
+    com.secureai: DEBUG

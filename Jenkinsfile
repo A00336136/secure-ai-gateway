@@ -1,27 +1,25 @@
 // ═══════════════════════════════════════════════════════════════════════════
-// Jenkinsfile — Secure AI Gateway
-// Multi-Branch Pipeline · 14-Stage DevSecOps CI/CD
+// Jenkinsfile — Secure AI Gateway (Multi-Module Maven)
+// Multi-Branch Pipeline · 15-Stage DevSecOps CI/CD
 //
-// Stages:
-//  1.  Checkout         — Fetch source, set build metadata
-//  2.  Compile          — Maven compile + validate
-//  3.  Unit Tests       — JUnit 5 via maven-surefire
-//  4.  JaCoCo Coverage  — Code coverage report (70% minimum)
-//  5.  SonarQube        — Static analysis + Quality Gate
-//  6.  OWASP CVE        — Dependency vulnerability scan (fail on HIGH)
-//  7.  SpotBugs         — FindSecBugs security static analysis
-//  8.  FAT JAR Build    — spring-boot:repackage
-//  9.  Docker Build     — Multi-stage Dockerfile
-// 10.  Trivy Scan       — Container image CVE scan
-// 11.  Deploy Dev       — kubectl apply to dev namespace
-// 12.  Integration Test — Smoke tests against dev
-// 13.  Deploy Prod      — kubectl apply to prod (main branch only)
+// Module Build Order: secure-ai-model → secure-ai-core →
+//                     secure-ai-service → secure-ai-web (FAT JAR)
+//
+// Test Pyramid:
+//   L1: Unit Tests          — JUnit 5 + Mockito (*Test.java via Surefire)
+//   L2: Smoke Tests         — Context + Endpoints (*SmokeTest.java via Failsafe)
+//   L3: Performance Tests   — JWT/PII/RateLimiter throughput (*PerfTest.java)
+//   L4: Integration Tests   — E2E security flows (*IT.java via Failsafe)
+//
+// DevSecOps Chain:
+//   JaCoCo (80% line) → SonarQube + Quality Gate → OWASP (CVSS 7+) →
+//   SpotBugs + FindSecBugs → Trivy (HIGH/CRITICAL) → Alpine Linux
 // ═══════════════════════════════════════════════════════════════════════════
 
 pipeline {
     agent {
         docker {
-            image 'maven:3.9.9-eclipse-temurin-21'
+            image 'maven:3.9.9-eclipse-temurin-21-alpine'
             args '-v /root/.m2:/root/.m2 --network host'
         }
     }
@@ -29,7 +27,7 @@ pipeline {
     environment {
         APP_NAME        = 'secure-ai-gateway'
         APP_VERSION     = "${env.BUILD_NUMBER}"
-        DOCKER_IMAGE    = "your-dockerhub-username/${APP_NAME}"
+        DOCKER_IMAGE    = "a00336136/${APP_NAME}"
         DOCKER_TAG      = "${env.GIT_COMMIT?.take(7) ?: 'latest'}"
         SONAR_URL       = 'http://sonarqube:9000'
         SONAR_TOKEN     = credentials('sonarqube-token')
@@ -67,16 +65,18 @@ pipeline {
         }
 
         // ────────────────────────────────────────────────────
-        // STAGE 2: Compile
+        // STAGE 2: Install Multi-Module (Parent + 4 Children)
+        // Build order: model → core → service → web
         // ────────────────────────────────────────────────────
-        stage('Compile') {
+        stage('Install Modules') {
             steps {
-                sh 'mvn -B clean compile -DskipTests'
+                sh 'mvn -B clean install -DskipTests'
             }
         }
 
         // ────────────────────────────────────────────────────
-        // STAGE 3: Unit Tests
+        // STAGE 3: Unit Tests (Test Pyramid — Layer 1)
+        // Surefire runs *Test.java across ALL 4 modules
         // ────────────────────────────────────────────────────
         stage('Unit Tests') {
             steps {
@@ -84,49 +84,40 @@ pipeline {
             }
             post {
                 always {
-                    junit 'target/surefire-reports/**/*.xml'
-                    publishHTML(target: [
-                        reportDir: 'target/surefire-reports',
-                        reportFiles: 'index.html',
-                        reportName: 'Unit Test Report'
-                    ])
+                    junit '**/target/surefire-reports/**/*.xml'
                 }
                 failure {
                     slackSend(color: 'danger',
-                        message: "❌ Unit tests failed: ${env.JOB_NAME} #${env.BUILD_NUMBER}")
+                        message: "Unit tests failed: ${env.JOB_NAME} #${env.BUILD_NUMBER}")
                 }
             }
         }
 
         // ────────────────────────────────────────────────────
-        // STAGE 4: JaCoCo Coverage
+        // STAGE 4: JaCoCo Code Coverage (80% line, 70% branch)
+        // Aggregate report from all 4 modules
         // ────────────────────────────────────────────────────
         stage('JaCoCo Coverage') {
             steps {
-                sh 'mvn -B jacoco:report'
+                sh 'mvn -B jacoco:report -pl secure-ai-web jacoco:report-aggregate'
             }
             post {
                 always {
                     jacoco(
-                        execPattern: 'target/jacoco.exec',
-                        classPattern: 'target/classes',
-                        sourcePattern: 'src/main/java',
+                        execPattern: '**/target/jacoco.exec',
+                        classPattern: '**/target/classes',
+                        sourcePattern: '**/src/main/java',
                         exclusionPattern: '**/model/**,**/config/**',
-                        minimumInstructionCoverage: '70',
-                        minimumBranchCoverage: '60',
-                        minimumLineCoverage: '70'
+                        minimumInstructionCoverage: '80',
+                        minimumBranchCoverage: '70',
+                        minimumLineCoverage: '80'
                     )
-                    publishHTML(target: [
-                        reportDir: 'target/site/jacoco',
-                        reportFiles: 'index.html',
-                        reportName: 'JaCoCo Coverage Report'
-                    ])
                 }
             }
         }
 
         // ────────────────────────────────────────────────────
-        // STAGE 5: SonarQube Analysis
+        // STAGE 5: SonarQube Analysis (multi-module)
         // ────────────────────────────────────────────────────
         stage('SonarQube Analysis') {
             steps {
@@ -137,10 +128,7 @@ pipeline {
                             -Dsonar.projectName='Secure AI Gateway' \
                             -Dsonar.host.url=${SONAR_URL} \
                             -Dsonar.token=${SONAR_TOKEN} \
-                            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
-                            -Dsonar.java.binaries=target/classes \
-                            -Dsonar.sources=src/main/java \
-                            -Dsonar.tests=src/test/java
+                            -Dsonar.coverage.jacoco.xmlReportPaths=secure-ai-web/target/site/jacoco-aggregate/jacoco.xml
                     """
                 }
             }
@@ -158,25 +146,25 @@ pipeline {
             post {
                 failure {
                     slackSend(color: 'danger',
-                        message: "❌ SonarQube Quality Gate FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}")
+                        message: "SonarQube Quality Gate FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}")
                 }
             }
         }
 
         // ────────────────────────────────────────────────────
-        // STAGE 7: OWASP Dependency-Check
+        // STAGE 7: OWASP Dependency-Check (CVE CVSS >= 7)
         // ────────────────────────────────────────────────────
         stage('OWASP CVE Check') {
             steps {
                 sh """
-                    mvn -B dependency-check:check \
+                    mvn -B dependency-check:aggregate \
                         -Ddependency-check.failBuildOnCVSS=7 \
                         -Ddependency-check.format=ALL
                 """
             }
             post {
                 always {
-                    dependencyCheckPublisher pattern: 'target/dependency-check-report.xml'
+                    dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
                     publishHTML(target: [
                         reportDir: 'target',
                         reportFiles: 'dependency-check-report.html',
@@ -185,22 +173,22 @@ pipeline {
                 }
                 failure {
                     slackSend(color: 'danger',
-                        message: "🚨 OWASP CVE scan FAILED (HIGH severity CVEs found): ${env.JOB_NAME}")
+                        message: "OWASP CVE scan FAILED (HIGH severity CVEs found): ${env.JOB_NAME}")
                 }
             }
         }
 
         // ────────────────────────────────────────────────────
-        // STAGE 8: SpotBugs
+        // STAGE 8: SpotBugs + FindSecBugs (SAST)
         // ────────────────────────────────────────────────────
         stage('SpotBugs Analysis') {
             steps {
-                sh 'mvn -B spotbugs:check'
+                sh 'mvn -B spotbugs:check -PdevSecOps'
             }
             post {
                 always {
                     recordIssues(
-                        tools: [spotBugs(pattern: 'target/spotbugsXml.xml')],
+                        tools: [spotBugs(pattern: '**/spotbugsXml.xml')],
                         qualityGates: [[threshold: 1, type: 'TOTAL_HIGH', unstable: true]]
                     )
                 }
@@ -208,17 +196,32 @@ pipeline {
         }
 
         // ────────────────────────────────────────────────────
-        // STAGE 9: Build FAT JAR
+        // STAGE 9: Smoke Tests (Test Pyramid — Layer 2)
+        // Failsafe runs *SmokeTest.java in secure-ai-web
         // ────────────────────────────────────────────────────
-        stage('Build FAT JAR') {
+        stage('Smoke Tests') {
             steps {
-                sh 'mvn -B package -DskipTests -Pprod'
-                archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+                sh 'mvn -B failsafe:integration-test -pl secure-ai-web -Dgroups=smoke -Dspring.profiles.active=test'
+            }
+            post {
+                always {
+                    junit '**/target/failsafe-reports/**/*.xml'
+                }
             }
         }
 
         // ────────────────────────────────────────────────────
-        // STAGE 10: Docker Build & Push
+        // STAGE 10: Build FAT JAR (secure-ai-web module)
+        // ────────────────────────────────────────────────────
+        stage('Build FAT JAR') {
+            steps {
+                sh 'mvn -B package -DskipTests -pl secure-ai-web -am'
+                archiveArtifacts artifacts: 'secure-ai-web/target/*.jar', fingerprint: true
+            }
+        }
+
+        // ────────────────────────────────────────────────────
+        // STAGE 11: Docker Build & Push (Alpine Linux)
         // ────────────────────────────────────────────────────
         stage('Docker Build & Push') {
             agent { label 'docker' }
@@ -237,7 +240,8 @@ pipeline {
         }
 
         // ────────────────────────────────────────────────────
-        // STAGE 11: Trivy Container Scan
+        // STAGE 12: Trivy Container Scan (Alpine Linux)
+        // Exit code 1 on HIGH/CRITICAL CVEs
         // ────────────────────────────────────────────────────
         stage('Trivy Container Scan') {
             agent { label 'docker' }
@@ -262,13 +266,13 @@ pipeline {
                 }
                 failure {
                     slackSend(color: 'danger',
-                        message: "🚨 Trivy found CRITICAL container vulnerabilities: ${env.JOB_NAME}")
+                        message: "Trivy found CRITICAL container vulnerabilities: ${env.JOB_NAME}")
                 }
             }
         }
 
         // ────────────────────────────────────────────────────
-        // STAGE 12: Deploy to Dev
+        // STAGE 13: Deploy to Dev (Kubernetes/Minikube)
         // ────────────────────────────────────────────────────
         stage('Deploy Dev') {
             steps {
@@ -285,25 +289,26 @@ pipeline {
         }
 
         // ────────────────────────────────────────────────────
-        // STAGE 13: Integration Tests (Dev)
+        // STAGE 14: Integration Tests (Test Pyramid — Layer 4)
+        // Failsafe runs *IT.java against Dev deployment
         // ────────────────────────────────────────────────────
         stage('Integration Tests') {
             steps {
                 sh """
                     mvn -B failsafe:integration-test failsafe:verify \
-                        -Dspring.profiles.active=test \
-                        -Dintegration.base-url=http://secure-ai-gateway.secure-ai-dev.svc.cluster.local:8080
+                        -pl secure-ai-web \
+                        -Dspring.profiles.active=test
                 """
             }
             post {
                 always {
-                    junit 'target/failsafe-reports/**/*.xml'
+                    junit '**/target/failsafe-reports/**/*.xml'
                 }
             }
         }
 
         // ────────────────────────────────────────────────────
-        // STAGE 14: Deploy Prod (main branch only)
+        // STAGE 15: Deploy Prod (main branch only + approval)
         // ────────────────────────────────────────────────────
         stage('Deploy Prod') {
             when {
@@ -328,7 +333,7 @@ pipeline {
             post {
                 success {
                     slackSend(color: 'good',
-                        message: "✅ ${APP_NAME} v${DOCKER_TAG} deployed to PRODUCTION successfully!")
+                        message: "${APP_NAME} v${DOCKER_TAG} deployed to PRODUCTION successfully!")
                 }
             }
         }
@@ -340,11 +345,11 @@ pipeline {
         }
         success {
             slackSend(color: 'good',
-                message: "✅ Pipeline PASSED: ${env.JOB_NAME} #${env.BUILD_NUMBER} (${env.BRANCH_NAME})")
+                message: "Pipeline PASSED: ${env.JOB_NAME} #${env.BUILD_NUMBER} (${env.BRANCH_NAME})")
         }
         failure {
             slackSend(color: 'danger',
-                message: "❌ Pipeline FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER} (${env.BRANCH_NAME})")
+                message: "Pipeline FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER} (${env.BRANCH_NAME})")
             emailext(
                 subject: "FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                 body: "Pipeline failed. Check: ${env.BUILD_URL}",
@@ -353,7 +358,7 @@ pipeline {
         }
         unstable {
             slackSend(color: 'warning',
-                message: "⚠️ Pipeline UNSTABLE: ${env.JOB_NAME} #${env.BUILD_NUMBER}")
+                message: "Pipeline UNSTABLE: ${env.JOB_NAME} #${env.BUILD_NUMBER}")
         }
     }
 }
