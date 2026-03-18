@@ -39,8 +39,8 @@ public class AdminController {
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Paginated audit logs")
     public ResponseEntity<Page<AuditLog>> auditLogs(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "20") int size) {
         return ResponseEntity.ok(auditLogService.getRecentLogs(page, size));
     }
 
@@ -54,7 +54,7 @@ public class AdminController {
     @DeleteMapping("/rate-limit/{username}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Reset rate limit bucket for a user")
-    public ResponseEntity<Map<String, String>> resetRateLimit(@PathVariable String username) {
+    public ResponseEntity<Map<String, String>> resetRateLimit(@PathVariable(name = "username") String username) {
         rateLimiterService.resetBucket(username);
         return ResponseEntity.ok(Map.of(
             "message", "Rate limit reset for user: " + username,
