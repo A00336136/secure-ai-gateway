@@ -9,7 +9,6 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DisplayName("JwtUtil Tests")
 class JwtUtilTest {
@@ -82,10 +81,9 @@ class JwtUtilTest {
 
         @Test
         @DisplayName("Expired token should fail validation")
-        void expiredTokenShouldFail() throws InterruptedException {
-            ReflectionTestUtils.setField(jwtUtil, "expirationMs", 1L); // 1ms TTL
+        void expiredTokenShouldFail() {
+            ReflectionTestUtils.setField(jwtUtil, "expirationMs", -1000L); // negative TTL ensures instant expiration
             String token = jwtUtil.generateToken("alice", "USER");
-            Thread.sleep(50);
             assertThat(jwtUtil.validateToken(token)).isFalse();
         }
 
@@ -162,9 +160,10 @@ class JwtUtilTest {
         @Test
         @DisplayName("Should handle invalidation of null/invalid tokens gracefully")
         void shouldHandleInvalidTokensGracefully() {
-            // Should not throw
+            // Should not throw — and tokens should remain valid/invalid as before
             jwtUtil.invalidateToken(null);
             jwtUtil.invalidateToken("not.a.token");
+            assertThat(jwtUtil.validateToken("not.a.token")).isFalse();
         }
     }
 

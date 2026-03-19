@@ -2,7 +2,6 @@ package com.secureai.service;
 
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
-import io.github.bucket4j.Refill;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -49,7 +48,7 @@ public class RateLimiterService {
     public boolean tryConsume(String username) {
         Bucket bucket = getUserBucket(username);
         boolean allowed = bucket.tryConsume(1);
-        if (!allowed) {
+        if (!allowed && log.isWarnEnabled()) {
             log.warn("Rate limit exceeded for user '{}'", sanitizeLog(username));
         }
         return allowed;
@@ -67,7 +66,9 @@ public class RateLimiterService {
      */
     public void resetBucket(String username) {
         userBuckets.remove(username);
-        log.info("Rate limit bucket reset for user '{}'", sanitizeLog(username));
+        if (log.isInfoEnabled()) {
+            log.info("Rate limit bucket reset for user '{}'", sanitizeLog(username));
+        }
     }
 
     /**
@@ -84,11 +85,13 @@ public class RateLimiterService {
     }
 
     private Bucket createBucket(String username) {
-        log.debug("Creating rate limit bucket for user '{}'", sanitizeLog(username));
-        Bandwidth limit = Bandwidth.classic(
-                capacity,
-                Refill.greedy(refillTokens, Duration.ofMinutes(refillDurationMinutes))
-        );
+        if (log.isDebugEnabled()) {
+            log.debug("Creating rate limit bucket for user '{}'", sanitizeLog(username));
+        }
+        Bandwidth limit = Bandwidth.builder()
+                .capacity(capacity)
+                .refillGreedy(refillTokens, Duration.ofMinutes(refillDurationMinutes))
+                .build();
         return Bucket.builder().addLimit(limit).build();
     }
 

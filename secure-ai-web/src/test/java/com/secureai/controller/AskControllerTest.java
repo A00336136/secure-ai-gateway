@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -25,7 +25,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 
 import static org.hamcrest.Matchers.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -40,13 +39,13 @@ class AskControllerTest {
     @Autowired MockMvc mockMvc;
     @Autowired ObjectMapper objectMapper;
 
-    @MockBean JwtUtil jwtUtil;
-    @MockBean OllamaClient ollamaClient;
-    @MockBean ReActAgentService reActAgentService;
-    @MockBean AuditLogService auditLogService;
-    @MockBean RateLimiterService rateLimiterService;
-    @MockBean PiiRedactionService piiRedactionService;
-    @MockBean GuardrailsOrchestrator guardrailsOrchestrator;
+    @MockitoBean JwtUtil jwtUtil;
+    @MockitoBean OllamaClient ollamaClient;
+    @MockitoBean ReActAgentService reActAgentService;
+    @MockitoBean AuditLogService auditLogService;
+    @MockitoBean RateLimiterService rateLimiterService;
+    @MockitoBean PiiRedactionService piiRedactionService;
+    @MockitoBean GuardrailsOrchestrator guardrailsOrchestrator;
 
     private static final String TEST_TOKEN = "valid.test.token";
     private static final String TEST_USER = "testuser";

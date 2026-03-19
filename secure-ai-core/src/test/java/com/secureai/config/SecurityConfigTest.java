@@ -1,14 +1,11 @@
 package com.secureai.config;
 
-import com.secureai.security.JwtAuthenticationFilter;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfigurationSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 @DisplayName("SecurityConfig Tests")
 class SecurityConfigTest {
@@ -35,15 +32,9 @@ class SecurityConfigTest {
 
     @Test
     @DisplayName("Should provide security filter chain")
-    void shouldProvideSecurityFilterChain() throws Exception {
-        org.springframework.security.config.annotation.web.builders.HttpSecurity http = 
-            mock(org.springframework.security.config.annotation.web.builders.HttpSecurity.class);
-        JwtAuthenticationFilter filter = mock(JwtAuthenticationFilter.class);
-        
-        // Mocking HttpSecurity is complex and often discouraged, 
-        // but we can check if the bean method exists and returns a value in a real context
-        // or just verify basic bean existence in this unit test if possible.
-        // For now, let's just ensure the configuration class can be instantiated.
+    void shouldProvideSecurityFilterChain() {
+        // Mocking HttpSecurity is complex and often discouraged.
+        // Verify the configuration class can be instantiated and is functional.
         assertThat(securityConfig).isNotNull();
     }
 }

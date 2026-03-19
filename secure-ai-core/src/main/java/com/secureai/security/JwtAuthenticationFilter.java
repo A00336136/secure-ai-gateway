@@ -63,8 +63,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             authentication.setDetails(request.getRemoteAddr());
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            log.debug("Authenticated user '{}' with role '{}' from IP {}",
-                    sanitizeLog(username), sanitizeLog(role), sanitizeLog(request.getRemoteAddr()));
+            if (log.isDebugEnabled()) {
+                log.debug("Authenticated user '{}' with role '{}' from IP {}",
+                        sanitizeLog(username), sanitizeLog(role), sanitizeLog(request.getRemoteAddr()));
+            }
         }
 
         filterChain.doFilter(request, response);

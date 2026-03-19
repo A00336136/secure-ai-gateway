@@ -32,32 +32,47 @@ public class AuditLogService {
     }
 
     /**
+     * Parameter object for {@link #logRequest(AuditLogEntry)} to reduce method parameter count.
+     */
+    public record AuditLogEntry(
+            String username,
+            String prompt,
+            String redactedResponse,
+            String model,
+            boolean piiDetected,
+            boolean rateLimited,
+            Integer reactSteps,
+            int statusCode,
+            long durationMs,
+            String ipAddress
+    ) {}
+
+    /**
      * Asynchronously persist an audit entry.
      * Does NOT block the HTTP response — fire and forget.
      */
     @Async
-    public void logRequest(String username, String prompt, String redactedResponse,
-                           String model, boolean piiDetected, boolean rateLimited,
-                           Integer reactSteps, int statusCode, long durationMs,
-                           String ipAddress) {
+    public void logRequest(AuditLogEntry entry) {
         try {
-            AuditLog entry = AuditLog.builder()
-                    .username(username)
-                    .prompt(truncate(prompt, 4000))
-                    .response(truncate(redactedResponse, 8000))
-                    .model(model)
-                    .piiDetected(piiDetected)
-                    .rateLimited(rateLimited)
-                    .reactSteps(reactSteps)
-                    .statusCode(statusCode)
-                    .durationMs(durationMs)
-                    .ipAddress(ipAddress)
+            AuditLog auditLog = AuditLog.builder()
+                    .username(entry.username())
+                    .prompt(truncate(entry.prompt(), 4000))
+                    .response(truncate(entry.redactedResponse(), 8000))
+                    .model(entry.model())
+                    .piiDetected(entry.piiDetected())
+                    .rateLimited(entry.rateLimited())
+                    .reactSteps(entry.reactSteps())
+                    .statusCode(entry.statusCode())
+                    .durationMs(entry.durationMs())
+                    .ipAddress(entry.ipAddress())
                     .build();
 
-            auditLogRepository.save(entry);
-            log.debug("Audit log saved for user '{}'", sanitizeLog(username));
+            auditLogRepository.save(auditLog);
+            if (log.isDebugEnabled()) {
+                log.debug("Audit log saved for user '{}'", sanitizeLog(entry.username()));
+            }
         } catch (Exception e) {
-            log.error("Failed to save audit log for user '{}': {}", sanitizeLog(username),
+            log.error("Failed to save audit log for user '{}': {}", sanitizeLog(entry.username()),
                     sanitizeLog(e.getMessage()), e);
         }
     }
