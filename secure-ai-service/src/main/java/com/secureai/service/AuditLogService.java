@@ -72,8 +72,10 @@ public class AuditLogService {
                 log.debug("Audit log saved for user '{}'", sanitizeLog(entry.username()));
             }
         } catch (Exception e) {
-            log.error("Failed to save audit log for user '{}': {}", sanitizeLog(entry.username()),
-                    sanitizeLog(e.getMessage()), e);
+            if (log.isErrorEnabled()) {
+                log.error("Failed to save audit log for user '{}': {}", sanitizeLog(entry.username()),
+                        sanitizeLog(e.getMessage()), e);
+            }
         }
     }
 
