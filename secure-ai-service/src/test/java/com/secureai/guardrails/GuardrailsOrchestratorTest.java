@@ -55,4 +55,34 @@ class GuardrailsOrchestratorTest {
         assertTrue(eval.blocked());
         assertTrue(eval.blockedBy().contains("LlamaGuard"));
     }
+
+    @Test
+    @DisplayName("evaluate should fail-closed when results are null")
+    void evaluateShouldFailClosedWhenResultsNull() {
+        when(nemoClient.evaluate(anyString())).thenReturn(Mono.empty());
+        when(llamaGuardClient.evaluate(anyString())).thenReturn(Mono.empty());
+        when(presidioClient.evaluate(anyString())).thenReturn(Mono.empty());
+
+        GuardrailsOrchestrator.GuardrailsEvaluation eval = orchestrator.evaluate("prompt");
+
+        assertTrue(eval.blocked());
+        assertEquals("evaluation_failure", eval.blockedBy());
+    }
+
+    @Test
+    @DisplayName("isHealthy should return true if all mandatory clients are healthy")
+    void isHealthyShouldReturnTrueIfHealthy() {
+        when(nemoClient.isHealthy()).thenReturn(true);
+        when(presidioClient.isHealthy()).thenReturn(true);
+
+        assertTrue(orchestrator.isHealthy());
+    }
+
+    @Test
+    @DisplayName("isHealthy should return false if any client is unhealthy")
+    void isHealthyShouldReturnFalseIfUnhealthy() {
+        when(nemoClient.isHealthy()).thenReturn(false);
+        // presidio might be true, but overall is false
+        assertFalse(orchestrator.isHealthy());
+    }
 }

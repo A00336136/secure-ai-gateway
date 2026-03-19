@@ -115,5 +115,22 @@ public class GuardrailsOrchestrator {
             String blockedBy,
             List<GuardrailsResult> layerResults,
             long totalLatencyMs
-    ) {}
+    ) {
+        public GuardrailsEvaluation(
+                boolean blocked,
+                String blockedBy,
+                List<GuardrailsResult> layerResults,
+                long totalLatencyMs
+        ) {
+            this.blocked = blocked;
+            this.blockedBy = blockedBy;
+            this.layerResults = layerResults != null ? List.copyOf(layerResults) : List.of();
+            this.totalLatencyMs = totalLatencyMs;
+        }
+
+        @Override
+        public List<GuardrailsResult> layerResults() {
+            return List.copyOf(layerResults);
+        }
+    }
 }

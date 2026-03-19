@@ -70,6 +70,40 @@ class AuditLogServiceTest {
     }
 
     @Test
+    @DisplayName("getUserLogs should call repository and return a page")
+    void getUserLogsShouldReturnPage() {
+        Page<AuditLog> expectedPage = new PageImpl<>(List.of(new AuditLog()));
+        when(auditLogRepository.findByUsernameOrderByCreatedAtDesc(eq("alice"), any(PageRequest.class))).thenReturn(expectedPage);
+
+        Page<AuditLog> result = auditLogService.getUserLogs("alice", 0, 10);
+
+        assertEquals(expectedPage, result);
+        verify(auditLogRepository).findByUsernameOrderByCreatedAtDesc("alice", PageRequest.of(0, 10));
+    }
+
+    @Test
+    @DisplayName("getPiiAlerts should call repository")
+    void getPiiAlertsShouldReturnList() {
+        List<AuditLog> expected = List.of(new AuditLog());
+        when(auditLogRepository.findByPiiDetectedTrueOrderByCreatedAtDesc()).thenReturn(expected);
+
+        List<AuditLog> result = auditLogService.getPiiAlerts();
+
+        assertEquals(expected, result);
+    }
+
+    @Test
+    @DisplayName("logRequest should handle repository exceptions gracefully")
+    void logRequestShouldHandleExceptions() {
+        doThrow(new RuntimeException("DB Down")).when(auditLogRepository).save(any());
+
+        // Should not throw exception
+        assertDoesNotThrow(() ->
+            auditLogService.logRequest("user", "p", "r", "m", false, false, 0, 200, 1L, "127.0.0.1")
+        );
+    }
+
+    @Test
     @DisplayName("getDashboardStats should return correct metrics")
     void getDashboardStatsShouldReturnMetrics() {
         when(auditLogRepository.count()).thenReturn(100L);
