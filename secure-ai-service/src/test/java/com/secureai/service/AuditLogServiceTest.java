@@ -122,4 +122,31 @@ class AuditLogServiceTest {
         assertEquals(2L, stats.get("rateLimitedCount"));
         assertEquals(150.5, stats.get("avgResponseTimeMs"));
     }
+
+    @Test
+    @DisplayName("getDashboardStats should default avgResponseTime to 0.0 when null")
+    void getDashboardStatsShouldDefaultAvgResponseTimeWhenNull() {
+        when(auditLogRepository.count()).thenReturn(0L);
+        when(auditLogRepository.countRequestsSince(any(LocalDateTime.class))).thenReturn(0L);
+        when(auditLogRepository.countByPiiDetectedTrue()).thenReturn(0L);
+        when(auditLogRepository.countByRateLimitedTrue()).thenReturn(0L);
+        when(auditLogRepository.avgResponseTimeSince(any(LocalDateTime.class))).thenReturn(null);
+
+        Map<String, Object> stats = auditLogService.getDashboardStats();
+
+        assertEquals(0.0, stats.get("avgResponseTimeMs"));
+    }
+
+    @Test
+    @DisplayName("logRequest should handle null prompt and response gracefully")
+    void logRequestShouldHandleNullFields() {
+        when(auditLogRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+
+        assertDoesNotThrow(() ->
+            auditLogService.logRequest(new AuditLogService.AuditLogEntry(
+                    "user", null, null, "model", false, false, null, 200, 1L, "127.0.0.1"))
+        );
+
+        verify(auditLogRepository).save(any());
+    }
 }

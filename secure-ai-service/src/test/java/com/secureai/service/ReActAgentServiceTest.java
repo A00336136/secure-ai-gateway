@@ -150,4 +150,67 @@ class ReActAgentServiceTest {
         ReActAgentService.AgentResult result = agentService.execute("calc error");
         assertThat(result.steps.get(0).getObservation()).contains("Calculation error");
     }
+
+    @Test
+    @DisplayName("Agent should handle knowledge search tool error")
+    void agentShouldHandleKnowledgeSearchError() {
+        String response1 = "Thought: Search.\nAction: search_knowledge\nAction Input: query";
+        String response2 = "Thought: Failed.\nAction: answer\nFinal Answer: fallback";
+
+        when(ollamaClient.generateResponse(anyString(), anyString())).thenReturn(response1, response2);
+        when(ollamaClient.generateResponse(contains("Answer this question concisely"))).thenThrow(new RuntimeException("Search failed"));
+
+        ReActAgentService.AgentResult result = agentService.execute("search error");
+        assertThat(result.steps.get(0).getObservation()).contains("Search error");
+    }
+
+    @Test
+    @DisplayName("Agent should handle summarize tool error")
+    void agentShouldHandleSummarizeError() {
+        String response1 = "Thought: Summarize.\nAction: summarize\nAction Input: some text";
+        String response2 = "Thought: Failed.\nAction: answer\nFinal Answer: fallback";
+
+        when(ollamaClient.generateResponse(anyString(), anyString())).thenReturn(response1, response2);
+        when(ollamaClient.generateResponse(contains("Summarize this text"))).thenThrow(new RuntimeException("Summarize failed"));
+
+        ReActAgentService.AgentResult result = agentService.execute("summarize error");
+        assertThat(result.steps.get(0).getObservation()).contains("Summarize error");
+    }
+
+    @Test
+    @DisplayName("Agent should handle null action from LLM response")
+    void agentShouldHandleNullAction() {
+        // LLM returns something with no Action line at all
+        String response1 = "I'm just rambling without following the format.";
+        String response2 = "Thought: Done.\nAction: answer\nFinal Answer: recovered";
+
+        when(ollamaClient.generateResponse(anyString(), anyString())).thenReturn(response1, response2);
+
+        ReActAgentService.AgentResult result = agentService.execute("null action test");
+        assertThat(result.steps.get(0).getObservation()).isEqualTo("No action specified.");
+    }
+
+    @Test
+    @DisplayName("Agent should handle long prompt truncation in log")
+    void agentShouldHandleLongPrompt() {
+        String longPrompt = "x".repeat(100);
+        String llmResponse = "Thought: Simple.\nAction: answer\nFinal Answer: done";
+
+        when(ollamaClient.generateResponse(anyString(), anyString())).thenReturn(llmResponse);
+
+        ReActAgentService.AgentResult result = agentService.execute(longPrompt);
+        assertThat(result.answer).isEqualTo("done");
+    }
+
+    @Test
+    @DisplayName("Agent should handle short prompt without truncation")
+    void agentShouldHandleShortPrompt() {
+        String shortPrompt = "Hi";
+        String llmResponse = "Thought: Simple.\nAction: answer\nFinal Answer: hello";
+
+        when(ollamaClient.generateResponse(anyString(), anyString())).thenReturn(llmResponse);
+
+        ReActAgentService.AgentResult result = agentService.execute(shortPrompt);
+        assertThat(result.answer).isEqualTo("hello");
+    }
 }
