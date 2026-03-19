@@ -220,4 +220,29 @@ class PiiRedactionServiceTest {
             assertThat(service.redact(text)).isEqualTo(text);
         }
     }
+    @Test
+    @DisplayName("containsPii should return true if PII is present")
+    void containsPiiShouldReturnTrue() {
+        assertThat(service.containsPii("My email is test@example.com")).isTrue();
+    }
+
+    @Test
+    @DisplayName("containsPii should return false if no PII is present")
+    void containsPiiShouldReturnFalse() {
+        assertThat(service.containsPii("Hello world")).isFalse();
+    }
+
+    @Test
+    @DisplayName("containsPii should return false for null/blank")
+    void containsPiiShouldReturnFalseForNullBlank() {
+        assertThat(service.containsPii(null)).isFalse();
+        assertThat(service.containsPii("  ")).isFalse();
+    }
+
+    @Test
+    @DisplayName("detectPiiTypes should return empty for null/blank")
+    void detectPiiTypesShouldReturnEmptyForNullBlank() {
+        assertThat(service.detectPiiTypes(null)).isEmpty();
+        assertThat(service.detectPiiTypes("")).isEmpty();
+    }
 }

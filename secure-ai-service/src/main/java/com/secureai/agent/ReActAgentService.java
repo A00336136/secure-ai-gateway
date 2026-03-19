@@ -112,19 +112,19 @@ public class ReActAgentService {
             steps.add(agentStep);
 
             log.debug("Step {}: thought='{}', action='{}'",
-                    step, sanitizeLog(agentStep.thought), sanitizeLog(agentStep.action));
+                    step, sanitizeLog(agentStep.getThought()), sanitizeLog(agentStep.getAction()));
 
             // Check for final answer — use Locale.ROOT to avoid locale-sensitive comparison
-            if ("answer".equals(agentStep.action != null
-                    ? agentStep.action.toLowerCase(Locale.ROOT) : null)
-                    && agentStep.finalAnswer != null) {
+            if ("answer".equals(agentStep.getAction() != null
+                    ? agentStep.getAction().toLowerCase(Locale.ROOT) : null)
+                    && agentStep.getFinalAnswer() != null) {
                 log.info("ReAct agent completed in {} step(s)", step);
-                return new AgentResult(agentStep.finalAnswer, steps, step);
+                return new AgentResult(agentStep.getFinalAnswer(), steps, step);
             }
 
             // Execute tool action and add observation
-            String observation = executeTool(agentStep.action, agentStep.actionInput);
-            agentStep.observation = observation;
+            String observation = executeTool(agentStep.getAction(), agentStep.getActionInput());
+            agentStep.setObservation(observation);
 
             // Append to conversation
             conversationHistory.append(llmResponse).append("\n");
@@ -196,26 +196,26 @@ public class ReActAgentService {
 
         Matcher thoughtMatcher = THOUGHT_PATTERN.matcher(llmResponse);
         if (thoughtMatcher.find()) {
-            step.thought = thoughtMatcher.group(1).trim();
+            step.setThought(thoughtMatcher.group(1).trim());
         }
 
         Matcher actionMatcher = ACTION_PATTERN.matcher(llmResponse);
         if (actionMatcher.find()) {
-            step.action = actionMatcher.group(1).trim();
+            step.setAction(actionMatcher.group(1).trim());
         }
 
         Matcher inputMatcher = ACTION_INPUT_PATTERN.matcher(llmResponse);
         if (inputMatcher.find()) {
-            step.actionInput = inputMatcher.group(1).trim();
+            step.setActionInput(inputMatcher.group(1).trim());
         }
 
         Matcher finalMatcher = FINAL_ANSWER_PATTERN.matcher(llmResponse);
         if (finalMatcher.find()) {
-            step.finalAnswer = finalMatcher.group(1).trim();
-            step.action = "answer";
+            step.setFinalAnswer(finalMatcher.group(1).trim());
+            step.setAction("answer");
         }
 
-        step.rawResponse = llmResponse;
+        step.setRawResponse(llmResponse);
         return step;
     }
 
@@ -224,17 +224,31 @@ public class ReActAgentService {
     // ─────────────────────────────────────────────────────────────────────────
 
     public static class AgentStep {
-        public final int stepNumber;
-        public String thought;
-        public String action;
-        public String actionInput;
-        public String observation;
-        public String finalAnswer;
-        public String rawResponse;
+        private final int stepNumber;
+        private String thought;
+        private String action;
+        private String actionInput;
+        private String observation;
+        private String finalAnswer;
+        private String rawResponse;
 
         public AgentStep(int stepNumber) {
             this.stepNumber = stepNumber;
         }
+
+        public int getStepNumber() { return stepNumber; }
+        public String getThought() { return thought; }
+        public void setThought(String thought) { this.thought = thought; }
+        public String getAction() { return action; }
+        public void setAction(String action) { this.action = action; }
+        public String getActionInput() { return actionInput; }
+        public void setActionInput(String actionInput) { this.actionInput = actionInput; }
+        public String getObservation() { return observation; }
+        public void setObservation(String observation) { this.observation = observation; }
+        public String getFinalAnswer() { return finalAnswer; }
+        public void setFinalAnswer(String finalAnswer) { this.finalAnswer = finalAnswer; }
+        public String getRawResponse() { return rawResponse; }
+        public void setRawResponse(String rawResponse) { this.rawResponse = rawResponse; }
     }
 
     public static class AgentResult {

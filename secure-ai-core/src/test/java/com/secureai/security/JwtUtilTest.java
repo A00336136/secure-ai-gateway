@@ -146,4 +146,50 @@ class JwtUtilTest {
             assertThat(jwtUtil.getExpirationSeconds()).isGreaterThan(0);
         }
     }
+    @Nested
+    @DisplayName("Token Invalidation")
+    class TokenInvalidation {
+        @Test
+        @DisplayName("Should invalidate token via JTI blacklist")
+        void shouldInvalidateToken() {
+            String token = jwtUtil.generateToken("alice", "USER");
+            assertThat(jwtUtil.validateToken(token)).isTrue();
+            
+            jwtUtil.invalidateToken(token);
+            assertThat(jwtUtil.validateToken(token)).isFalse();
+        }
+
+        @Test
+        @DisplayName("Should handle invalidation of null/invalid tokens gracefully")
+        void shouldHandleInvalidTokensGracefully() {
+            // Should not throw
+            jwtUtil.invalidateToken(null);
+            jwtUtil.invalidateToken("not.a.token");
+        }
+    }
+
+    @Nested
+    @DisplayName("Token Validation with Username")
+    class TokenValidationWithUsername {
+        @Test
+        @DisplayName("Should return true for valid token and matching username")
+        void shouldReturnTrueForMatchingUsername() {
+            String token = jwtUtil.generateToken("alice", "USER");
+            assertThat(jwtUtil.validateToken(token, "alice")).isTrue();
+        }
+
+        @Test
+        @DisplayName("Should return false for valid token and mismatched username")
+        void shouldReturnFalseForMismatchedUsername() {
+            String token = jwtUtil.generateToken("alice", "USER");
+            assertThat(jwtUtil.validateToken(token, "bob")).isFalse();
+        }
+
+        @Test
+        @DisplayName("Should return false for valid token and null username")
+        void shouldReturnFalseForNullUsername() {
+            String token = jwtUtil.generateToken("alice", "USER");
+            assertThat(jwtUtil.validateToken(token, null)).isFalse();
+        }
+    }
 }

@@ -101,7 +101,8 @@ public class AskController {
                     ollamaClient.getModel(), false, false, null,
                     422, guardrailsResult.totalLatencyMs(), httpRequest.getRemoteAddr());
 
-            throw new GuardrailsBlockedException(guardrailsResult.blockedBy());
+            long remaining = rateLimiterService.getRemainingTokens(username);
+            throw new GuardrailsBlockedException(guardrailsResult.blockedBy(), remaining);
         }
 
         String rawResponse;

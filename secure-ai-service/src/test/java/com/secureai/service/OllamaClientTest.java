@@ -59,4 +59,87 @@ class OllamaClientTest {
         assertTrue(ollamaClient.isHealthy());
         verify(restTemplate).getForEntity(contains("/api/tags"), eq(String.class));
     }
+
+    @Test
+    @DisplayName("generateResponse should throw exception on API error")
+    void generateResponseShouldThrowOnApiError() {
+        org.springframework.test.util.ReflectionTestUtils.setField(ollamaClient, "restTemplate", restTemplate);
+        org.springframework.test.util.ReflectionTestUtils.setField(ollamaClient, "baseUrl", "http://localhost:11434");
+
+        when(restTemplate.postForEntity(anyString(), any(), eq(String.class)))
+                .thenReturn(new org.springframework.http.ResponseEntity<>("Server Error", org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR));
+
+        assertThrows(RuntimeException.class, () -> ollamaClient.generateResponse("test"));
+    }
+
+    @Test
+    @DisplayName("generateResponse should throw on RestClientException")
+    void generateResponseShouldThrowOnRestError() {
+        org.springframework.test.util.ReflectionTestUtils.setField(ollamaClient, "restTemplate", restTemplate);
+        org.springframework.test.util.ReflectionTestUtils.setField(ollamaClient, "baseUrl", "http://localhost:11434");
+
+        when(restTemplate.postForEntity(anyString(), any(), eq(String.class)))
+                .thenThrow(new org.springframework.web.client.RestClientException("Connect refused"));
+
+        assertThrows(RuntimeException.class, () -> ollamaClient.generateResponse("test"));
+    }
+
+    @Test
+    @DisplayName("generateResponse should throw exception on Ollama error response")
+    void generateResponseShouldThrowOnOllamaError() {
+        org.springframework.test.util.ReflectionTestUtils.setField(ollamaClient, "restTemplate", restTemplate);
+        org.springframework.test.util.ReflectionTestUtils.setField(ollamaClient, "baseUrl", "http://localhost:11434");
+        org.springframework.test.util.ReflectionTestUtils.setField(ollamaClient, "objectMapper", new com.fasterxml.jackson.databind.ObjectMapper());
+
+        String mockErrorResponse = "{\"error\": \"model not found\"}";
+        when(restTemplate.postForEntity(anyString(), any(), eq(String.class)))
+                .thenReturn(new org.springframework.http.ResponseEntity<>(mockErrorResponse, org.springframework.http.HttpStatus.OK));
+
+        assertThrows(RuntimeException.class, () -> ollamaClient.generateResponse("test"));
+    }
+
+    @Test
+    @DisplayName("generateResponse should throw on ResourceAccessException")
+    void generateResponseShouldThrowOnResourceAccess() {
+        org.springframework.test.util.ReflectionTestUtils.setField(ollamaClient, "restTemplate", restTemplate);
+        org.springframework.test.util.ReflectionTestUtils.setField(ollamaClient, "baseUrl", "http://localhost:11434");
+
+        when(restTemplate.postForEntity(anyString(), any(), eq(String.class)))
+                .thenThrow(new org.springframework.web.client.ResourceAccessException("Timeout"));
+
+        assertThrows(RuntimeException.class, () -> ollamaClient.generateResponse("test"));
+    }
+
+    @Test
+    @DisplayName("generateResponse should throw on empty response body")
+    void generateResponseShouldThrowOnEmptyBody() {
+        org.springframework.test.util.ReflectionTestUtils.setField(ollamaClient, "restTemplate", restTemplate);
+        org.springframework.test.util.ReflectionTestUtils.setField(ollamaClient, "baseUrl", "http://localhost:11434");
+        org.springframework.test.util.ReflectionTestUtils.setField(ollamaClient, "objectMapper", new com.fasterxml.jackson.databind.ObjectMapper());
+
+        String mockEmptyResponse = "{}";
+        when(restTemplate.postForEntity(anyString(), any(), eq(String.class)))
+                .thenReturn(new org.springframework.http.ResponseEntity<>(mockEmptyResponse, org.springframework.http.HttpStatus.OK));
+
+        assertThrows(RuntimeException.class, () -> ollamaClient.generateResponse("test"));
+    }
+
+    @Test
+    @DisplayName("isHealthy should return false on error")
+    void isHealthyShouldReturnFalseOnError() {
+        org.springframework.test.util.ReflectionTestUtils.setField(ollamaClient, "restTemplate", restTemplate);
+        org.springframework.test.util.ReflectionTestUtils.setField(ollamaClient, "baseUrl", "http://localhost:11434");
+
+        when(restTemplate.getForEntity(anyString(), eq(String.class)))
+                .thenThrow(new org.springframework.web.client.RestClientException("Connect refused"));
+
+        assertFalse(ollamaClient.isHealthy());
+    }
+
+    @Test
+    @DisplayName("getModel should return model name")
+    void getModelShouldReturnName() {
+        org.springframework.test.util.ReflectionTestUtils.setField(ollamaClient, "model", "test-model");
+        assertEquals("test-model", ollamaClient.getModel());
+    }
 }

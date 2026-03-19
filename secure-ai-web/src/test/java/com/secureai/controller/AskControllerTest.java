@@ -224,6 +224,51 @@ class AskControllerTest {
                     .andExpect(header().exists("X-Rate-Limit-Remaining"))
                     .andExpect(header().exists("X-Rate-Limit-Capacity"));
         }
+
+        @Test
+        @DisplayName("429 Too Many Requests should contain retry headers")
+        void tooManyRequestsShouldReturn429() throws Exception {
+            when(rateLimiterService.tryConsume(anyString())).thenReturn(false);
+
+            AskRequest req = new AskRequest();
+            req.setPrompt("Spamming");
+
+            mockMvc.perform(post("/api/ask")
+                    .header("Authorization", "Bearer " + TEST_TOKEN)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(req)))
+                    .andExpect(status().isTooManyRequests())
+                    .andExpect(header().exists("Retry-After"))
+                    .andExpect(header().exists("X-Rate-Limit-Remaining"));
+        }
+    }
+
+    @Nested
+    @DisplayName("Guardrails")
+    class GuardrailsTests {
+
+        @Test
+        @DisplayName("Blocked request should return 422 with headers")
+        void blockedRequestShouldReturn422() throws Exception {
+            com.secureai.guardrails.GuardrailsOrchestrator.GuardrailsEvaluation blocked = 
+                new com.secureai.guardrails.GuardrailsOrchestrator.GuardrailsEvaluation(
+                    true, "NeMo:jailbreak", List.of(), 10
+            );
+            when(guardrailsOrchestrator.evaluate(anyString())).thenReturn(blocked);
+            when(rateLimiterService.getRemainingTokens(anyString())).thenReturn(95L);
+
+            AskRequest req = new AskRequest();
+            req.setPrompt("Sensitive topic");
+
+            mockMvc.perform(post("/api/ask")
+                    .header("Authorization", "Bearer " + TEST_TOKEN)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(req)))
+                    .andExpect(status().isUnprocessableEntity())
+                    .andExpect(header().string("X-Guardrails-Status", "BLOCKED"))
+                    .andExpect(header().string("X-Guardrails-Blocked-By", "NeMo:jailbreak"))
+                    .andExpect(header().string("X-Rate-Limit-Remaining", "95"));
+        }
     }
 
     @Nested

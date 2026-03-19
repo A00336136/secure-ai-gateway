@@ -8,13 +8,23 @@ package com.secureai.guardrails;
 public class GuardrailsBlockedException extends RuntimeException {
 
     private final String blockedBy;
+    private final Long remainingTokens;
 
     public GuardrailsBlockedException(String blockedBy) {
+        this(blockedBy, null);
+    }
+
+    public GuardrailsBlockedException(String blockedBy, Long remainingTokens) {
         super("Request blocked by guardrails: " + blockedBy);
         this.blockedBy = blockedBy;
+        this.remainingTokens = remainingTokens;
     }
 
     public String getBlockedBy() {
         return blockedBy;
+    }
+
+    public Long getRemainingTokens() {
+        return remainingTokens;
     }
 }

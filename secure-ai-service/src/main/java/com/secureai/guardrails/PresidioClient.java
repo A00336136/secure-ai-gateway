@@ -95,12 +95,12 @@ public class PresidioClient {
                     }
 
                     String piiTypes = entities.stream()
-                            .map(e -> e.entityType)
+                            .map(PresidioEntity::getEntityType)
                             .distinct()
                             .collect(Collectors.joining(", "));
 
                     double maxScore = entities.stream()
-                            .mapToDouble(e -> e.score)
+                            .mapToDouble(PresidioEntity::getScore)
                             .max()
                             .orElse(0.0);
 
@@ -137,16 +137,21 @@ public class PresidioClient {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     private static class PresidioEntity {
-        public String entityType;
-        public double score;
-        public int start;
-        public int end;
+        private String entityType;
+        private double score;
+        private int start;
+        private int end;
 
         // Jackson setters
         public void setEntity_type(String entityType) { this.entityType = entityType; }
         public void setScore(double score) { this.score = score; }
         public void setStart(int start) { this.start = start; }
         public void setEnd(int end) { this.end = end; }
+
+        public String getEntityType() { return entityType; }
+        public double getScore() { return score; }
+        public int getStart() { return start; }
+        public int getEnd() { return end; }
     }
 
     private static String sanitizeLog(String value) {
