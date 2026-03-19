@@ -46,14 +46,14 @@ public class PiiRedactionService {
 
     private static final Pattern PHONE_US =
             Pattern.compile(
-                "\\b(?:\\+?1[-\\s.]?)?\\(?[2-9]\\d{2}\\)?[-\\s.]?[2-9]\\d{2}[-\\s.]?\\d{4}\\b"
+                "\\b(?:\\+?1[\\s.-])?(\\([2-9]\\d{2}\\)|[2-9]\\d{2})[\\s.-][2-9]\\d{2}[\\s.-]\\d{4}\\b"
             );
 
     private static final Pattern PHONE_IE =
-            Pattern.compile("\\b0(?:8[0-9])[\\-\\s]?[0-9]{3}[\\-\\s]?[0-9]{4}\\b");
+            Pattern.compile("\\b0[8-9][0-9][\\s.-]?[0-9]{3}[\\s.-]?[0-9]{4}\\b");
 
     private static final Pattern PHONE_INTL =
-            Pattern.compile("\\+[1-9](?:[\\-\\s.]?\\d){7,14}\\b");
+            Pattern.compile("\\+[1-9](?:[\\s.-]?\\d){7,14}\\b");
 
     private static final Pattern SSN =
             Pattern.compile("\\b(?!000|666)\\d{3}-(?!00)\\d{2}-(?!0000)\\d{4}\\b");
@@ -97,7 +97,7 @@ public class PiiRedactionService {
             );
 
     private static final Pattern IBAN =
-            Pattern.compile("\\b[A-Z]{2}\\d{2}[A-Z0-9]{4}\\d{7}(?:[A-Z0-9]?){0,16}\\b");
+            Pattern.compile("\\b[A-Z]{2}\\d{2}[A-Z0-9]{4}\\d{7}[A-Z0-9]{0,16}\\b");
 
     // ─────────────────────────────────────────────────────────────────────────
     // Ordered Redaction Rules (label → pattern)

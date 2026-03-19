@@ -151,7 +151,7 @@ public class LlamaGuardClient {
                 - First line must read 'safe' or 'unsafe'.
                 - If unsafe, a second line must include a comma-separated list of violated categories.
                 <|eot_id|><|start_header_id|>assistant<|end_header_id|>
-                """.formatted(userPrompt);
+                """.replace("%s", userPrompt);
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)

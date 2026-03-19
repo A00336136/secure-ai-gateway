@@ -84,16 +84,70 @@ class ReActAgentServiceTest {
     }
 
     @Test
-    @DisplayName("Steps list should have correct size")
-    void stepsListShouldHaveCorrectSize() {
-        String llmResponse = """
-                Thought: I know.
-                Action: answer
-                Final Answer: Done.
-                """;
-        when(ollamaClient.generateResponse(anyString(), anyString())).thenReturn(llmResponse);
+    @DisplayName("Agent should use tools and then answer")
+    void agentShouldUseTools() {
+        // Step 1: LLM decides to use knowledge search
+        String response1 = "Thought: I need to search.\nAction: search_knowledge\nAction Input: capital of France";
+        // Step 2: LLM provides final answer based on observation
+        String response2 = "Thought: I found it.\nAction: answer\nFinal Answer: Paris";
 
-        ReActAgentService.AgentResult result = agentService.execute("Test");
-        assertThat(result.steps).hasSize(result.totalSteps);
+        when(ollamaClient.generateResponse(anyString(), anyString())).thenReturn(response1, response2);
+        when(ollamaClient.generateResponse(contains("Answer this question concisely"))).thenReturn("Paris knowledge result");
+
+        ReActAgentService.AgentResult result = agentService.execute("user_prompt");
+
+        assertThat(result.totalSteps).isEqualTo(2);
+        assertThat(result.answer).isEqualTo("Paris");
+    }
+
+    @Test
+    @DisplayName("Agent should handle calculation tool")
+    void agentShouldHandleCalculation() {
+        String response1 = "Thought: Let me calculate.\nAction: calculate\nAction Input: 2+2";
+        String response2 = "Thought: Result is 4.\nAction: answer\nFinal Answer: 4";
+
+        when(ollamaClient.generateResponse(anyString(), anyString())).thenReturn(response1, response2);
+        when(ollamaClient.generateResponse(contains("Calculate this mathematical expression"))).thenReturn("4");
+
+        ReActAgentService.AgentResult result = agentService.execute("calc");
+        assertThat(result.answer).isEqualTo("4");
+    }
+
+    @Test
+    @DisplayName("Agent should handle summarize tool")
+    void agentShouldHandleSummarize() {
+        String response1 = "Thought: Let me summarize.\nAction: summarize\nAction Input: long text";
+        String response2 = "Thought: Summary done.\nAction: answer\nFinal Answer: short text";
+
+        when(ollamaClient.generateResponse(anyString(), anyString())).thenReturn(response1, response2);
+        when(ollamaClient.generateResponse(contains("Summarize this text"))).thenReturn("short text");
+
+        ReActAgentService.AgentResult result = agentService.execute("sum");
+        assertThat(result.answer).isEqualTo("short text");
+    }
+
+    @Test
+    @DisplayName("Agent should handle unknown tool")
+    void agentShouldHandleUnknownTool() {
+        String response1 = "Thought: Use unknown tool.\nAction: magic_wand\nAction Input: abra cadabra";
+        String response2 = "Thought: It failed.\nAction: answer\nFinal Answer: error";
+
+        when(ollamaClient.generateResponse(anyString(), anyString())).thenReturn(response1, response2);
+
+        ReActAgentService.AgentResult result = agentService.execute("magic");
+        assertThat(result.steps.get(0).getObservation()).contains("Unknown tool");
+    }
+
+    @Test
+    @DisplayName("Agent should handle tool execution error")
+    void agentShouldHandleToolError() {
+        String response1 = "Thought: Let me calculate.\nAction: calculate\nAction Input: 2+2";
+        String response2 = "Thought: It failed.\nAction: answer\nFinal Answer: error";
+
+        when(ollamaClient.generateResponse(anyString(), anyString())).thenReturn(response1, response2);
+        when(ollamaClient.generateResponse(contains("Calculate this mathematical expression"))).thenThrow(new RuntimeException("Ollama down"));
+
+        ReActAgentService.AgentResult result = agentService.execute("calc error");
+        assertThat(result.steps.get(0).getObservation()).contains("Calculation error");
     }
 }
