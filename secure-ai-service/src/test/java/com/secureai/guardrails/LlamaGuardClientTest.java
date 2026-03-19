@@ -106,4 +106,53 @@ class LlamaGuardClientTest {
                 .assertNext(result -> assertFalse(result.blocked()))
                 .verifyComplete();
     }
+
+    @Test
+    @DisplayName("evaluate should pass when response is non-2xx")
+    void evaluateShouldPassWhenNon2xx() {
+        when(restTemplate.postForEntity(anyString(), any(), eq(String.class)))
+                .thenReturn(new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR));
+
+        StepVerifier.create(client.evaluate("prompt"))
+                .assertNext(result -> assertFalse(result.blocked()))
+                .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("evaluate should pass when response body is null")
+    void evaluateShouldPassWhenBodyNull() {
+        when(restTemplate.postForEntity(anyString(), any(), eq(String.class)))
+                .thenReturn(new ResponseEntity<>(null, HttpStatus.OK));
+
+        StepVerifier.create(client.evaluate("prompt"))
+                .assertNext(result -> assertFalse(result.blocked()))
+                .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("evaluate should block unsafe without newline as unknown category")
+    void evaluateShouldBlockUnsafeWithoutNewline() {
+        String mockResponse = "{\"response\": \"unsafe\"}";
+        when(restTemplate.postForEntity(anyString(), any(), eq(String.class)))
+                .thenReturn(new ResponseEntity<>(mockResponse, HttpStatus.OK));
+
+        StepVerifier.create(client.evaluate("harmful"))
+                .assertNext(result -> {
+                    assertTrue(result.blocked());
+                    assertEquals("unknown", result.category());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("evaluate should block when response field is null (empty string treated as unsafe)")
+    void evaluateShouldBlockWhenResponseFieldNull() {
+        String mockResponse = "{\"response\": null}";
+        when(restTemplate.postForEntity(anyString(), any(), eq(String.class)))
+                .thenReturn(new ResponseEntity<>(mockResponse, HttpStatus.OK));
+
+        StepVerifier.create(client.evaluate("prompt"))
+                .assertNext(result -> assertTrue(result.blocked()))
+                .verifyComplete();
+    }
 }
