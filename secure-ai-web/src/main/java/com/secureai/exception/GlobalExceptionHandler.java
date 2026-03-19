@@ -30,7 +30,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AuthException.class)
     public ResponseEntity<ErrorResponse> handleAuth(AuthException ex, HttpServletRequest request) {
-        log.warn("Auth error at {}: {}", sanitizeLog(request.getRequestURI()), sanitizeLog(ex.getMessage()));
+        if (log.isWarnEnabled()) {
+            log.warn("Auth error at {}: {}", sanitizeLog(request.getRequestURI()), sanitizeLog(ex.getMessage()));
+        }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(new ErrorResponse(401, "Unauthorized", ex.getMessage(), request.getRequestURI()));
     }
@@ -38,8 +40,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(GuardrailsBlockedException.class)
     public ResponseEntity<ErrorResponse> handleGuardrailsBlocked(
             GuardrailsBlockedException ex, HttpServletRequest request) {
-        log.warn("Guardrails blocked request at {}: {}", sanitizeLog(request.getRequestURI()),
-                sanitizeLog(ex.getBlockedBy()));
+        if (log.isWarnEnabled()) {
+            log.warn("Guardrails blocked request at {}: {}", sanitizeLog(request.getRequestURI()),
+                    sanitizeLog(ex.getBlockedBy()));
+        }
         
         var responseBuilder = ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
                 .header("X-Guardrails-Status", "BLOCKED")
@@ -56,7 +60,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(OllamaException.class)
     public ResponseEntity<ErrorResponse> handleOllama(OllamaException ex, HttpServletRequest request) {
-        log.error("Ollama error: {}", sanitizeLog(ex.getMessage()));
+        if (log.isErrorEnabled()) {
+            log.error("Ollama error: {}", sanitizeLog(ex.getMessage()));
+        }
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                 .body(new ErrorResponse(503, "Service Unavailable",
                         "AI model is currently unavailable. Please try again.", request.getRequestURI()));
@@ -90,8 +96,10 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneric(Exception ex, HttpServletRequest request) {
-        log.error("Unhandled exception at {}: {}", sanitizeLog(request.getRequestURI()),
-                sanitizeLog(ex.getMessage()), ex);
+        if (log.isErrorEnabled()) {
+            log.error("Unhandled exception at {}: {}", sanitizeLog(request.getRequestURI()),
+                    sanitizeLog(ex.getMessage()), ex);
+        }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ErrorResponse(500, "Internal Server Error",
                         "An unexpected error occurred", request.getRequestURI()));

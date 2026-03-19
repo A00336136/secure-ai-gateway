@@ -35,12 +35,20 @@ public class PiiRedactionService {
     private boolean enabled;
 
     // ─────────────────────────────────────────────────────────────────────────
+    // Redaction replacement constants
+    // ─────────────────────────────────────────────────────────────────────────
+
+    private static final String PHONE_REDACTED = "[PHONE_REDACTED]";
+    private static final String CREDIT_CARD_REDACTED = "[CREDIT_CARD_REDACTED]";
+    private static final String IP_REDACTED = "[IP_REDACTED]";
+
+    // ─────────────────────────────────────────────────────────────────────────
     // Compiled Regex Patterns
     // ─────────────────────────────────────────────────────────────────────────
 
     private static final Pattern EMAIL =
             Pattern.compile(
-                "\\b[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}\\b",
+                "\\b[\\w.%+-]+@[\\w.-]+\\.[a-z]{2,}\\b",
                 Pattern.CASE_INSENSITIVE
             );
 
@@ -50,7 +58,7 @@ public class PiiRedactionService {
             );
 
     private static final Pattern PHONE_IE =
-            Pattern.compile("\\b0[8-9][0-9][\\s.-]?[0-9]{3}[\\s.-]?[0-9]{4}\\b");
+            Pattern.compile("\\b0[89]\\d[\\s.-]?\\d{3}[\\s.-]?\\d{4}\\b");
 
     private static final Pattern PHONE_INTL =
             Pattern.compile("\\+[1-9](?:[\\s.-]?\\d){7,14}\\b");
@@ -61,61 +69,69 @@ public class PiiRedactionService {
     private static final Pattern CREDIT_CARD =
             Pattern.compile(
                 "\\b(?:" +
-                "4[0-9]{12}(?:[0-9]{3})?|"          + // Visa
-                "5[1-5][0-9]{14}|"                   + // MasterCard
-                "3[47][0-9]{13}|"                    + // Amex
-                "3(?:0[0-5]|[68][0-9])[0-9]{11}|"   + // Diners
-                "6(?:011|5[0-9]{2})[0-9]{12}|"      + // Discover
+                "4\\d{12}(?:\\d{3})?|"              + // Visa
+                "5[1-5]\\d{14}|"                    + // MasterCard
+                "3[47]\\d{13}|"                     + // Amex
+                "3(?:0[0-5]|[68]\\d)\\d{11}|"      + // Diners
+                "6(?:011|5\\d{2})\\d{12}|"          + // Discover
                 "(?:2131|1800|35\\d{3})\\d{11}"     + // JCB
                 ")\\b"
             );
 
     private static final Pattern CREDIT_CARD_SPACED =
             Pattern.compile(
-                "\\b\\d{4}[\\s\\-]?\\d{4}[\\s\\-]?\\d{4}[\\s\\-]?\\d{4}\\b"
+                "\\b\\d{4}[\\s-]?\\d{4}[\\s-]?\\d{4}[\\s-]?\\d{4}\\b"
             );
 
+    // IPv4: match each octet separately to keep regex complexity low
+    private static final String IPV4_OCTET = "(?:25[0-5]|2[0-4]\\d|[01]?\\d\\d?)";
     private static final Pattern IPV4 =
             Pattern.compile(
-                "\\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}" +
-                "(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b"
+                "\\b" + IPV4_OCTET + "\\." + IPV4_OCTET + "\\." +
+                IPV4_OCTET + "\\." + IPV4_OCTET + "\\b"
             );
 
+    private static final String HEX_GROUP = "[\\da-fA-F]{1,4}";
     private static final Pattern IPV6 =
             Pattern.compile(
-                "\\b(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}\\b|" +
-                "\\b(?:[0-9a-fA-F]{1,4}:)+:[0-9a-fA-F]{1,4}\\b"
+                "\\b(?:" + HEX_GROUP + ":){7}" + HEX_GROUP + "\\b|" +
+                "\\b(?:" + HEX_GROUP + ":){1,6}:" + HEX_GROUP + "\\b"
             );
 
     private static final Pattern PASSPORT_US =
-            Pattern.compile("\\b[A-Z]{1,2}[0-9]{6,9}\\b");
+            Pattern.compile("\\b[A-Z]{1,2}\\d{6,9}\\b");
 
+    // Date of birth: DD/MM/YYYY or YYYY/MM/DD
+    private static final String DAY = "(?:0[1-9]|[12]\\d|3[01])";
+    private static final String MONTH = "(?:0[1-9]|1[0-2])";
+    private static final String YEAR = "(?:19|20)\\d{2}";
+    private static final String DATE_SEP = "[/\\-]";
     private static final Pattern DATE_OF_BIRTH =
             Pattern.compile(
-                "\\b(?:0[1-9]|[12][0-9]|3[01])[/\\-](?:0[1-9]|1[012])[/\\-](?:19|20)\\d{2}\\b|" +
-                "\\b(?:19|20)\\d{2}[/\\-](?:0[1-9]|1[012])[/\\-](?:0[1-9]|[12][0-9]|3[01])\\b"
+                "\\b" + DAY + DATE_SEP + MONTH + DATE_SEP + YEAR + "\\b|" +
+                "\\b" + YEAR + DATE_SEP + MONTH + DATE_SEP + DAY + "\\b"
             );
 
     private static final Pattern IBAN =
-            Pattern.compile("\\b[A-Z]{2}\\d{2}[A-Z0-9]{4}\\d{7}[A-Z0-9]{0,16}\\b");
+            Pattern.compile("\\b[A-Z]{2}\\d{2}[A-Z\\d]{4}\\d{7}[A-Z\\d]{0,16}\\b");
 
     // ─────────────────────────────────────────────────────────────────────────
     // Ordered Redaction Rules (label → pattern)
     // ─────────────────────────────────────────────────────────────────────────
 
     private static final List<PiiRule> RULES = List.of(
-        new PiiRule("EMAIL",         "[EMAIL_REDACTED]",       EMAIL),
-        new PiiRule("SSN",           "[SSN_REDACTED]",         SSN),
-        new PiiRule("CREDIT_CARD",   "[CREDIT_CARD_REDACTED]", CREDIT_CARD),
-        new PiiRule("CREDIT_CARD",   "[CREDIT_CARD_REDACTED]", CREDIT_CARD_SPACED),
-        new PiiRule("IBAN",          "[IBAN_REDACTED]",        IBAN),
-        new PiiRule("PHONE_IE",      "[PHONE_REDACTED]",       PHONE_IE),
-        new PiiRule("PHONE_INTL",    "[PHONE_REDACTED]",       PHONE_INTL),
-        new PiiRule("PHONE_US",      "[PHONE_REDACTED]",       PHONE_US),
-        new PiiRule("DATE_OF_BIRTH", "[DOB_REDACTED]",         DATE_OF_BIRTH),
-        new PiiRule("PASSPORT",      "[PASSPORT_REDACTED]",    PASSPORT_US),
-        new PiiRule("IPV6",          "[IP_REDACTED]",          IPV6),
-        new PiiRule("IPV4",          "[IP_REDACTED]",          IPV4)
+        new PiiRule("EMAIL",         "[EMAIL_REDACTED]",    EMAIL),
+        new PiiRule("SSN",           "[SSN_REDACTED]",      SSN),
+        new PiiRule("CREDIT_CARD",   CREDIT_CARD_REDACTED,  CREDIT_CARD),
+        new PiiRule("CREDIT_CARD",   CREDIT_CARD_REDACTED,  CREDIT_CARD_SPACED),
+        new PiiRule("IBAN",          "[IBAN_REDACTED]",     IBAN),
+        new PiiRule("PHONE_IE",      PHONE_REDACTED,        PHONE_IE),
+        new PiiRule("PHONE_INTL",    PHONE_REDACTED,        PHONE_INTL),
+        new PiiRule("PHONE_US",      PHONE_REDACTED,        PHONE_US),
+        new PiiRule("DATE_OF_BIRTH", "[DOB_REDACTED]",      DATE_OF_BIRTH),
+        new PiiRule("PASSPORT",      "[PASSPORT_REDACTED]", PASSPORT_US),
+        new PiiRule("IPV6",          IP_REDACTED,           IPV6),
+        new PiiRule("IPV4",          IP_REDACTED,           IPV4)
     );
 
     public String redact(String text) {

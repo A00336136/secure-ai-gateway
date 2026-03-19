@@ -103,18 +103,16 @@ public class OllamaClient {
             throw new OllamaException("Ollama returned status: " + response.getStatusCode());
 
         } catch (ResourceAccessException e) {
-            // FIX CRLF_INJECTION_LOGS (was line 90): e.getMessage() may echo user-controlled
-            // network data — sanitize to prevent forged log lines.
-            log.error("Cannot connect to Ollama at {}: {}", baseUrl, sanitizeLog(e.getMessage()));
+            // S2139 fix: rethrow with context — let caller/global handler log
             throw new OllamaException(
-                    "Ollama LLM is not available. Please ensure Ollama is running: ollama serve", e);
+                    "Ollama LLM is not available at " + baseUrl + ". Please ensure Ollama is running: ollama serve", e);
         } catch (OllamaException e) {
+            // Already a domain exception — rethrow as-is without logging (S2139)
             throw e;
-        } catch (Exception e) {
-            // FIX CRLF_INJECTION_LOGS (was line 95): same reason — sanitize getMessage().
-            log.error("Unexpected error calling Ollama: {}", sanitizeLog(e.getMessage()), e);
+        } catch (RestClientException e) {
+            // S2139 fix: rethrow with context — let caller/global handler log
             throw new OllamaException(
-                    "Unexpected error communicating with Ollama: " + e.getMessage(), e);
+                    "REST client error communicating with Ollama: " + e.getMessage(), e);
         }
     }
 
@@ -149,8 +147,13 @@ public class OllamaClient {
 
     // ─────────────────────────────────────────────────────────────────────────
 
-    private String parseOllamaResponse(String body) throws Exception {
-        OllamaResponse parsed = objectMapper.readValue(body, OllamaResponse.class);
+    private String parseOllamaResponse(String body) {
+        OllamaResponse parsed;
+        try {
+            parsed = objectMapper.readValue(body, OllamaResponse.class);
+        } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+            throw new OllamaException("Failed to parse Ollama response: " + e.getMessage(), e);
+        }
         if (parsed.getResponse() != null && !parsed.getResponse().isBlank()) {
             return parsed.getResponse().trim();
         }
