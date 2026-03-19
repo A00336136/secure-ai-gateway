@@ -1,6 +1,7 @@
 package com.secureai.guardrails;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -32,6 +33,7 @@ import java.util.stream.Collectors;
 public class PresidioClient {
 
     private static final Logger log = LoggerFactory.getLogger(PresidioClient.class);
+    private static final String GUARD_NAME = "Presidio";
 
     @Value("${guardrails.presidio.base-url:http://localhost:5002}")
     private String baseUrl;
@@ -64,7 +66,7 @@ public class PresidioClient {
      */
     public Mono<GuardrailsResult> evaluate(String text) {
         if (!enabled) {
-            return Mono.just(GuardrailsResult.pass("Presidio", 0));
+            return Mono.just(GuardrailsResult.pass(GUARD_NAME, 0));
         }
 
         return Mono.fromCallable(() -> {
@@ -90,8 +92,8 @@ public class PresidioClient {
                             response.getBody(), new TypeReference<List<PresidioEntity>>() {});
 
                     if (entities.isEmpty()) {
-                        log.debug("Presidio: no PII detected — {}ms", latency);
-                        return GuardrailsResult.pass("Presidio", latency);
+                        log.debug("{}: no PII detected — {}ms", GUARD_NAME, latency);
+                        return GuardrailsResult.pass(GUARD_NAME, latency);
                     }
 
                     String piiTypes = entities.stream()
@@ -104,23 +106,23 @@ public class PresidioClient {
                             .max()
                             .orElse(0.0);
 
-                    log.warn("Presidio detected PII [{}] (max score: {}) — {}ms",
-                            piiTypes, maxScore, latency);
-                    return GuardrailsResult.block("Presidio", piiTypes, maxScore, latency);
+                    log.warn("{} detected PII [{}] (max score: {}) — {}ms",
+                            GUARD_NAME, piiTypes, maxScore, latency);
+                    return GuardrailsResult.block(GUARD_NAME, piiTypes, maxScore, latency);
                 }
 
                 long latency2 = System.currentTimeMillis() - start;
-                return GuardrailsResult.pass("Presidio", latency2);
+                return GuardrailsResult.pass(GUARD_NAME, latency2);
 
             } catch (RestClientException e) {
                 long latency = System.currentTimeMillis() - start;
-                log.error("Presidio unreachable ({}ms): {}", latency, sanitizeLog(e.getMessage()));
+                log.error("{} unreachable ({}ms): {}", GUARD_NAME, latency, sanitizeLog(e.getMessage()));
                 // Fail-CLOSED
-                return GuardrailsResult.block("Presidio", "service_unavailable", null, latency);
+                return GuardrailsResult.block(GUARD_NAME, "service_unavailable", null, latency);
             } catch (Exception e) {
                 long latency = System.currentTimeMillis() - start;
-                log.error("Presidio parse error ({}ms): {}", latency, sanitizeLog(e.getMessage()));
-                return GuardrailsResult.block("Presidio", "parse_error", null, latency);
+                log.error("{} parse error ({}ms): {}", GUARD_NAME, latency, sanitizeLog(e.getMessage()));
+                return GuardrailsResult.block(GUARD_NAME, "parse_error", null, latency);
             }
         });
     }
@@ -143,7 +145,8 @@ public class PresidioClient {
         private int end;
 
         // Jackson setters
-        public void setEntity_type(String entityType) { this.entityType = entityType; }
+        @JsonProperty("entity_type")
+        public void setEntityType(String entityType) { this.entityType = entityType; }
         public void setScore(double score) { this.score = score; }
         public void setStart(int start) { this.start = start; }
         public void setEnd(int end) { this.end = end; }

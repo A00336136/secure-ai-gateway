@@ -32,7 +32,9 @@ public class AuthController {
     @PostMapping("/login")
     @Operation(summary = "Login and receive a JWT token")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
-        log.info("Login attempt for user '{}'", sanitizeLog(request.getUsername()));
+        if (log.isInfoEnabled()) {
+            log.info("Login attempt for user '{}'", sanitizeLog(request.getUsername()));
+        }
         LoginResponse response = authService.login(request);
         return ResponseEntity.ok(response);
     }
@@ -40,7 +42,9 @@ public class AuthController {
     @PostMapping("/register")
     @Operation(summary = "Register a new user account")
     public ResponseEntity<Map<String, Object>> register(@Valid @RequestBody RegisterRequest request) {
-        log.info("Registration attempt for username '{}'", sanitizeLog(request.getUsername()));
+        if (log.isInfoEnabled()) {
+            log.info("Registration attempt for username '{}'", sanitizeLog(request.getUsername()));
+        }
         User user = authService.register(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
             "message", "User registered successfully",

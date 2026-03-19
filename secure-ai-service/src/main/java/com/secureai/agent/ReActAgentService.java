@@ -44,11 +44,11 @@ public class ReActAgentService {
     }
 
     private static final Pattern THOUGHT_PATTERN =
-            Pattern.compile("Thought:\\s*(.+?)(?=Action:|$)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+            Pattern.compile("Thought:\\s*(.+)(?=Action:|$)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
     private static final Pattern ACTION_PATTERN =
             Pattern.compile("Action:\\s*(\\w+)", Pattern.CASE_INSENSITIVE);
     private static final Pattern ACTION_INPUT_PATTERN =
-            Pattern.compile("Action Input:\\s*(.+?)(?=Observation:|Thought:|$)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+            Pattern.compile("Action Input:\\s*(.+)(?=Observation:|Thought:|$)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
     private static final Pattern FINAL_ANSWER_PATTERN =
             Pattern.compile("Final Answer:\\s*(.+)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
 
@@ -93,8 +93,10 @@ public class ReActAgentService {
      * @return AgentResult with final answer and step count
      */
     public AgentResult execute(String userPrompt) {
-        log.info("ReAct agent starting for prompt: {}...",
-                sanitizeLog(userPrompt.length() > 60 ? userPrompt.substring(0, 60) : userPrompt));
+        if (log.isInfoEnabled()) {
+            log.info("ReAct agent starting for prompt: {}...",
+                    sanitizeLog(userPrompt.length() > 60 ? userPrompt.substring(0, 60) : userPrompt));
+        }
 
         List<AgentStep> steps = new ArrayList<>();
         StringBuilder conversationHistory = new StringBuilder();
@@ -111,8 +113,10 @@ public class ReActAgentService {
             AgentStep agentStep = parseStep(llmResponse, step);
             steps.add(agentStep);
 
-            log.debug("Step {}: thought='{}', action='{}'",
-                    step, sanitizeLog(agentStep.getThought()), sanitizeLog(agentStep.getAction()));
+            if (log.isDebugEnabled()) {
+                log.debug("Step {}: thought='{}', action='{}'",
+                        step, sanitizeLog(agentStep.getThought()), sanitizeLog(agentStep.getAction()));
+            }
 
             // Check for final answer — use Locale.ROOT to avoid locale-sensitive comparison
             if ("answer".equals(agentStep.getAction() != null

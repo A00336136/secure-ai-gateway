@@ -55,13 +55,7 @@ class RateLimiterServiceTest {
     @Test
     @DisplayName("tryConsume should handle null username gracefully")
     void tryConsumeShouldHandleNullUsername() {
-        // computeIfAbsent with null key might throw NPE in ConcurrentHashMap
-        // But let's see how the service handles it. 
-        // If it throws, we should document it or fix it.
-        try {
-            rateLimiterService.tryConsume(null);
-        } catch (NullPointerException e) {
-            // Expected for ConcurrentHashMap
-        }
+        // ConcurrentHashMap does not allow null keys, so tryConsume(null) should throw NPE
+        assertThrows(NullPointerException.class, () -> rateLimiterService.tryConsume(null));
     }
 }

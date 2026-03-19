@@ -36,8 +36,8 @@ class PiiRedactionServiceTest {
         void shouldRedactEmails(String text) {
             assertThat(service.containsPii(text)).isTrue();
             String redacted = service.redact(text);
-            assertThat(redacted).contains("[EMAIL_REDACTED]");
-            assertThat(redacted).doesNotContain("@");
+            assertThat(redacted).contains("[EMAIL_REDACTED]")
+                    .doesNotContain("@");
         }
 
         @Test
@@ -45,8 +45,8 @@ class PiiRedactionServiceTest {
         void shouldRedactMultipleEmails() {
             String text = "From: a@example.com To: b@test.org CC: c@domain.com";
             String redacted = service.redact(text);
-            assertThat(redacted).doesNotContain("@");
-            assertThat(redacted).contains("[EMAIL_REDACTED]");
+            assertThat(redacted).doesNotContain("@")
+                    .contains("[EMAIL_REDACTED]");
         }
     }
 
@@ -159,10 +159,10 @@ class PiiRedactionServiceTest {
 
             assertThat(service.containsPii(text)).isTrue();
             String redacted = service.redact(text);
-            assertThat(redacted).contains("[EMAIL_REDACTED]");
-            assertThat(redacted).contains("[PHONE_REDACTED]");
-            assertThat(redacted).contains("[SSN_REDACTED]");
-            assertThat(redacted).contains("[IP_REDACTED]");
+            assertThat(redacted).contains("[EMAIL_REDACTED]")
+                    .contains("[PHONE_REDACTED]")
+                    .contains("[SSN_REDACTED]")
+                    .contains("[IP_REDACTED]");
         }
 
         @Test
@@ -183,7 +183,7 @@ class PiiRedactionServiceTest {
         @Test
         @DisplayName("Empty string should return empty string")
         void emptyStringShouldReturnEmpty() {
-            assertThat(service.redact("")).isEqualTo("");
+            assertThat(service.redact("")).isEmpty();
             assertThat(service.containsPii("")).isFalse();
         }
     }

@@ -41,7 +41,8 @@ class AuditLogServiceTest {
         String longPrompt = "a".repeat(5000);
         String longResponse = "b".repeat(9000);
 
-        auditLogService.logRequest("testuser", longPrompt, longResponse, "gpt-4", false, false, 0, 200, 100L, "127.0.0.1");
+        auditLogService.logRequest(new AuditLogService.AuditLogEntry(
+                "testuser", longPrompt, longResponse, "gpt-4", false, false, 0, 200, 100L, "127.0.0.1"));
 
         ArgumentCaptor<AuditLog> captor = ArgumentCaptor.forClass(AuditLog.class);
         verify(auditLogRepository).save(captor.capture());
@@ -99,7 +100,8 @@ class AuditLogServiceTest {
 
         // Should not throw exception
         assertDoesNotThrow(() ->
-            auditLogService.logRequest("user", "p", "r", "m", false, false, 0, 200, 1L, "127.0.0.1")
+            auditLogService.logRequest(new AuditLogService.AuditLogEntry(
+                    "user", "p", "r", "m", false, false, 0, 200, 1L, "127.0.0.1"))
         );
     }
 

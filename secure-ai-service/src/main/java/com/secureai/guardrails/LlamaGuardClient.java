@@ -31,6 +31,7 @@ import java.util.Map;
 public class LlamaGuardClient {
 
     private static final Logger log = LoggerFactory.getLogger(LlamaGuardClient.class);
+    private static final String GUARD_NAME = "LlamaGuard";
 
     @Value("${ollama.base-url:http://localhost:11434}")
     private String ollamaBaseUrl;
@@ -60,62 +61,67 @@ public class LlamaGuardClient {
      */
     public Mono<GuardrailsResult> evaluate(String prompt) {
         if (!enabled) {
-            return Mono.just(GuardrailsResult.pass("LlamaGuard", 0));
+            return Mono.just(GuardrailsResult.pass(GUARD_NAME, 0));
         }
 
         return Mono.fromCallable(() -> {
             long start = System.currentTimeMillis();
             try {
-                HttpHeaders headers = new HttpHeaders();
-                headers.setContentType(MediaType.APPLICATION_JSON);
-
-                // LlamaGuard expects a conversation format
-                Map<String, Object> body = Map.of(
-                        "model", llamaguardModel,
-                        "prompt", buildLlamaGuardPrompt(prompt),
-                        "stream", false,
-                        "options", Map.of("temperature", 0.0, "num_predict", 100)
-                );
-
-                HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
-                ResponseEntity<String> response = restTemplate.postForEntity(
-                        ollamaBaseUrl + "/api/generate", entity, String.class);
-
+                ResponseEntity<String> response = callOllama(prompt);
                 long latency = System.currentTimeMillis() - start;
-
-                if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-                    OllamaResponse parsed = objectMapper.readValue(response.getBody(), OllamaResponse.class);
-                    String result = parsed.getResponse() != null ? parsed.getResponse().trim() : "";
-
-                    // LlamaGuard 3 returns "safe" or "unsafe\nSX" where SX is the category
-                    if (result.toLowerCase().startsWith("safe")) {
-                        log.debug("LlamaGuard SAFE — {}ms", latency);
-                        return GuardrailsResult.pass("LlamaGuard", latency);
-                    }
-
-                    // Parse unsafe category
-                    String category = "unknown";
-                    if (result.contains("\n")) {
-                        category = result.substring(result.indexOf('\n') + 1).trim();
-                    }
-                    log.warn("LlamaGuard UNSAFE [{}] — {}ms", category, latency);
-                    return GuardrailsResult.block("LlamaGuard", category, null, latency);
-                }
-
-                long latency2 = System.currentTimeMillis() - start;
-                return GuardrailsResult.pass("LlamaGuard", latency2);
-
+                return parseOllamaResponse(response, latency);
             } catch (RestClientException e) {
                 long latency = System.currentTimeMillis() - start;
-                log.error("LlamaGuard unreachable ({}ms): {}", latency, sanitizeLog(e.getMessage()));
+                log.error("{} unreachable ({}ms): {}", GUARD_NAME, latency, sanitizeLog(e.getMessage()));
                 // Fail-CLOSED: if LlamaGuard is unreachable, block
-                return GuardrailsResult.block("LlamaGuard", "service_unavailable", null, latency);
+                return GuardrailsResult.block(GUARD_NAME, "service_unavailable", null, latency);
             } catch (Exception e) {
                 long latency = System.currentTimeMillis() - start;
-                log.error("LlamaGuard parse error ({}ms): {}", latency, sanitizeLog(e.getMessage()));
-                return GuardrailsResult.block("LlamaGuard", "parse_error", null, latency);
+                log.error("{} parse error ({}ms): {}", GUARD_NAME, latency, sanitizeLog(e.getMessage()));
+                return GuardrailsResult.block(GUARD_NAME, "parse_error", null, latency);
             }
         });
+    }
+
+    private ResponseEntity<String> callOllama(String prompt) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        // LlamaGuard expects a conversation format
+        Map<String, Object> body = Map.of(
+                "model", llamaguardModel,
+                "prompt", buildLlamaGuardPrompt(prompt),
+                "stream", false,
+                "options", Map.of("temperature", 0.0, "num_predict", 100)
+        );
+
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
+        return restTemplate.postForEntity(
+                ollamaBaseUrl + "/api/generate", entity, String.class);
+    }
+
+    private GuardrailsResult parseOllamaResponse(ResponseEntity<String> response, long latency)
+            throws com.fasterxml.jackson.core.JsonProcessingException {
+        if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
+            return GuardrailsResult.pass(GUARD_NAME, latency);
+        }
+
+        OllamaResponse parsed = objectMapper.readValue(response.getBody(), OllamaResponse.class);
+        String result = parsed.getResponse() != null ? parsed.getResponse().trim() : "";
+
+        // LlamaGuard 3 returns "safe" or "unsafe\nSX" where SX is the category
+        if (result.toLowerCase().startsWith("safe")) {
+            log.debug("{} SAFE — {}ms", GUARD_NAME, latency);
+            return GuardrailsResult.pass(GUARD_NAME, latency);
+        }
+
+        // Parse unsafe category
+        String category = "unknown";
+        if (result.contains("\n")) {
+            category = result.substring(result.indexOf('\n') + 1).trim();
+        }
+        log.warn("{} UNSAFE [{}] — {}ms", GUARD_NAME, category, latency);
+        return GuardrailsResult.block(GUARD_NAME, category, null, latency);
     }
 
     private String buildLlamaGuardPrompt(String userPrompt) {

@@ -16,11 +16,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -79,11 +76,14 @@ public class AskController {
         // ② Rate Limiting
         if (!rateLimiterService.tryConsume(username)) {
             long remaining = rateLimiterService.getRemainingTokens(username);
-            log.warn("Rate limit exceeded for user '{}'", sanitizeLog(username));
+            if (log.isWarnEnabled()) {
+                log.warn("Rate limit exceeded for user '{}'", sanitizeLog(username));
+            }
 
-            auditLogService.logRequest(username, request.getPrompt(), null,
+            auditLogService.logRequest(new AuditLogService.AuditLogEntry(
+                    username, request.getPrompt(), null,
                     ollamaClient.getModel(), false, true, null,
-                    429, 0L, httpRequest.getRemoteAddr());
+                    429, 0L, httpRequest.getRemoteAddr()));
 
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
                     .header("X-Rate-Limit-Remaining", String.valueOf(remaining))
@@ -95,11 +95,14 @@ public class AskController {
         // ③ 3-Layer Guardrails (NeMo + LlamaGuard + Presidio — parallel Mono.zip())
         var guardrailsResult = guardrailsOrchestrator.evaluate(request.getPrompt());
         if (guardrailsResult.blocked()) {
-            log.warn("Guardrails BLOCKED for user '{}': {}", sanitizeLog(username), guardrailsResult.blockedBy());
+            if (log.isWarnEnabled()) {
+                log.warn("Guardrails BLOCKED for user '{}': {}", sanitizeLog(username), guardrailsResult.blockedBy());
+            }
 
-            auditLogService.logRequest(username, request.getPrompt(), null,
+            auditLogService.logRequest(new AuditLogService.AuditLogEntry(
+                    username, request.getPrompt(), null,
                     ollamaClient.getModel(), false, false, null,
-                    422, guardrailsResult.totalLatencyMs(), httpRequest.getRemoteAddr());
+                    422, guardrailsResult.totalLatencyMs(), httpRequest.getRemoteAddr()));
 
             long remaining = rateLimiterService.getRemainingTokens(username);
             throw new GuardrailsBlockedException(guardrailsResult.blockedBy(), remaining);
@@ -110,7 +113,9 @@ public class AskController {
 
         // ④ Route: ReAct agent or direct inference
         if (request.isUseReActAgent()) {
-            log.info("ReAct agent invoked for user '{}'", sanitizeLog(username));
+            if (log.isInfoEnabled()) {
+                log.info("ReAct agent invoked for user '{}'", sanitizeLog(username));
+            }
             ReActAgentService.AgentResult result = reActAgentService.execute(request.getPrompt());
             rawResponse = result.answer;
             reactSteps = result.totalSteps;
@@ -125,15 +130,17 @@ public class AskController {
         long durationMs = System.currentTimeMillis() - startTime;
 
         // ⑤ Async Audit Log
-        auditLogService.logRequest(
+        auditLogService.logRequest(new AuditLogService.AuditLogEntry(
                 username, request.getPrompt(), finalResponse,
                 ollamaClient.getModel(), piiDetected, false,
                 reactSteps > 0 ? reactSteps : null,
                 200, durationMs, httpRequest.getRemoteAddr()
-        );
+        ));
 
-        log.info("Request processed for '{}': pii={}, steps={}, ms={}",
-                sanitizeLog(username), piiDetected, reactSteps, durationMs);
+        if (log.isInfoEnabled()) {
+            log.info("Request processed for '{}': pii={}, steps={}, ms={}",
+                    sanitizeLog(username), piiDetected, reactSteps, durationMs);
+        }
 
         long remaining = rateLimiterService.getRemainingTokens(username);
 
