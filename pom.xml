@@ -62,8 +62,7 @@
         <sonar.projectKey>secure-ai-gateway</sonar.projectKey>
         <sonar.projectName>Secure AI Gateway</sonar.projectName>
         <sonar.coverage.jacoco.xmlReportPaths>
-            ${project.basedir}/target/site/jacoco/jacoco.xml,
-            ${project.basedir}/../secure-ai-web/target/site/jacoco-aggregate/jacoco.xml
+            ${project.basedir}/secure-ai-web/target/site/jacoco/jacoco.xml
         </sonar.coverage.jacoco.xmlReportPaths>
 
         <!-- JaCoCo Coverage Thresholds -->
