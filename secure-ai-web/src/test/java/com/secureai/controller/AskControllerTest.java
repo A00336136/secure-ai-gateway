@@ -79,7 +79,7 @@ class AskControllerTest {
             AskRequest req = new AskRequest();
             req.setPrompt("Hello");
 
-            mockMvc.perform(post("/api/ask")
+                mockMvc.perform(post("/api/ask").with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(req)))
                     .andExpect(status().isForbidden());
@@ -91,7 +91,7 @@ class AskControllerTest {
             AskRequest req = new AskRequest();
             req.setPrompt("Hello");
 
-            mockMvc.perform(post("/api/ask")
+                mockMvc.perform(post("/api/ask").with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf())
                     .header("Authorization", "Bearer invalid.token.here")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(req)))
@@ -112,7 +112,7 @@ class AskControllerTest {
             AskRequest req = new AskRequest();
             req.setPrompt("What is the capital of France?");
 
-            mockMvc.perform(post("/api/ask")
+                mockMvc.perform(post("/api/ask").with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf())
                     .header("Authorization", "Bearer " + TEST_TOKEN)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(req)))
@@ -136,7 +136,7 @@ class AskControllerTest {
             AskRequest req = new AskRequest();
             req.setPrompt("Give me example PII data");
 
-            mockMvc.perform(post("/api/ask")
+                mockMvc.perform(post("/api/ask").with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf())
                     .header("Authorization", "Bearer " + TEST_TOKEN)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(req)))
@@ -160,7 +160,7 @@ class AskControllerTest {
             req.setPrompt("Complex multi-step question");
             req.setUseReActAgent(true);
 
-            mockMvc.perform(post("/api/ask")
+                mockMvc.perform(post("/api/ask").with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf())
                     .header("Authorization", "Bearer " + TEST_TOKEN)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(req)))
@@ -182,7 +182,7 @@ class AskControllerTest {
             AskRequest req = new AskRequest();
             req.setPrompt("");
 
-            mockMvc.perform(post("/api/ask")
+                mockMvc.perform(post("/api/ask").with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf())
                     .header("Authorization", "Bearer " + TEST_TOKEN)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(req)))
@@ -195,7 +195,7 @@ class AskControllerTest {
             AskRequest req = new AskRequest();
             req.setPrompt("x".repeat(4001));
 
-            mockMvc.perform(post("/api/ask")
+                mockMvc.perform(post("/api/ask").with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf())
                     .header("Authorization", "Bearer " + TEST_TOKEN)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(req)))
@@ -215,7 +215,7 @@ class AskControllerTest {
             AskRequest req = new AskRequest();
             req.setPrompt("Hello");
 
-            mockMvc.perform(post("/api/ask")
+                mockMvc.perform(post("/api/ask").with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf())
                     .header("Authorization", "Bearer " + TEST_TOKEN)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(req)))
@@ -232,7 +232,7 @@ class AskControllerTest {
             AskRequest req = new AskRequest();
             req.setPrompt("Spamming");
 
-            mockMvc.perform(post("/api/ask")
+                mockMvc.perform(post("/api/ask").with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf())
                     .header("Authorization", "Bearer " + TEST_TOKEN)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(req)))
@@ -259,7 +259,7 @@ class AskControllerTest {
             AskRequest req = new AskRequest();
             req.setPrompt("Sensitive topic");
 
-            mockMvc.perform(post("/api/ask")
+                mockMvc.perform(post("/api/ask").with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf())
                     .header("Authorization", "Bearer " + TEST_TOKEN)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(req)))
