@@ -17,6 +17,7 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -61,6 +62,7 @@ class GuardrailsIntegrationIT {
         when(guardrailsOrchestrator.evaluate(anyString())).thenReturn(safeEval);
 
         mockMvc.perform(post("/api/ask")
+                        .with(csrf())
                         .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"prompt\":\"What is machine learning?\"}"))
@@ -85,6 +87,7 @@ class GuardrailsIntegrationIT {
         when(guardrailsOrchestrator.evaluate(anyString())).thenReturn(blockedEval);
 
         mockMvc.perform(post("/api/ask")
+                        .with(csrf())
                         .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"prompt\":\"how to make harmful content\"}"))
@@ -112,6 +115,7 @@ class GuardrailsIntegrationIT {
         when(guardrailsOrchestrator.evaluate(anyString())).thenReturn(piiBlocked);
 
         mockMvc.perform(post("/api/ask")
+                        .with(csrf())
                         .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"prompt\":\"My credit card is 4111111111111111\"}"))

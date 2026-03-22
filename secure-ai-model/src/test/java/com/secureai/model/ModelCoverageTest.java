@@ -55,6 +55,34 @@ class ModelCoverageTest {
     }
 
     @Test
+    void testLoginRequestParameterizedConstructor() {
+        LoginRequest req = new LoginRequest("user1", "pass1");
+        assertEquals("user1", req.getUsername());
+        assertEquals("pass1", req.getPassword());
+    }
+
+    @Test
+    void testLoginResponseParameterizedConstructor() {
+        LoginResponse lr = new LoginResponse("token123", 3600L, "admin", "ADMIN");
+        assertEquals("token123", lr.getToken());
+        assertEquals(3600L, lr.getExpiresIn());
+        assertEquals("admin", lr.getUsername());
+        assertEquals("ADMIN", lr.getRole());
+        assertEquals("Bearer", lr.getTokenType());
+    }
+
+    @Test
+    void testAskResponseParameterizedConstructor() {
+        AskResponse ar = new AskResponse("answer", true, true, 3, 500L, "llama3");
+        assertEquals("answer", ar.getResponse());
+        assertTrue(ar.isPiiDetected());
+        assertTrue(ar.isPiiRedacted());
+        assertEquals(3, ar.getReactSteps());
+        assertEquals(500L, ar.getDurationMs());
+        assertEquals("llama3", ar.getModel());
+    }
+
+    @Test
     void testRegisterRequestGettersSetters() {
         RegisterRequest req = new RegisterRequest();
         req.setUsername("alice");

@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -56,6 +57,7 @@ class SecurityIntegrationIT {
         request.setEmail("integration@test.com");
 
         mockMvc.perform(post("/auth/register")
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated());
@@ -70,6 +72,7 @@ class SecurityIntegrationIT {
         request.setPassword("SecureP@ss123");
 
         MvcResult result = mockMvc.perform(post("/auth/login")
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -144,6 +147,7 @@ class SecurityIntegrationIT {
         request.setEmail("another@test.com");
 
         mockMvc.perform(post("/auth/register")
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isUnauthorized());
@@ -156,6 +160,7 @@ class SecurityIntegrationIT {
         assertThat(userToken).isNotNull();
 
         mockMvc.perform(post("/api/ask")
+                        .with(csrf())
                         .header("Authorization", "Bearer " + userToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"prompt\":\"hello\"}"))
