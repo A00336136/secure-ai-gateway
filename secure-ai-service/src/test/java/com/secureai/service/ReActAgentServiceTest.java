@@ -213,4 +213,24 @@ class ReActAgentServiceTest {
         ReActAgentService.AgentResult result = agentService.execute(shortPrompt);
         assertThat(result.answer).isEqualTo("hello");
     }
+
+    @Test
+    @DisplayName("AgentStep should expose all properties correctly")
+    void agentStepShouldExposeProperties() {
+        ReActAgentService.AgentStep step = new ReActAgentService.AgentStep(1);
+        step.setThought("thinking");
+        step.setAction("calculate");
+        step.setActionInput("2+2");
+        step.setObservation("Result: 4");
+        step.setFinalAnswer("4");
+        step.setRawResponse("raw LLM output");
+
+        assertThat(step.getStepNumber()).isEqualTo(1);
+        assertThat(step.getThought()).isEqualTo("thinking");
+        assertThat(step.getAction()).isEqualTo("calculate");
+        assertThat(step.getActionInput()).isEqualTo("2+2");
+        assertThat(step.getObservation()).isEqualTo("Result: 4");
+        assertThat(step.getFinalAnswer()).isEqualTo("4");
+        assertThat(step.getRawResponse()).isEqualTo("raw LLM output");
+    }
 }
