@@ -14,6 +14,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -38,6 +39,7 @@ class AuthControllerIT {
             LoginRequest req = new LoginRequest("admin", "Admin@123");
 
             mockMvc.perform(post("/auth/login")
+                    .with(csrf())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(req)))
                     .andExpect(status().isOk())
@@ -53,6 +55,7 @@ class AuthControllerIT {
             LoginRequest req = new LoginRequest("admin", "wrongpassword");
 
             mockMvc.perform(post("/auth/login")
+                    .with(csrf())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(req)))
                     .andExpect(status().isUnauthorized());
@@ -64,6 +67,7 @@ class AuthControllerIT {
             LoginRequest req = new LoginRequest("nobody", "password");
 
             mockMvc.perform(post("/auth/login")
+                    .with(csrf())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(req)))
                     .andExpect(status().isUnauthorized());
@@ -75,6 +79,7 @@ class AuthControllerIT {
             LoginRequest req = new LoginRequest("", "password");
 
             mockMvc.perform(post("/auth/login")
+                    .with(csrf())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(req)))
                     .andExpect(status().isBadRequest());
@@ -86,6 +91,7 @@ class AuthControllerIT {
             LoginRequest req = new LoginRequest("admin", "Admin@123");
 
             mockMvc.perform(post("/auth/login")
+                    .with(csrf())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(req)))
                     .andExpect(status().isOk())
@@ -106,6 +112,7 @@ class AuthControllerIT {
             req.setEmail("newuser@test.com");
 
             mockMvc.perform(post("/auth/register")
+                    .with(csrf())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(req)))
                     .andExpect(status().isCreated())
@@ -121,6 +128,7 @@ class AuthControllerIT {
             req.setPassword("SecurePass123!");
 
             mockMvc.perform(post("/auth/register")
+                    .with(csrf())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(req)))
                     .andExpect(status().isUnauthorized());
@@ -134,6 +142,7 @@ class AuthControllerIT {
             req.setPassword("short");  // Less than 8 chars
 
             mockMvc.perform(post("/auth/register")
+                    .with(csrf())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(req)))
                     .andExpect(status().isBadRequest());
