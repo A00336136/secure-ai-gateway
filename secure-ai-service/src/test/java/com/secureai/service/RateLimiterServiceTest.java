@@ -58,4 +58,53 @@ class RateLimiterServiceTest {
         // ConcurrentHashMap does not allow null keys, so tryConsume(null) should throw NPE
         assertThrows(NullPointerException.class, () -> rateLimiterService.tryConsume(null));
     }
+
+    @Test
+    @DisplayName("getRemainingTokens should return capacity for new user")
+    void getRemainingTokensShouldReturnCapacityForNewUser() {
+        assertEquals(100, rateLimiterService.getRemainingTokens("newuser"));
+    }
+
+    @Test
+    @DisplayName("getRemainingTokens should decrease after consumption")
+    void getRemainingTokensShouldDecreaseAfterConsumption() {
+        rateLimiterService.tryConsume("decreaseUser");
+        assertEquals(99, rateLimiterService.getRemainingTokens("decreaseUser"));
+    }
+
+    @Test
+    @DisplayName("Different users should have independent buckets")
+    void differentUsersShouldHaveIndependentBuckets() {
+        for (int i = 0; i < 50; i++) {
+            rateLimiterService.tryConsume("userA");
+        }
+        assertEquals(50, rateLimiterService.getRemainingTokens("userA"));
+        assertEquals(100, rateLimiterService.getRemainingTokens("userB"));
+    }
+
+    @Test
+    @DisplayName("resetBucket should restore full capacity")
+    void resetBucketShouldRestoreFullCapacity() {
+        for (int i = 0; i < 100; i++) {
+            rateLimiterService.tryConsume("exhaustedUser");
+        }
+        assertFalse(rateLimiterService.tryConsume("exhaustedUser"));
+        rateLimiterService.resetBucket("exhaustedUser");
+        assertTrue(rateLimiterService.tryConsume("exhaustedUser"));
+        assertEquals(99, rateLimiterService.getRemainingTokens("exhaustedUser"));
+    }
+
+    @Test
+    @DisplayName("Should create bucket with custom capacity")
+    void shouldCreateBucketWithCustomCapacity() {
+        org.springframework.test.util.ReflectionTestUtils.setField(rateLimiterService, "capacity", 5);
+        org.springframework.test.util.ReflectionTestUtils.setField(rateLimiterService, "refillTokens", 5);
+
+        // Reset to force new bucket creation with custom capacity
+        rateLimiterService.resetBucket("customUser");
+        for (int i = 0; i < 5; i++) {
+            assertTrue(rateLimiterService.tryConsume("customUser"));
+        }
+        assertFalse(rateLimiterService.tryConsume("customUser"));
+    }
 }

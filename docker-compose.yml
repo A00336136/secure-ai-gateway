@@ -202,7 +202,7 @@ services:
 
   # ─── Jenkins ────────────────────────────────────────────────────
   jenkins:
-    image: jenkins/jenkins:2.504-lts-jdk21
+    image: jenkins/jenkins:lts-jdk21
     container_name: secure-ai-jenkins
     ports:
       - "8090:8080"

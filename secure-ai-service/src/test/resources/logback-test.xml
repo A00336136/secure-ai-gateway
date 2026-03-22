@@ -1,0 +1,16 @@
+<configuration>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Enable DEBUG for service classes to cover debug logging branches -->
+    <logger name="com.secureai.service" level="DEBUG"/>
+    <logger name="com.secureai.agent" level="DEBUG"/>
+    <logger name="com.secureai.guardrails" level="DEBUG"/>
+
+    <root level="WARN">
+        <appender-ref ref="STDOUT"/>
+    </root>
+</configuration>
