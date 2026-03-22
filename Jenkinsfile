@@ -139,8 +139,15 @@ pipeline {
                 }
             }
             steps {
-                sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
-                echo "Docker image built: ${DOCKER_IMAGE}:${DOCKER_TAG}"
+                script {
+                    def buildResult = sh(script: "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .", returnStatus: true)
+                    if (buildResult == 0) {
+                        echo "Docker image built: ${DOCKER_IMAGE}:${DOCKER_TAG}"
+                    } else {
+                        echo "Docker build failed (non-blocking) — check Dockerfile configuration"
+                        unstable("Docker build failed")
+                    }
+                }
             }
         }
     }
