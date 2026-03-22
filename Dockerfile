@@ -38,8 +38,7 @@ COPY secure-ai-service/src secure-ai-service/src
 COPY secure-ai-web/src secure-ai-web/src
 
 # Build the multi-module project (FAT JAR produced by secure-ai-web)
-RUN mvn -B clean package -DskipTests -pl secure-ai-web -am && \
-    java -Djarmode=layertools -jar secure-ai-web/target/secure-ai-web-2.0.0.jar extract --destination /build/extracted
+RUN mvn -B clean package -DskipTests -pl secure-ai-web -am
 
 # ─── Stage 2: Runtime (Alpine Linux) ──────────────────
 FROM eclipse-temurin:21-jre-alpine
@@ -61,11 +60,8 @@ LABEL org.opencontainers.image.base.name="eclipse-temurin:21-jre-alpine"
 
 WORKDIR /app
 
-# Copy layered JAR (Spring Boot layer optimization)
-COPY --from=builder --chown=secureai:secureai /build/extracted/dependencies/ ./
-COPY --from=builder --chown=secureai:secureai /build/extracted/spring-boot-loader/ ./
-COPY --from=builder --chown=secureai:secureai /build/extracted/snapshot-dependencies/ ./
-COPY --from=builder --chown=secureai:secureai /build/extracted/application/ ./
+# Copy FAT JAR from builder stage
+COPY --from=builder --chown=secureai:secureai /build/secure-ai-web/target/secure-ai-web-2.0.0.jar app.jar
 
 # Create log + tmp directories
 RUN mkdir -p /var/log/secure-ai-gateway /tmp && \
@@ -83,7 +79,7 @@ ENV JAVA_OPTS="-XX:+UseContainerSupport \
                -Djava.security.egd=file:/dev/./urandom \
                -Dspring.profiles.active=prod"
 
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS org.springframework.boot.loader.launch.JarLauncher"]
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar /app/app.jar"]
 
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 --start-period=60s \
     CMD curl -sf http://localhost:8080/actuator/health || exit 1
