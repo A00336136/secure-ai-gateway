@@ -142,4 +142,114 @@ class OllamaClientTest {
         org.springframework.test.util.ReflectionTestUtils.setField(ollamaClient, "model", "test-model");
         assertEquals("test-model", ollamaClient.getModel());
     }
+
+    @Test
+    @DisplayName("generateResponse with system prompt should include system in request body")
+    void generateResponseWithSystemPrompt() {
+        org.springframework.test.util.ReflectionTestUtils.setField(ollamaClient, "restTemplate", restTemplate);
+        org.springframework.test.util.ReflectionTestUtils.setField(ollamaClient, "baseUrl", "http://localhost:11434");
+
+        String mockJsonResponse = "{\"response\": \"Agent answer\"}";
+        when(restTemplate.postForEntity(anyString(), any(), eq(String.class)))
+                .thenReturn(new org.springframework.http.ResponseEntity<>(mockJsonResponse, org.springframework.http.HttpStatus.OK));
+
+        String result = ollamaClient.generateResponse("What is AI?", "You are a helpful assistant");
+        assertEquals("Agent answer", result);
+    }
+
+    @Test
+    @DisplayName("generateResponse with blank system prompt should not include system key")
+    void generateResponseWithBlankSystemPrompt() {
+        org.springframework.test.util.ReflectionTestUtils.setField(ollamaClient, "restTemplate", restTemplate);
+        org.springframework.test.util.ReflectionTestUtils.setField(ollamaClient, "baseUrl", "http://localhost:11434");
+
+        String mockJsonResponse = "{\"response\": \"No system prompt answer\"}";
+        when(restTemplate.postForEntity(anyString(), any(), eq(String.class)))
+                .thenReturn(new org.springframework.http.ResponseEntity<>(mockJsonResponse, org.springframework.http.HttpStatus.OK));
+
+        String result = ollamaClient.generateResponse("What is AI?", "   ");
+        assertEquals("No system prompt answer", result);
+    }
+
+    @Test
+    @DisplayName("generateResponse with long prompt should truncate for logging")
+    void generateResponseWithLongPrompt() {
+        org.springframework.test.util.ReflectionTestUtils.setField(ollamaClient, "restTemplate", restTemplate);
+        org.springframework.test.util.ReflectionTestUtils.setField(ollamaClient, "baseUrl", "http://localhost:11434");
+
+        String longPrompt = "A".repeat(200);
+        String mockJsonResponse = "{\"response\": \"Long prompt answer\"}";
+        when(restTemplate.postForEntity(anyString(), any(), eq(String.class)))
+                .thenReturn(new org.springframework.http.ResponseEntity<>(mockJsonResponse, org.springframework.http.HttpStatus.OK));
+
+        String result = ollamaClient.generateResponse(longPrompt);
+        assertEquals("Long prompt answer", result);
+    }
+
+    @Test
+    @DisplayName("generateResponse with null prompt should handle sanitization")
+    void generateResponseWithNullPrompt() {
+        org.springframework.test.util.ReflectionTestUtils.setField(ollamaClient, "restTemplate", restTemplate);
+        org.springframework.test.util.ReflectionTestUtils.setField(ollamaClient, "baseUrl", "http://localhost:11434");
+
+        String mockJsonResponse = "{\"response\": \"null prompt handled\"}";
+        when(restTemplate.postForEntity(anyString(), any(), eq(String.class)))
+                .thenReturn(new org.springframework.http.ResponseEntity<>(mockJsonResponse, org.springframework.http.HttpStatus.OK));
+
+        String result = ollamaClient.generateResponse(null);
+        assertEquals("null prompt handled", result);
+    }
+
+    @Test
+    @DisplayName("generateResponse single-arg should delegate to two-arg with null system prompt")
+    void generateResponseSingleArgDelegatesToTwoArg() {
+        org.springframework.test.util.ReflectionTestUtils.setField(ollamaClient, "restTemplate", restTemplate);
+        org.springframework.test.util.ReflectionTestUtils.setField(ollamaClient, "baseUrl", "http://localhost:11434");
+
+        String mockJsonResponse = "{\"response\": \"delegated\"}";
+        when(restTemplate.postForEntity(anyString(), any(), eq(String.class)))
+                .thenReturn(new org.springframework.http.ResponseEntity<>(mockJsonResponse, org.springframework.http.HttpStatus.OK));
+
+        String result = ollamaClient.generateResponse("test");
+        assertEquals("delegated", result);
+    }
+
+    @Test
+    @DisplayName("generateResponse should throw on null response body")
+    void generateResponseShouldThrowOnNullBody() {
+        org.springframework.test.util.ReflectionTestUtils.setField(ollamaClient, "restTemplate", restTemplate);
+        org.springframework.test.util.ReflectionTestUtils.setField(ollamaClient, "baseUrl", "http://localhost:11434");
+
+        when(restTemplate.postForEntity(anyString(), any(), eq(String.class)))
+                .thenReturn(new org.springframework.http.ResponseEntity<>(null, org.springframework.http.HttpStatus.OK));
+
+        assertThrows(RuntimeException.class, () -> ollamaClient.generateResponse("test"));
+    }
+
+    @Test
+    @DisplayName("generateResponse should throw on blank response field")
+    void generateResponseShouldThrowOnBlankResponseField() {
+        org.springframework.test.util.ReflectionTestUtils.setField(ollamaClient, "restTemplate", restTemplate);
+        org.springframework.test.util.ReflectionTestUtils.setField(ollamaClient, "baseUrl", "http://localhost:11434");
+        org.springframework.test.util.ReflectionTestUtils.setField(ollamaClient, "objectMapper", new com.fasterxml.jackson.databind.ObjectMapper());
+
+        String mockResponse = "{\"response\": \"   \"}";
+        when(restTemplate.postForEntity(anyString(), any(), eq(String.class)))
+                .thenReturn(new org.springframework.http.ResponseEntity<>(mockResponse, org.springframework.http.HttpStatus.OK));
+
+        assertThrows(RuntimeException.class, () -> ollamaClient.generateResponse("test"));
+    }
+
+    @Test
+    @DisplayName("generateResponse should throw on invalid JSON")
+    void generateResponseShouldThrowOnInvalidJson() {
+        org.springframework.test.util.ReflectionTestUtils.setField(ollamaClient, "restTemplate", restTemplate);
+        org.springframework.test.util.ReflectionTestUtils.setField(ollamaClient, "baseUrl", "http://localhost:11434");
+        org.springframework.test.util.ReflectionTestUtils.setField(ollamaClient, "objectMapper", new com.fasterxml.jackson.databind.ObjectMapper());
+
+        when(restTemplate.postForEntity(anyString(), any(), eq(String.class)))
+                .thenReturn(new org.springframework.http.ResponseEntity<>("not json at all", org.springframework.http.HttpStatus.OK));
+
+        assertThrows(RuntimeException.class, () -> ollamaClient.generateResponse("test"));
+    }
 }

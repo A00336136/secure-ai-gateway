@@ -8,6 +8,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -77,21 +80,12 @@ class JwtAuthenticationFilterTest {
         verify(filterChain).doFilter(request, response);
     }
 
-    @Test
-    @DisplayName("Should not authenticate when Authorization header is missing")
-    void shouldNotAuthenticateWhenNoHeader() throws ServletException, IOException {
-        when(request.getHeader("Authorization")).thenReturn(null);
-
-        filter.doFilterInternal(request, response, filterChain);
-
-        assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
-        verify(filterChain).doFilter(request, response);
-    }
-
-    @Test
-    @DisplayName("Should not authenticate when header does not start with Bearer")
-    void shouldNotAuthenticateWhenInvalidHeaderFormat() throws ServletException, IOException {
-        when(request.getHeader("Authorization")).thenReturn("Basic dXNlcjpwYXNz");
+    @ParameterizedTest(name = "header=''{0}''")
+    @NullAndEmptySource
+    @ValueSource(strings = {"Basic dXNlcjpwYXNz", "Token abc123", "bearer lowercase"})
+    @DisplayName("Should not authenticate when Authorization header is missing or invalid")
+    void shouldNotAuthenticateWhenHeaderInvalid(String headerValue) throws ServletException, IOException {
+        when(request.getHeader("Authorization")).thenReturn(headerValue);
 
         filter.doFilterInternal(request, response, filterChain);
 
@@ -110,5 +104,54 @@ class JwtAuthenticationFilterTest {
 
         assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
         verify(filterChain).doFilter(request, response);
+    }
+
+    @Test
+    @DisplayName("Should default to ROLE_USER when role is blank string")
+    void shouldDefaultToRoleUserWhenRoleIsBlank() throws ServletException, IOException {
+        String token = "valid-token";
+        when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
+        when(jwtUtil.validateToken(token)).thenReturn(true);
+        when(jwtUtil.getUsernameFromToken(token)).thenReturn("user3");
+        when(jwtUtil.getRoleFromToken(token)).thenReturn("   ");
+        when(request.getRemoteAddr()).thenReturn("127.0.0.1");
+
+        filter.doFilterInternal(request, response, filterChain);
+
+        assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
+        assertThat(SecurityContextHolder.getContext().getAuthentication().getAuthorities())
+                .anyMatch(a -> a.getAuthority().equals("ROLE_USER"));
+        verify(filterChain).doFilter(request, response);
+    }
+
+    @Test
+    @DisplayName("Should set remote address as authentication details")
+    void shouldSetRemoteAddressAsDetails() throws ServletException, IOException {
+        String token = "valid-token";
+        when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
+        when(jwtUtil.validateToken(token)).thenReturn(true);
+        when(jwtUtil.getUsernameFromToken(token)).thenReturn("user4");
+        when(jwtUtil.getRoleFromToken(token)).thenReturn("USER");
+        when(request.getRemoteAddr()).thenReturn("192.168.1.1");
+
+        filter.doFilterInternal(request, response, filterChain);
+
+        assertThat(SecurityContextHolder.getContext().getAuthentication().getDetails())
+                .isEqualTo("192.168.1.1");
+    }
+
+    @Test
+    @DisplayName("Should handle Bearer prefix with extra spaces in token")
+    void shouldHandleBearerWithSpaces() throws ServletException, IOException {
+        String token = "  valid-token  ";
+        when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
+        when(jwtUtil.validateToken("valid-token")).thenReturn(true);
+        when(jwtUtil.getUsernameFromToken("valid-token")).thenReturn("user5");
+        when(jwtUtil.getRoleFromToken("valid-token")).thenReturn("ADMIN");
+        when(request.getRemoteAddr()).thenReturn("10.0.0.1");
+
+        filter.doFilterInternal(request, response, filterChain);
+
+        assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
     }
 }
