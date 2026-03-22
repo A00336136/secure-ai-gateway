@@ -25,6 +25,7 @@ pipeline {
         DOCKER_IMAGE    = "a00336136/${APP_NAME}"
         DOCKER_TAG      = "${env.GIT_COMMIT?.take(7) ?: 'latest'}"
         SONAR_URL       = 'http://host.docker.internal:9000'
+        SONAR_TOKEN     = credentials('sonarqube-token')
         JAVA_HOME       = '/opt/java/openjdk'
     }
 
