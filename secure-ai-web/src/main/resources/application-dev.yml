@@ -16,6 +16,15 @@ spring:
   flyway:
     enabled: false   # H2 doesn't support partial indexes in migration SQL
 
+# Disable guardrails in dev (no Docker sidecar services)
+guardrails:
+  nemo:
+    enabled: false
+  llamaguard:
+    enabled: false
+  presidio:
+    enabled: false
+
 logging:
   level:
     com.secureai: DEBUG
