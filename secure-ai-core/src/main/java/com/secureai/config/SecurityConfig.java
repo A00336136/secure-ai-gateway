@@ -42,7 +42,7 @@ public class SecurityConfig {
             .csrf(csrf -> csrf
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 .csrfTokenRequestHandler(requestHandler)
-                .ignoringRequestMatchers("/auth/**", "/actuator/**", "/h2-console/**")
+                .ignoringRequestMatchers("/auth/**", "/actuator/**", "/h2-console/**", "/api/**")
             )
             .sessionManagement(sm ->
                 sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
