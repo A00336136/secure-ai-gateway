@@ -337,7 +337,7 @@ else:
                     def fullImage = "${hubUser}/${APP_NAME}:${imageTag}"
 
                     def trivyPath = sh(
-                        script: 'which trivy || echo /opt/homebrew/bin/trivy',
+                        script: 'which trivy || echo /usr/local/bin/trivy',
                         returnStdout: true
                     ).trim()
 
@@ -593,10 +593,7 @@ else:
         always {
             echo "Pipeline completed: ${env.JOB_NAME} #${env.BUILD_NUMBER}"
             // Clean workspace to save disk
-            cleanWs(cleanWhenNotBuilt: false,
-                    deleteDirs: true,
-                    disableDeferredWipeout: true,
-                    notFailBuild: true)
+            deleteDir()
         }
         success {
             echo "================================================"
