@@ -32,7 +32,7 @@ public class AuthController {
     @PostMapping("/login")
     @Operation(summary = "Login and receive a JWT token")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
-        log.info("Login attempt for user '{}'", sanitizeLog(request.getUsername()));
+        log.info("Login attempt for user '{}'", request.getUsername());
         LoginResponse response = authService.login(request);
         return ResponseEntity.ok(response);
     }
@@ -40,7 +40,7 @@ public class AuthController {
     @PostMapping("/register")
     @Operation(summary = "Register a new user account")
     public ResponseEntity<Map<String, Object>> register(@Valid @RequestBody RegisterRequest request) {
-        log.info("Registration attempt for username '{}'", sanitizeLog(request.getUsername()));
+        log.info("Registration attempt for username '{}'", request.getUsername());
         User user = authService.register(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
             "message", "User registered successfully",
@@ -55,9 +55,4 @@ public class AuthController {
         return ResponseEntity.ok(Map.of("status", "UP", "service", "auth"));
     }
 
-    /** Strips CR and LF to prevent CRLF injection in log messages. */
-    private static String sanitizeLog(String value) {
-        if (value == null) return "(null)";
-        return value.replace("\r", "\\r").replace("\n", "\\n");
-    }
 }
