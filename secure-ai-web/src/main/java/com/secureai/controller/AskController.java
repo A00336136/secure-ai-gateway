@@ -76,9 +76,7 @@ public class AskController {
         // ② Rate Limiting
         if (!rateLimiterService.tryConsume(username)) {
             long remaining = rateLimiterService.getRemainingTokens(username);
-            if (log.isWarnEnabled()) {
-                log.warn("Rate limit exceeded for user '{}'", sanitizeLog(username));
-            }
+            log.warn("Rate limit exceeded for user '{}'", sanitizeLog(username));
 
             auditLogService.logRequest(new AuditLogService.AuditLogEntry(
                     username, request.getPrompt(), null,
@@ -95,9 +93,7 @@ public class AskController {
         // ③ 3-Layer Guardrails (NeMo + LlamaGuard + Presidio — parallel Mono.zip())
         var guardrailsResult = guardrailsOrchestrator.evaluate(request.getPrompt());
         if (guardrailsResult.blocked()) {
-            if (log.isWarnEnabled()) {
-                log.warn("Guardrails BLOCKED for user '{}': {}", sanitizeLog(username), guardrailsResult.blockedBy());
-            }
+            log.warn("Guardrails BLOCKED for user '{}': {}", sanitizeLog(username), guardrailsResult.blockedBy());
 
             auditLogService.logRequest(new AuditLogService.AuditLogEntry(
                     username, request.getPrompt(), null,
@@ -113,9 +109,7 @@ public class AskController {
 
         // ④ Route: ReAct agent or direct inference
         if (request.isUseReActAgent()) {
-            if (log.isInfoEnabled()) {
-                log.info("ReAct agent invoked for user '{}'", sanitizeLog(username));
-            }
+            log.info("ReAct agent invoked for user '{}'", sanitizeLog(username));
             ReActAgentService.AgentResult result = reActAgentService.execute(request.getPrompt());
             rawResponse = result.answer;
             reactSteps = result.totalSteps;
@@ -137,10 +131,8 @@ public class AskController {
                 200, durationMs, httpRequest.getRemoteAddr()
         ));
 
-        if (log.isInfoEnabled()) {
-            log.info("Request processed for '{}': pii={}, steps={}, ms={}",
-                    sanitizeLog(username), piiDetected, reactSteps, durationMs);
-        }
+        log.info("Request processed for '{}': pii={}, steps={}, ms={}",
+                sanitizeLog(username), piiDetected, reactSteps, durationMs);
 
         long remaining = rateLimiterService.getRemainingTokens(username);
 

@@ -68,14 +68,10 @@ public class AuditLogService {
                     .build();
 
             auditLogRepository.save(auditLog);
-            if (log.isDebugEnabled()) {
-                log.debug("Audit log saved for user '{}'", sanitizeLog(entry.username()));
-            }
+            log.debug("Audit log saved for user '{}'", sanitizeLog(entry.username()));
         } catch (Exception e) {
-            if (log.isErrorEnabled()) {
-                log.error("Failed to save audit log for user '{}': {}", sanitizeLog(entry.username()),
-                        sanitizeLog(e.getMessage()), e);
-            }
+            log.error("Failed to save audit log for user '{}': {}", sanitizeLog(entry.username()),
+                    sanitizeLog(e.getMessage()), e);
         }
     }
 

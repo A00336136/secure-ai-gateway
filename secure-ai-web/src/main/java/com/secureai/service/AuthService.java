@@ -53,16 +53,12 @@ public class AuthService {
         }
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            if (log.isWarnEnabled()) {
-                log.warn("Failed login attempt for user '{}'", sanitizeLog(request.getUsername()));
-            }
+            log.warn("Failed login attempt for user '{}'", sanitizeLog(request.getUsername()));
             throw new AuthException("Invalid credentials");
         }
 
         String token = jwtUtil.generateToken(user.getUsername(), user.getRole());
-        if (log.isInfoEnabled()) {
-            log.info("User '{}' logged in successfully", sanitizeLog(user.getUsername()));
-        }
+        log.info("User '{}' logged in successfully", sanitizeLog(user.getUsername()));
 
         return new LoginResponse(
                 token,
@@ -94,9 +90,7 @@ public class AuthService {
                 .build();
 
         User saved = userRepository.save(user);
-        if (log.isInfoEnabled()) {
-            log.info("New user registered: '{}'", sanitizeLog(saved.getUsername()));
-        }
+        log.info("New user registered: '{}'", sanitizeLog(saved.getUsername()));
         return saved;
     }
 
