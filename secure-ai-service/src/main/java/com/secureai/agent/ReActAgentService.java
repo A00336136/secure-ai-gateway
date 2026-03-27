@@ -78,23 +78,12 @@ public class ReActAgentService {
     // ─────────────────────────────────────────────────────────────────────────
 
     /**
-     * Sanitize a value before writing to logs to prevent CRLF injection attacks.
-     * CR/LF in log lines can be exploited to forge log entries.
-     */
-    private static String sanitizeLog(String value) {
-        if (value == null) return "(null)";
-        return value.replace("\r", "\\r").replace("\n", "\\n");
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-
-    /**
      * Execute the ReAct loop for a given user prompt.
      * @return AgentResult with final answer and step count
      */
     public AgentResult execute(String userPrompt) {
         log.info("ReAct agent starting for prompt: {}...",
-                sanitizeLog(userPrompt.length() > 60 ? userPrompt.substring(0, 60) : userPrompt));
+                userPrompt.length() > 60 ? userPrompt.substring(0, 60) : userPrompt);
 
         List<AgentStep> steps = new ArrayList<>();
         StringBuilder conversationHistory = new StringBuilder();
@@ -112,7 +101,7 @@ public class ReActAgentService {
             steps.add(agentStep);
 
             log.debug("Step {}: thought='{}', action='{}'",
-                    step, sanitizeLog(agentStep.getThought()), sanitizeLog(agentStep.getAction()));
+                    step, agentStep.getThought(), agentStep.getAction());
 
             // Check for final answer — use Locale.ROOT to avoid locale-sensitive comparison
             if ("answer".equals(agentStep.getAction() != null

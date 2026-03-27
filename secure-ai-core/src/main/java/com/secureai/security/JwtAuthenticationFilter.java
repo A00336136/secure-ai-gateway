@@ -64,7 +64,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             log.debug("Authenticated user '{}' with role '{}' from IP {}",
-                    sanitizeLog(username), sanitizeLog(role), sanitizeLog(request.getRemoteAddr()));
+                    username, role, request.getRemoteAddr());
         }
 
         filterChain.doFilter(request, response);
@@ -76,11 +76,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return header.substring(BEARER_PREFIX.length()).trim();
         }
         return null;
-    }
-
-    /** Strips CR and LF to prevent CRLF injection in log messages. */
-    private static String sanitizeLog(String value) {
-        if (value == null) return "(null)";
-        return value.replace("\r", "\\r").replace("\n", "\\n");
     }
 }
