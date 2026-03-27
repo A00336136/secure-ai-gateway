@@ -1,110 +1,114 @@
 version: '3.9'
 
 # ═══════════════════════════════════════════════════════════════════
-# Secure AI Gateway — Full Local Development Stack
+# Secure AI Gateway — Application Stack
 #
 # Services:
-#   app         — Spring Boot gateway (port 8080)
-#   postgres    — PostgreSQL 16 (port 5432)
-#   ollama      — Local LLM server (port 11434)
-#   sonarqube   — Code quality (port 9000)
-#   jenkins     — CI/CD server (port 8090)
-#   prometheus  — Metrics (port 9090)
-#   grafana     — Dashboard (port 3000)
+#   app              — Spring Boot gateway (host port 8100)
+#   postgres         — PostgreSQL 17.2 (host port 5434)
+#   ollama           — Local LLM server (host port 11434)
+#   nemo-guardrails  — NVIDIA NeMo Guardrails (host port 8001)
+#   presidio         — Microsoft Presidio PII detection (host port 5002)
 #
-# Start: docker-compose up -d
-# Pull model: docker exec -it ollama ollama pull llama3.1:8b
+# Infrastructure (SonarQube, Jenkins, Prometheus, Grafana) is in:
+#   secureai-infra Docker Compose stack (separate project)
+#
+# Host Ports (isolated from NutriTrack):
+#   App: 8100 | DB: 5434 | Ollama: 11434
+#   NeMo: 8001 | Presidio: 5002
+#
+# Start:  docker-compose -p secureai-app up -d
+# Stop:   docker-compose -p secureai-app down
+# Logs:   docker-compose -p secureai-app logs -f
 # ═══════════════════════════════════════════════════════════════════
 
 networks:
   secure-ai-net:
-    driver: bridge
+    external: true
+    name: secure-ai-net
 
 volumes:
-  postgres_data:
-  ollama_data:
-  sonarqube_data:
-  sonarqube_logs:
-  sonarqube_extensions:
-  jenkins_home:
-  prometheus_data:
-  grafana_data:
+  secureai_postgres_data:
+  secureai_ollama_data:
 
 services:
 
-  # ─── Spring Boot Application ───────────────────────────────────
+  # ─── Spring Boot Application (port 8100) ───────────────────────
   app:
+    image: absartus/secure-ai-gateway:latest
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: secure-ai-gateway
+    container_name: secureai-gateway
     ports:
-      - "8080:8080"
+      - "8100:8080"
     environment:
       SPRING_PROFILES_ACTIVE: prod
-      DB_HOST: postgres
+      DB_HOST: secureai-app-db
       DB_PORT: 5432
-      DB_NAME: secureai
-      DB_USERNAME: secureai_user
-      DB_PASSWORD: secureai_password
-      OLLAMA_BASE_URL: http://ollama:11434
-      OLLAMA_MODEL: llama3.1:8b
-      JWT_SECRET: "your-super-secret-jwt-key-change-in-production-32chars"
+      DB_NAME: ${DB_NAME:-secureai}
+      DB_USERNAME: ${DB_USERNAME:-secureai_user}
+      DB_PASSWORD: ${DB_PASSWORD:-SecureAIGw@Db2026!}
+      OLLAMA_BASE_URL: http://secureai-ollama:11434
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.1:8b}
+      JWT_SECRET: ${JWT_SECRET:-L7mvWP+sGS9utYDXFlL8GJ4G4esF/pnnG9cpKwDCoj09lcPXKUmdrb+f/1oSwXSa}
+      NEMO_GUARDRAILS_URL: http://secureai-nemo-guardrails:8001
+      PRESIDIO_URL: http://secureai-presidio:5002
+      LLAMAGUARD_MODEL: ${LLAMAGUARD_MODEL:-llamaguard3:1b}
     depends_on:
       postgres:
         condition: service_healthy
       ollama:
         condition: service_started
+      nemo-guardrails:
+        condition: service_started
+      presidio:
+        condition: service_started
     networks:
       - secure-ai-net
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:8080/actuator/health"]
+      test: ["CMD", "curl", "-sf", "http://localhost:8080/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 5
       start_period: 60s
     restart: unless-stopped
 
-  # ─── PostgreSQL ─────────────────────────────────────────────────
+  # ─── PostgreSQL 17.2 (host port 5434) ──────────────────────────
+  # Port 5434 to avoid conflict with NutriTrack MySQL (3306)
+  # and SecureAI SonarQube DB (5433)
   postgres:
-    image: postgres:16-alpine
-    container_name: secure-ai-postgres
+    image: postgres:17.2-alpine
+    container_name: secureai-app-db
     ports:
-      - "5432:5432"
+      - "5434:5432"
     environment:
-      POSTGRES_DB: secureai
-      POSTGRES_USER: secureai_user
-      POSTGRES_PASSWORD: secureai_password
+      POSTGRES_DB: ${POSTGRES_DB:-secureai}
+      POSTGRES_USER: ${POSTGRES_USER:-secureai_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-SecureAIGw@Db2026!}
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - secureai_postgres_data:/var/lib/postgresql/data
     networks:
       - secure-ai-net
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U secureai_user -d secureai"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 5
     restart: unless-stopped
 
-  # ─── Ollama Local LLM ───────────────────────────────────────────
+  # ─── Ollama Local LLM Server (host port 11434) ─────────────────
+  # Serves llama3.1:8b for chat + llamaguard3:1b for content safety
   ollama:
     image: ollama/ollama:latest
-    container_name: secure-ai-ollama
+    container_name: secureai-ollama
     ports:
       - "11434:11434"
     volumes:
-      - ollama_data:/root/.ollama
+      - secureai_ollama_data:/root/.ollama
     networks:
       - secure-ai-net
-    # GPU support (uncomment if NVIDIA GPU available):
-    # deploy:
-    #   resources:
-    #     reservations:
-    #       devices:
-    #         - driver: nvidia
-    #           count: 1
-    #           capabilities: [gpu]
     healthcheck:
       test: ["CMD", "ollama", "list"]
       interval: 30s
@@ -113,79 +117,51 @@ services:
       start_period: 30s
     restart: unless-stopped
 
-  # ─── SonarQube ──────────────────────────────────────────────────
-  sonarqube:
-    image: sonarqube:community
-    container_name: secure-ai-sonarqube
+  # ─── NVIDIA NeMo Guardrails (host port 8001) ───────────────────
+  # Layer 1: Colang DSL policy enforcement
+  # Jailbreak detection, content safety, topic control
+  nemo-guardrails:
+    image: secure-ai-nemo-guardrails:latest
+    build:
+      context: ./nemo-guardrails
+      dockerfile: Dockerfile
+    container_name: secureai-nemo-guardrails
     ports:
-      - "9000:9000"
+      - "8001:8001"
     environment:
-      SONAR_JDBC_URL: jdbc:postgresql://postgres:5432/sonarqube
-      SONAR_JDBC_USERNAME: secureai_user
-      SONAR_JDBC_PASSWORD: secureai_password
+      OLLAMA_BASE_URL: http://secureai-ollama:11434
+      GUARDRAILS_MODEL: gemma2:2b
     volumes:
-      - sonarqube_data:/opt/sonarqube/data
-      - sonarqube_logs:/opt/sonarqube/logs
-      - sonarqube_extensions:/opt/sonarqube/extensions
+      - ./nemo-guardrails/config:/app/config
     networks:
       - secure-ai-net
     depends_on:
-      postgres:
-        condition: service_healthy
-    ulimits:
-      nofile:
-        soft: 65536
-        hard: 65536
+      ollama:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
     restart: unless-stopped
 
-  # ─── Jenkins ────────────────────────────────────────────────────
-  jenkins:
-    image: jenkins/jenkins:lts-jdk17
-    container_name: secure-ai-jenkins
+  # ─── Microsoft Presidio PII Analyzer (host port 5002) ──────────
+  # Layer 3: PII detection and redaction
+  # Detects SSN, credit cards, emails, phone numbers, etc.
+  presidio:
+    image: mcr.microsoft.com/presidio-analyzer:latest
+    container_name: secureai-presidio
     ports:
-      - "8090:8080"
-      - "50000:50000"
-    volumes:
-      - jenkins_home:/var/jenkins_home
-      - /var/run/docker.sock:/var/run/docker.sock
-    networks:
-      - secure-ai-net
+      - "5002:5002"
     environment:
-      JAVA_OPTS: "-Djenkins.install.runSetupWizard=false"
-    restart: unless-stopped
-
-  # ─── Prometheus ─────────────────────────────────────────────────
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: secure-ai-prometheus
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - prometheus_data:/prometheus
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/etc/prometheus/console_libraries'
-      - '--web.console.templates=/etc/prometheus/consoles'
+      PORT: 5002
     networks:
       - secure-ai-net
-    restart: unless-stopped
-
-  # ─── Grafana ────────────────────────────────────────────────────
-  grafana:
-    image: grafana/grafana:latest
-    container_name: secure-ai-grafana
-    ports:
-      - "3000:3000"
-    environment:
-      GF_SECURITY_ADMIN_PASSWORD: admin
-      GF_USERS_ALLOW_SIGN_UP: 'false'
-    volumes:
-      - grafana_data:/var/lib/grafana
-      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
-    depends_on:
-      - prometheus
-    networks:
-      - secure-ai-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     restart: unless-stopped
