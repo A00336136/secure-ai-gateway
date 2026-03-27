@@ -64,12 +64,12 @@ services:
         hard: 65536
     restart: unless-stopped
 
-  # ─── Jenkins CI/CD (Port 8090) ─────────────────────────────────
+  # ─── Jenkins CI/CD (Port 9090) ─────────────────────────────────
   jenkins:
     image: jenkins/jenkins:lts-jdk21
     container_name: secure-ai-jenkins
     ports:
-      - "8090:8080"
+      - "9090:8080"
       - "50000:50000"
     volumes:
       - jenkins_home:/var/jenkins_home
