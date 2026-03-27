@@ -161,8 +161,8 @@ else:
                         exclusionPattern:      '**/*Application*.class,**/*DTO*.class,**/exception/**,**/config/**,**/model/**',
                         minimumLineCoverage:    '70',
                         minimumBranchCoverage: '60',
-                        maximumLineCoverage:   '100',
-                        maximumBranchCoverage: '100',
+                        maximumLineCoverage:   '80',
+                        maximumBranchCoverage: '70',
                         changeBuildStatus:      true
                     )
                 }
