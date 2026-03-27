@@ -93,10 +93,8 @@ public class ReActAgentService {
      * @return AgentResult with final answer and step count
      */
     public AgentResult execute(String userPrompt) {
-        if (log.isInfoEnabled()) {
-            log.info("ReAct agent starting for prompt: {}...",
-                    sanitizeLog(userPrompt.length() > 60 ? userPrompt.substring(0, 60) : userPrompt));
-        }
+        log.info("ReAct agent starting for prompt: {}...",
+                sanitizeLog(userPrompt.length() > 60 ? userPrompt.substring(0, 60) : userPrompt));
 
         List<AgentStep> steps = new ArrayList<>();
         StringBuilder conversationHistory = new StringBuilder();
@@ -113,10 +111,8 @@ public class ReActAgentService {
             AgentStep agentStep = parseStep(llmResponse, step);
             steps.add(agentStep);
 
-            if (log.isDebugEnabled()) {
-                log.debug("Step {}: thought='{}', action='{}'",
-                        step, sanitizeLog(agentStep.getThought()), sanitizeLog(agentStep.getAction()));
-            }
+            log.debug("Step {}: thought='{}', action='{}'",
+                    step, sanitizeLog(agentStep.getThought()), sanitizeLog(agentStep.getAction()));
 
             // Check for final answer — use Locale.ROOT to avoid locale-sensitive comparison
             if ("answer".equals(agentStep.getAction() != null

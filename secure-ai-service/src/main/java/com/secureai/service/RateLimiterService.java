@@ -48,7 +48,7 @@ public class RateLimiterService {
     public boolean tryConsume(String username) {
         Bucket bucket = getUserBucket(username);
         boolean allowed = bucket.tryConsume(1);
-        if (!allowed && log.isWarnEnabled()) {
+        if (!allowed) {
             log.warn("Rate limit exceeded for user '{}'", sanitizeLog(username));
         }
         return allowed;
@@ -66,9 +66,7 @@ public class RateLimiterService {
      */
     public void resetBucket(String username) {
         userBuckets.remove(username);
-        if (log.isInfoEnabled()) {
-            log.info("Rate limit bucket reset for user '{}'", sanitizeLog(username));
-        }
+        log.info("Rate limit bucket reset for user '{}'", sanitizeLog(username));
     }
 
     /**
@@ -85,9 +83,7 @@ public class RateLimiterService {
     }
 
     private Bucket createBucket(String username) {
-        if (log.isDebugEnabled()) {
-            log.debug("Creating rate limit bucket for user '{}'", sanitizeLog(username));
-        }
+        log.debug("Creating rate limit bucket for user '{}'", sanitizeLog(username));
         Bandwidth limit = Bandwidth.builder()
                 .capacity(capacity)
                 .refillGreedy(refillTokens, Duration.ofMinutes(refillDurationMinutes))
