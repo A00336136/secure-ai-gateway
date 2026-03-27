@@ -151,14 +151,19 @@ else:
             post {
                 always {
                     junit allowEmptyResults: true, testResults: '**/target/surefire-reports/**/*.xml'
+                    // Publish JaCoCo HTML coverage report in Jenkins UI
+                    // This generates the Coverage Summary chart (INSTRUCTION, BRANCH,
+                    // COMPLEXITY, LINE, METHOD, CLASS) visible on the build page
                     jacoco(
-                        execPattern:      '**/target/jacoco.exec',
-                        classPattern:     '**/target/classes',
-                        sourcePattern:    '**/src/main/java',
-                        exclusionPattern: '**/model/**,**/dto/**,**/config/**',
-                        changeBuildStatus: true,
-                        minimumLineCoverage: '70',
-                        maximumLineCoverage: '100'
+                        execPattern:           '**/target/jacoco.exec',
+                        classPattern:          '**/target/classes',
+                        sourcePattern:         '**/src/main/java',
+                        exclusionPattern:      '**/*Application*.class,**/*DTO*.class,**/exception/**,**/config/**,**/model/**',
+                        minimumLineCoverage:    '70',
+                        minimumBranchCoverage: '60',
+                        maximumLineCoverage:   '100',
+                        maximumBranchCoverage: '100',
+                        changeBuildStatus:      true
                     )
                 }
             }
