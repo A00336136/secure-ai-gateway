@@ -76,7 +76,7 @@ public class AskController {
         // ② Rate Limiting
         if (!rateLimiterService.tryConsume(username)) {
             long remaining = rateLimiterService.getRemainingTokens(username);
-            log.warn("Rate limit exceeded for user '{}'", sanitizeLog(username));
+            log.warn("Rate limit exceeded for user '{}'", username);
 
             auditLogService.logRequest(new AuditLogService.AuditLogEntry(
                     username, request.getPrompt(), null,
@@ -93,7 +93,7 @@ public class AskController {
         // ③ 3-Layer Guardrails (NeMo + LlamaGuard + Presidio — parallel Mono.zip())
         var guardrailsResult = guardrailsOrchestrator.evaluate(request.getPrompt());
         if (guardrailsResult.blocked()) {
-            log.warn("Guardrails BLOCKED for user '{}': {}", sanitizeLog(username), guardrailsResult.blockedBy());
+            log.warn("Guardrails BLOCKED for user '{}': {}", username, guardrailsResult.blockedBy());
 
             auditLogService.logRequest(new AuditLogService.AuditLogEntry(
                     username, request.getPrompt(), null,
@@ -109,7 +109,7 @@ public class AskController {
 
         // ④ Route: ReAct agent or direct inference
         if (request.isUseReActAgent()) {
-            log.info("ReAct agent invoked for user '{}'", sanitizeLog(username));
+            log.info("ReAct agent invoked for user '{}'", username);
             ReActAgentService.AgentResult result = reActAgentService.execute(request.getPrompt());
             rawResponse = result.answer;
             reactSteps = result.totalSteps;
@@ -132,7 +132,7 @@ public class AskController {
         ));
 
         log.info("Request processed for '{}': pii={}, steps={}, ms={}",
-                sanitizeLog(username), piiDetected, reactSteps, durationMs);
+                username, piiDetected, reactSteps, durationMs);
 
         long remaining = rateLimiterService.getRemainingTokens(username);
 
@@ -162,9 +162,4 @@ public class AskController {
         ));
     }
 
-    /** Strips CR and LF to prevent CRLF injection in log messages. */
-    private static String sanitizeLog(String value) {
-        if (value == null) return "(null)";
-        return value.replace("\r", "\\r").replace("\n", "\\n");
-    }
 }
