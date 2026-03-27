@@ -42,8 +42,8 @@ pipeline {
     // dockerhub-credentials — Docker Hub username/PAT (for push)
     environment {
         APP_NAME        = 'secure-ai-gateway'
-        DOCKER_IMAGE    = "a00336136/${APP_NAME}"
-        DOCKERHUB_USER  = 'a00336136'
+        DOCKER_IMAGE    = "absartus/${APP_NAME}"
+        DOCKERHUB_USER  = 'absartus'
         SONAR_TOKEN     = credentials('sonarqube-token')
         SONAR_URL       = 'http://host.docker.internal:9001'
         JAVA_HOME       = '/opt/java/openjdk'
