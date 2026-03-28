@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SecureAI Gateway &mdash; STRIDE + OWASP LLM Top 10 Threat Model</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #1c2333;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text-muted: #8b949e;
+    --accent: #58a6ff;
+    --accent2: #3fb950;
+    --accent3: #d2a8ff;
+    --danger: #f85149;
+    --warn: #d29922;
+    --critical: #f85149;
+    --high: #f0883e;
+    --medium: #d29922;
+    --low: #3fb950;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #0d1117 0%, #161b22 50%, #1e1428 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 3rem 2rem 2rem;
+    text-align: center;
+  }
+  .header h1 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--danger), var(--accent3));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.5rem;
+  }
+  .header .subtitle { color: var(--text-muted); font-size: 1.05rem; }
+  .header .meta { margin-top: 1rem; font-size: 0.85rem; color: var(--text-muted); }
+
+  .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+  section { margin-bottom: 3rem; }
+  h2 {
+    font-size: 1.5rem;
+    color: var(--accent);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+  h3 { font-size: 1.15rem; color: var(--accent3); margin: 1.5rem 0 0.75rem; }
+  p { margin-bottom: 1rem; }
+
+  /* Tables */
+  .table-wrap { overflow-x: auto; margin-bottom: 2rem; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  thead { background: var(--surface2); }
+  th, td {
+    padding: 0.65rem 0.9rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  th { color: var(--accent); font-weight: 600; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.03em; }
+  tr:hover { background: rgba(88,166,255,0.04); }
+
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  .tag-s { background: rgba(88,166,255,0.15); color: var(--accent); }
+  .tag-t { background: rgba(210,168,255,0.15); color: var(--accent3); }
+  .tag-r { background: rgba(63,185,80,0.15); color: var(--accent2); }
+  .tag-i { background: rgba(248,81,73,0.15); color: var(--danger); }
+  .tag-d { background: rgba(210,153,34,0.15); color: var(--warn); }
+  .tag-e { background: rgba(240,136,62,0.15); color: var(--high); }
+
+  .severity-critical { color: var(--critical); font-weight: 700; }
+  .severity-high { color: var(--high); font-weight: 600; }
+  .severity-medium { color: var(--medium); font-weight: 600; }
+  .severity-low { color: var(--low); font-weight: 600; }
+
+  code {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.82rem;
+    color: var(--accent3);
+  }
+
+  /* Attack Tree */
+  .attack-tree {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem 2rem;
+    overflow-x: auto;
+    margin-bottom: 2rem;
+  }
+  .attack-tree pre {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: var(--text);
+  }
+  .attack-tree .node-root { color: var(--danger); font-weight: 700; }
+  .attack-tree .node-cat { color: var(--accent); font-weight: 600; }
+  .attack-tree .node-attack { color: var(--warn); }
+  .attack-tree .node-mitig { color: var(--accent2); }
+
+  /* Risk Matrix */
+  .risk-matrix-wrap { display: flex; flex-wrap: wrap; gap: 2rem; align-items: flex-start; margin-bottom: 2rem; }
+  .risk-matrix {
+    border-collapse: collapse;
+    flex-shrink: 0;
+  }
+  .risk-matrix th, .risk-matrix td {
+    width: 110px;
+    height: 55px;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 0.78rem;
+    border: 1px solid var(--border);
+  }
+  .risk-matrix th { background: var(--surface2); color: var(--accent); font-size: 0.72rem; }
+  .risk-matrix .axis-label { background: var(--surface2); color: var(--text-muted); font-weight: 600; }
+  .rm-critical { background: rgba(248,81,73,0.25); color: var(--critical); font-weight: 600; }
+  .rm-high { background: rgba(240,136,62,0.2); color: var(--high); font-weight: 600; }
+  .rm-medium { background: rgba(210,153,34,0.15); color: var(--medium); }
+  .rm-low { background: rgba(63,185,80,0.1); color: var(--low); }
+  .rm-empty { background: var(--surface); }
+  .risk-legend { flex: 1; min-width: 250px; }
+  .risk-legend ul { list-style: none; }
+  .risk-legend li { padding: 0.3rem 0; font-size: 0.85rem; display: flex; align-items: center; gap: 0.5rem; }
+  .risk-legend .dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+
+  /* LaTeX Block */
+  .latex-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem;
+    overflow-x: auto;
+    margin-bottom: 2rem;
+  }
+  .latex-block pre {
+    color: var(--text-muted);
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.78rem;
+    white-space: pre;
+    line-height: 1.5;
+  }
+  .latex-block .label {
+    display: inline-block;
+    background: var(--accent);
+    color: var(--bg);
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-bottom: 0.75rem;
+    text-transform: uppercase;
+  }
+
+  footer {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    border-top: 1px solid var(--border);
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Formal Threat Model &mdash; STRIDE + OWASP LLM Top 10</h1>
+  <div class="subtitle">SecureAI Gateway &mdash; Systematic Threat Identification, Risk Assessment, and Mitigation Mapping</div>
+  <div class="meta">Research Paper Supplement &bull; March 2026</div>
+</div>
+
+<div class="container">
+
+<!-- ============================================================ -->
+<section>
+<h2>1. STRIDE Threat Analysis</h2>
+<p>Each STRIDE category is mapped to specific threats against the SecureAI Gateway architecture, with corresponding mitigations linked to implementation artifacts.</p>
+
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+  <th>STRIDE Category</th>
+  <th>Threat Description</th>
+  <th>Risk</th>
+  <th>Mitigation</th>
+  <th>Implementation Evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><span class="tag tag-s">S &mdash; Spoofing</span></td>
+  <td>Attacker impersonates a legitimate user or service to access the gateway API</td>
+  <td class="severity-high">High</td>
+  <td>JWT authentication with HMAC-SHA256 signing, token expiry enforcement, unique <code>jti</code> claim per token</td>
+  <td><code>JwtTokenProvider.java</code>, <code>SecurityConfig.java</code>, <code>application.yml</code> (jwt.secret, jwt.expiration)</td>
+</tr>
+<tr>
+  <td><span class="tag tag-t">T &mdash; Tampering</span></td>
+  <td>Malicious modification of request payloads to bypass safety checks or inject harmful content</td>
+  <td class="severity-high">High</td>
+  <td>Input validation via <code>@Size</code>, <code>@NotBlank</code> Bean Validation annotations; Content Security Policy headers; CSRF protection</td>
+  <td><code>ChatRequest.java</code> (validation annotations), <code>SecurityConfig.java</code> (CSP headers), <code>CsrfConfig.java</code></td>
+</tr>
+<tr>
+  <td><span class="tag tag-r">R &mdash; Repudiation</span></td>
+  <td>User denies having made a specific request or received a particular response</td>
+  <td class="severity-medium">Medium</td>
+  <td>Comprehensive audit logging via <code>AuditLog</code> JPA entity with timestamps, user ID tracking, request/response hashing</td>
+  <td><code>AuditLog.java</code> (entity), <code>AuditService.java</code>, <code>AuditLogRepository.java</code></td>
+</tr>
+<tr>
+  <td><span class="tag tag-i">I &mdash; Information Disclosure</span></td>
+  <td>PII leakage through LLM responses; stack traces exposing internals; sensitive data in logs</td>
+  <td class="severity-critical">Critical</td>
+  <td>Presidio PII detection/redaction (50+ entity types); production error handling suppresses stack traces; structured logging without sensitive fields</td>
+  <td><code>PresidioService.java</code>, <code>GlobalExceptionHandler.java</code>, <code>application-prod.yml</code></td>
+</tr>
+<tr>
+  <td><span class="tag tag-d">D &mdash; Denial of Service</span></td>
+  <td>Resource exhaustion through excessive API requests or crafted large payloads</td>
+  <td class="severity-high">High</td>
+  <td>Token bucket rate limiter (100 req/hr per user); Resilience4j circuit breaker; request size limits via <code>@Size</code> annotation</td>
+  <td><code>RateLimiterService.java</code>, <code>Resilience4jConfig.java</code>, <code>ChatRequest.java</code></td>
+</tr>
+<tr>
+  <td><span class="tag tag-e">E &mdash; Elevation of Privilege</span></td>
+  <td>Non-admin user accessing admin-only endpoints; horizontal privilege escalation between users</td>
+  <td class="severity-critical">Critical</td>
+  <td>RBAC with <code>ADMIN</code>/<code>USER</code> roles; <code>SecurityFilterChain</code> with endpoint-level authorization; method-level <code>@PreAuthorize</code></td>
+  <td><code>SecurityConfig.java</code>, <code>User.java</code> (Role enum), <code>AdminController.java</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<!-- ============================================================ -->
+<section>
+<h2>2. Attack Tree</h2>
+<p>Hierarchical decomposition of attack goals against the SecureAI Gateway, with mitigations shown at each leaf node.</p>
+
+<div class="attack-tree">
+<pre>
+<span class="node-root">GOAL: Compromise SecureAI Gateway</span>
+<span class="node-root">|</span>
+<span class="node-root">+--</span> <span class="node-cat">[1] Bypass Authentication</span>
+<span class="node-cat">|   |</span>
+<span class="node-cat">|   +--</span> <span class="node-attack">[1.1] Forge JWT token</span>
+<span class="node-attack">|   |       |</span>
+<span class="node-attack">|   |       +--</span> <span class="node-mitig">MITIGATED: HMAC-SHA256 signing with server-side secret</span>
+<span class="node-attack">|   |       +--</span> <span class="node-mitig">MITIGATED: Token expiry (configurable TTL)</span>
+<span class="node-cat">|   |</span>
+<span class="node-cat">|   +--</span> <span class="node-attack">[1.2] Replay stolen token</span>
+<span class="node-attack">|   |       |</span>
+<span class="node-attack">|   |       +--</span> <span class="node-mitig">MITIGATED: Unique jti claim per token</span>
+<span class="node-attack">|   |       +--</span> <span class="node-mitig">MITIGATED: Short expiry window</span>
+<span class="node-cat">|   |</span>
+<span class="node-cat">|   +--</span> <span class="node-attack">[1.3] Brute-force credentials</span>
+<span class="node-attack">|           |</span>
+<span class="node-attack">|           +--</span> <span class="node-mitig">MITIGATED: Rate limiter (100 req/hr token bucket)</span>
+<span class="node-attack">|           +--</span> <span class="node-mitig">MITIGATED: BCrypt password hashing (cost factor 10)</span>
+<span class="node-root">|</span>
+<span class="node-root">+--</span> <span class="node-cat">[2] Inject Malicious Content</span>
+<span class="node-cat">|   |</span>
+<span class="node-cat">|   +--</span> <span class="node-attack">[2.1] Prompt injection (jailbreak)</span>
+<span class="node-attack">|   |       |</span>
+<span class="node-attack">|   |       +--</span> <span class="node-mitig">MITIGATED: NeMo Guardrails Colang rules (jailbreak.co)</span>
+<span class="node-attack">|   |       +--</span> <span class="node-mitig">MITIGATED: Content safety classifier (MLCommons S1-S12)</span>
+<span class="node-cat">|   |</span>
+<span class="node-cat">|   +--</span> <span class="node-attack">[2.2] XSS via LLM output</span>
+<span class="node-attack">|   |       |</span>
+<span class="node-attack">|   |       +--</span> <span class="node-mitig">MITIGATED: Output sanitization, X-Content-Type-Options: nosniff</span>
+<span class="node-attack">|   |       +--</span> <span class="node-mitig">MITIGATED: Content-Security-Policy headers</span>
+<span class="node-cat">|   |</span>
+<span class="node-cat">|   +--</span> <span class="node-attack">[2.3] Oversized payload</span>
+<span class="node-attack">|           |</span>
+<span class="node-attack">|           +--</span> <span class="node-mitig">MITIGATED: @Size(max=2000) on ChatRequest.message</span>
+<span class="node-attack">|           +--</span> <span class="node-mitig">MITIGATED: Spring WebFlux backpressure</span>
+<span class="node-root">|</span>
+<span class="node-root">+--</span> <span class="node-cat">[3] Exfiltrate Sensitive Data</span>
+<span class="node-cat">|   |</span>
+<span class="node-cat">|   +--</span> <span class="node-attack">[3.1] PII leakage in LLM responses</span>
+<span class="node-attack">|   |       |</span>
+<span class="node-attack">|   |       +--</span> <span class="node-mitig">MITIGATED: Presidio PII detection (50+ entities, Layer 3)</span>
+<span class="node-attack">|   |       +--</span> <span class="node-mitig">MITIGATED: Audit alert on PII detection</span>
+<span class="node-cat">|   |</span>
+<span class="node-cat">|   +--</span> <span class="node-attack">[3.2] Error message information leakage</span>
+<span class="node-attack">|           |</span>
+<span class="node-attack">|           +--</span> <span class="node-mitig">MITIGATED: GlobalExceptionHandler (no stack traces in prod)</span>
+<span class="node-attack">|           +--</span> <span class="node-mitig">MITIGATED: Structured error responses with generic messages</span>
+<span class="node-root">|</span>
+<span class="node-root">+--</span> <span class="node-cat">[4] Deny Service</span>
+<span class="node-cat">|   |</span>
+<span class="node-cat">|   +--</span> <span class="node-attack">[4.1] API flood</span>
+<span class="node-attack">|   |       |</span>
+<span class="node-attack">|   |       +--</span> <span class="node-mitig">MITIGATED: Token bucket rate limiter (100 req/hr)</span>
+<span class="node-cat">|   |</span>
+<span class="node-cat">|   +--</span> <span class="node-attack">[4.2] Upstream LLM exhaustion</span>
+<span class="node-attack">|           |</span>
+<span class="node-attack">|           +--</span> <span class="node-mitig">MITIGATED: Resilience4j circuit breaker (fail-fast)</span>
+<span class="node-attack">|           +--</span> <span class="node-mitig">MITIGATED: Bounded ReAct agent (max 5 iterations)</span>
+<span class="node-root">|</span>
+<span class="node-root">+--</span> <span class="node-cat">[5] Escalate Privileges</span>
+    <span class="node-cat">|</span>
+    <span class="node-cat">+--</span> <span class="node-attack">[5.1] Access admin endpoints as USER</span>
+    <span class="node-attack">|       |</span>
+    <span class="node-attack">|       +--</span> <span class="node-mitig">MITIGATED: SecurityFilterChain with role-based URL patterns</span>
+    <span class="node-attack">|       +--</span> <span class="node-mitig">MITIGATED: @PreAuthorize("hasRole('ADMIN')") on controllers</span>
+    <span class="node-cat">|</span>
+    <span class="node-cat">+--</span> <span class="node-attack">[5.2] JWT role claim manipulation</span>
+            <span class="node-attack">|</span>
+            <span class="node-attack">+--</span> <span class="node-mitig">MITIGATED: Server-side role resolution (JWT contains userId, role from DB)</span>
+</pre>
+</div>
+</section>
+
+<!-- ============================================================ -->
+<section>
+<h2>3. Risk Matrix (Likelihood &times; Impact)</h2>
+<p>Pre-mitigation risk assessment with residual risk indicated by threat identifier placement.</p>
+
+<div class="risk-matrix-wrap">
+<table class="risk-matrix">
+<thead>
+<tr>
+  <th></th>
+  <th>Negligible</th>
+  <th>Minor</th>
+  <th>Moderate</th>
+  <th>Major</th>
+  <th>Catastrophic</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td class="axis-label">Almost Certain</td>
+  <td class="rm-medium"></td>
+  <td class="rm-high"></td>
+  <td class="rm-critical"></td>
+  <td class="rm-critical"></td>
+  <td class="rm-critical"></td>
+</tr>
+<tr>
+  <td class="axis-label">Likely</td>
+  <td class="rm-low"></td>
+  <td class="rm-medium"></td>
+  <td class="rm-high">LLM01</td>
+  <td class="rm-critical">LLM06</td>
+  <td class="rm-critical"></td>
+</tr>
+<tr>
+  <td class="axis-label">Possible</td>
+  <td class="rm-low"></td>
+  <td class="rm-medium">LLM09</td>
+  <td class="rm-medium">LLM04</td>
+  <td class="rm-high">S, E</td>
+  <td class="rm-critical"></td>
+</tr>
+<tr>
+  <td class="axis-label">Unlikely</td>
+  <td class="rm-low">LLM07</td>
+  <td class="rm-low">LLM03</td>
+  <td class="rm-medium">LLM02, T</td>
+  <td class="rm-high">LLM05</td>
+  <td class="rm-high">I</td>
+</tr>
+<tr>
+  <td class="axis-label">Rare</td>
+  <td class="rm-low"></td>
+  <td class="rm-low"></td>
+  <td class="rm-low">R</td>
+  <td class="rm-medium">LLM10, LLM08</td>
+  <td class="rm-high">D</td>
+</tr>
+</tbody>
+</table>
+
+<div class="risk-legend">
+  <h3>Risk Level Legend</h3>
+  <ul>
+    <li><span class="dot" style="background:var(--critical);"></span> <strong>Critical</strong> &mdash; Immediate remediation required</li>
+    <li><span class="dot" style="background:var(--high);"></span> <strong>High</strong> &mdash; Remediation within current sprint</li>
+    <li><span class="dot" style="background:var(--medium);"></span> <strong>Medium</strong> &mdash; Scheduled remediation</li>
+    <li><span class="dot" style="background:var(--low);"></span> <strong>Low</strong> &mdash; Accept or monitor</li>
+  </ul>
+  <br>
+  <h3>Identifiers</h3>
+  <ul>
+    <li><strong>S</strong> = Spoofing, <strong>T</strong> = Tampering, <strong>R</strong> = Repudiation</li>
+    <li><strong>I</strong> = Info Disclosure, <strong>D</strong> = Denial of Service, <strong>E</strong> = Elevation</li>
+    <li><strong>LLM01&ndash;10</strong> = OWASP LLM Top 10 (see Section 4)</li>
+  </ul>
+</div>
+</div>
+</section>
+
+<!-- ============================================================ -->
+<section>
+<h2>4. OWASP LLM Top 10 Mapping</h2>
+<p>Systematic mapping of each OWASP LLM Top 10 (2025) risk to SecureAI Gateway mitigations with implementation references.</p>
+
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+  <th>ID</th>
+  <th>OWASP LLM Risk</th>
+  <th>Applicability</th>
+  <th>Mitigation Strategy</th>
+  <th>Implementation Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><strong>LLM01</strong></td>
+  <td>Prompt Injection</td>
+  <td class="severity-critical">Critical</td>
+  <td>NeMo Guardrails with Colang rules detect and block jailbreak attempts, DAN-style prompts, and role-play exploitation vectors</td>
+  <td><code>config/rails/jailbreak.co</code>, <code>NemoGuardrailsService.java</code></td>
+</tr>
+<tr>
+  <td><strong>LLM02</strong></td>
+  <td>Insecure Output Handling</td>
+  <td class="severity-high">High</td>
+  <td>Output sanitization layer; <code>X-Content-Type-Options: nosniff</code>; Content-Security-Policy headers prevent script execution from LLM output</td>
+  <td><code>SecurityConfig.java</code> (headers), <code>ChatService.java</code> (output processing)</td>
+</tr>
+<tr>
+  <td><strong>LLM03</strong></td>
+  <td>Training Data Poisoning</td>
+  <td class="severity-low">Low (N/A)</td>
+  <td>Not applicable &mdash; system uses pre-trained Ollama models without fine-tuning or training data ingestion</td>
+  <td><code>docker-compose.yml</code> (Ollama service), <code>OllamaService.java</code></td>
+</tr>
+<tr>
+  <td><strong>LLM04</strong></td>
+  <td>Model Denial of Service</td>
+  <td class="severity-high">High</td>
+  <td>Token bucket rate limiter enforces 100 req/hr per user; Resilience4j circuit breaker prevents cascade failures to Ollama backend</td>
+  <td><code>RateLimiterService.java</code>, <code>Resilience4jConfig.java</code></td>
+</tr>
+<tr>
+  <td><strong>LLM05</strong></td>
+  <td>Supply Chain Vulnerabilities</td>
+  <td class="severity-high">High</td>
+  <td>Trivy container image scanning; OWASP Dependency-Check for Java dependencies; SpotBugs static analysis in 15-stage Jenkins pipeline</td>
+  <td><code>Jenkinsfile</code> (stages: Trivy Scan, OWASP Check, SpotBugs), <code>pom.xml</code> (plugin configs)</td>
+</tr>
+<tr>
+  <td><strong>LLM06</strong></td>
+  <td>Sensitive Information Disclosure</td>
+  <td class="severity-critical">Critical</td>
+  <td>Microsoft Presidio integration (Layer 3) detects 50+ PII entity types in both input and output; audit alerts triggered on detection</td>
+  <td><code>PresidioService.java</code>, <code>SafetyOrchestrator.java</code>, <code>AuditService.java</code></td>
+</tr>
+<tr>
+  <td><strong>LLM07</strong></td>
+  <td>Insecure Plugin Design</td>
+  <td class="severity-low">Low (N/A)</td>
+  <td>Not applicable &mdash; SecureAI Gateway is a closed system with no plugin architecture; all integrations are compile-time dependencies</td>
+  <td><code>pom.xml</code> (dependency manifest)</td>
+</tr>
+<tr>
+  <td><strong>LLM08</strong></td>
+  <td>Excessive Agency</td>
+  <td class="severity-medium">Medium</td>
+  <td>ReAct agent implementation bounded to maximum 5 iterations; no autonomous tool execution; all actions require explicit user prompts</td>
+  <td><code>AgentService.java</code> (MAX_ITERATIONS=5), <code>AgentController.java</code></td>
+</tr>
+<tr>
+  <td><strong>LLM09</strong></td>
+  <td>Overreliance</td>
+  <td class="severity-medium">Medium</td>
+  <td>Guardrails disclaimer headers appended to responses; confidence scoring on safety classifications; user-facing disclaimers</td>
+  <td><code>SafetyOrchestrator.java</code> (confidence thresholds), <code>ChatController.java</code> (response headers)</td>
+</tr>
+<tr>
+  <td><strong>LLM10</strong></td>
+  <td>Model Theft</td>
+  <td class="severity-medium">Medium</td>
+  <td>Self-hosted Ollama with no external API exposure; model weights stored locally; no model serialization endpoints</td>
+  <td><code>docker-compose.yml</code> (Ollama network isolation), <code>SecurityConfig.java</code> (endpoint restrictions)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<!-- ============================================================ -->
+<section>
+<h2>5. Mitigation Evidence Table</h2>
+<p>Traceability matrix linking each security control to its source code implementation.</p>
+
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+  <th>Security Control</th>
+  <th>Threat(s) Addressed</th>
+  <th>Source File / Class</th>
+  <th>Mechanism</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>JWT Authentication</td>
+  <td>S (Spoofing)</td>
+  <td><code>JwtTokenProvider.java</code></td>
+  <td>HMAC-SHA256 token generation, validation, and expiry enforcement</td>
+</tr>
+<tr>
+  <td>RBAC Authorization</td>
+  <td>E (Elevation)</td>
+  <td><code>SecurityConfig.java</code>, <code>User.java</code></td>
+  <td>Role-based endpoint authorization via SecurityFilterChain</td>
+</tr>
+<tr>
+  <td>Input Validation</td>
+  <td>T (Tampering), LLM04</td>
+  <td><code>ChatRequest.java</code></td>
+  <td>Bean Validation: @Size(max=2000), @NotBlank constraints</td>
+</tr>
+<tr>
+  <td>NeMo Guardrails</td>
+  <td>LLM01 (Prompt Injection)</td>
+  <td><code>NemoGuardrailsService.java</code>, <code>jailbreak.co</code></td>
+  <td>Colang DSL rules for jailbreak detection and content policy</td>
+</tr>
+<tr>
+  <td>Content Safety Classifier</td>
+  <td>LLM01, LLM02</td>
+  <td><code>ContentSafetyService.java</code></td>
+  <td>MLCommons S1-S12 taxonomy classification via local model</td>
+</tr>
+<tr>
+  <td>Presidio PII Detection</td>
+  <td>I (Info Disclosure), LLM06</td>
+  <td><code>PresidioService.java</code></td>
+  <td>50+ entity recognizers for input/output PII scanning</td>
+</tr>
+<tr>
+  <td>Rate Limiter</td>
+  <td>D (DoS), LLM04</td>
+  <td><code>RateLimiterService.java</code></td>
+  <td>Token bucket algorithm, 100 requests/hr per user</td>
+</tr>
+<tr>
+  <td>Circuit Breaker</td>
+  <td>D (DoS), LLM04</td>
+  <td><code>Resilience4jConfig.java</code></td>
+  <td>Resilience4j circuit breaker for upstream Ollama service</td>
+</tr>
+<tr>
+  <td>Audit Logging</td>
+  <td>R (Repudiation)</td>
+  <td><code>AuditLog.java</code>, <code>AuditService.java</code></td>
+  <td>JPA entity with timestamp, userId, request hash, response hash</td>
+</tr>
+<tr>
+  <td>Security Headers</td>
+  <td>T (Tampering), LLM02</td>
+  <td><code>SecurityConfig.java</code></td>
+  <td>CSP, X-Content-Type-Options, X-Frame-Options, HSTS</td>
+</tr>
+<tr>
+  <td>Agent Bounding</td>
+  <td>LLM08 (Excessive Agency)</td>
+  <td><code>AgentService.java</code></td>
+  <td>ReAct loop hard-capped at 5 iterations</td>
+</tr>
+<tr>
+  <td>Supply Chain Scanning</td>
+  <td>LLM05</td>
+  <td><code>Jenkinsfile</code>, <code>pom.xml</code></td>
+  <td>Trivy (container), OWASP Dependency-Check (SCA), SpotBugs (SAST)</td>
+</tr>
+<tr>
+  <td>Network Isolation</td>
+  <td>LLM10 (Model Theft)</td>
+  <td><code>docker-compose.yml</code></td>
+  <td>Ollama on internal Docker network, no external port binding</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<!-- ============================================================ -->
+<section>
+<h2>6. LaTeX-ready Tables</h2>
+
+<h3>6a. STRIDE Analysis Table</h3>
+<div class="latex-block">
+<span class="label">LaTeX</span>
+<pre>
+\begin{table*}[htbp]
+\centering
+\caption{STRIDE Threat Analysis for SecureAI Gateway}
+\label{tab:stride}
+\small
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Category} &amp; \textbf{Threat} &amp; \textbf{Risk} &amp; \textbf{Mitigation} \\
+\midrule
+Spoofing     &amp; Token forgery / replay          &amp; High     &amp; JWT HMAC-SHA256, \texttt{jti} claim, expiry \\
+Tampering    &amp; Payload modification             &amp; High     &amp; \texttt{@Size}, \texttt{@NotBlank}, CSP headers \\
+Repudiation  &amp; Action denial                    &amp; Medium   &amp; \texttt{AuditLog} entity, timestamp tracking \\
+Info.\ Disc. &amp; PII leakage, stack traces        &amp; Critical &amp; Presidio (50+ entities), prod error handling \\
+DoS          &amp; API flood, LLM exhaustion        &amp; High     &amp; Token bucket (100 req/hr), circuit breaker \\
+Elev.\ Priv. &amp; Unauthorized admin access        &amp; Critical &amp; RBAC, \texttt{SecurityFilterChain} \\
+\bottomrule
+\end{tabular}
+\end{table*}
+</pre>
+</div>
+
+<h3>6b. OWASP LLM Top 10 Mapping Table</h3>
+<div class="latex-block">
+<span class="label">LaTeX</span>
+<pre>
+\begin{table*}[htbp]
+\centering
+\caption{OWASP LLM Top 10 Mapping for SecureAI Gateway}
+\label{tab:owasp-llm}
+\small
+\begin{tabular}{@{}clll@{}}
+\toprule
+\textbf{ID} &amp; \textbf{Risk} &amp; \textbf{Applicability} &amp; \textbf{Mitigation} \\
+\midrule
+LLM01 &amp; Prompt Injection        &amp; Critical  &amp; NeMo Guardrails Colang rules (\texttt{jailbreak.co}) \\
+LLM02 &amp; Insecure Output         &amp; High      &amp; Output sanitization, \texttt{X-Content-Type-Options} \\
+LLM03 &amp; Training Data Poisoning &amp; N/A       &amp; Pre-trained Ollama models (no fine-tuning) \\
+LLM04 &amp; Model DoS               &amp; High      &amp; Rate limiter + Resilience4j circuit breaker \\
+LLM05 &amp; Supply Chain             &amp; High      &amp; Trivy, OWASP Dep-Check, SpotBugs \\
+LLM06 &amp; Sensitive Info           &amp; Critical  &amp; Presidio PII detection (Layer~3) \\
+LLM07 &amp; Insecure Plugin          &amp; N/A       &amp; Closed system, no plugin architecture \\
+LLM08 &amp; Excessive Agency         &amp; Medium    &amp; ReAct agent bounded (max 5 iterations) \\
+LLM09 &amp; Overreliance             &amp; Medium    &amp; Disclaimer headers, confidence scoring \\
+LLM10 &amp; Model Theft              &amp; Medium    &amp; Self-hosted Ollama, no external exposure \\
+\bottomrule
+\end{tabular}
+\end{table*}
+</pre>
+</div>
+</section>
+
+</div>
+
+<footer>
+  SecureAI Gateway &mdash; STRIDE + OWASP LLM Top 10 Threat Model &bull; Research Paper Supplement &bull; March 2026
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,10 @@
+timestamp,endpoint,p50_ms,p95_ms,p99_ms,avg_ms,min_ms,max_ms,layer
+2026-03-28T14:30:00Z,actuator/health,8.2,12.1,14.8,9.4,5.1,18.3,Baseline
+2026-03-28T14:30:00Z,auth/login,112,136,150,115,82,162,Auth (BCrypt)
+2026-03-28T14:30:00Z,auth/register,126,160,180,132,94,198,Auth (Register)
+2026-03-28T14:30:00Z,api/ask (simple),1420,2150,2490,1580,820,2680,Full Pipeline
+2026-03-28T14:30:00Z,api/ask (ReAct),3180,4980,5840,3520,2100,6220,ReAct Agent
+2026-03-28T14:30:00Z,api/status,12.8,20.4,26.8,14.6,6.2,32.1,Rate Limiter
+2026-03-28T14:30:00Z,admin/dashboard,22.6,35.2,43.8,25.1,14.8,52.4,RBAC
+2026-03-28T14:30:00Z,Presidio /analyze,44.8,64.2,76.5,48.2,30.4,82.1,PII Detection
+2026-03-28T14:30:00Z,NeMo /v1/health,8.6,14.2,18.5,9.8,4.8,22.0,Guardrails Health
