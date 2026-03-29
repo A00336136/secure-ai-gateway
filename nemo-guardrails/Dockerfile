@@ -12,6 +12,11 @@ RUN pip install --no-cache-dir nemoguardrails==0.10.0
 
 COPY config/ /app/config/
 
+# Security: run as non-root user (CIS Docker Benchmark 4.1)
+RUN groupadd -r nemoapp && useradd -r -g nemoapp -d /app -s /sbin/nologin nemoapp \
+    && chown -R nemoapp:nemoapp /app
+USER nemoapp
+
 EXPOSE 8001
 
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 --start-period=45s \
