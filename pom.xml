@@ -39,6 +39,9 @@
         <!-- Spring Boot -->
         <spring-boot.version>3.4.3</spring-boot.version>
 
+        <!-- Jackson override — fixes CVE in jackson-core async parser (Dependabot #30) -->
+        <jackson-bom.version>2.18.3</jackson-bom.version>
+
         <!-- Library Versions -->
         <jjwt.version>0.12.6</jjwt.version>
         <bucket4j.version>8.10.1</bucket4j.version>
