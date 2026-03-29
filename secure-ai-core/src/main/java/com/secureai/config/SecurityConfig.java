@@ -42,7 +42,8 @@ public class SecurityConfig {
             .csrf(csrf -> csrf
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 .csrfTokenRequestHandler(requestHandler)
-                .ignoringRequestMatchers("/auth/**", "/actuator/**", "/h2-console/**", "/api/**")
+                .ignoringRequestMatchers("/auth/login", "/auth/register", "/auth/health",
+                        "/auth/logout", "/actuator/**", "/h2-console/**", "/api/**")
             )
             .sessionManagement(sm ->
                 sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -53,10 +54,13 @@ public class SecurityConfig {
                 .contentSecurityPolicy(csp ->
                     csp.policyDirectives(
                         "default-src 'self'; " +
-                        "script-src 'self' 'unsafe-inline'; " +
-                        "style-src 'self' 'unsafe-inline'; " +
+                        "script-src 'self'; " +
+                        "style-src 'self'; " +
                         "img-src 'self' data:; " +
-                        "connect-src 'self'"
+                        "connect-src 'self'; " +
+                        "frame-ancestors 'none'; " +
+                        "form-action 'self'; " +
+                        "base-uri 'self'"
                     ))
                 .httpStrictTransportSecurity(hsts ->
                     hsts.includeSubDomains(true).maxAgeInSeconds(31536000))

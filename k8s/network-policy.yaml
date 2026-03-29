@@ -1,0 +1,114 @@
+---
+# ═══════════════════════════════════════════════════════
+# NetworkPolicy — Zero-Trust Pod-to-Pod Isolation
+#
+# Default-deny all traffic, then explicit allow rules:
+#   Ingress: Only from within secure-ai-dev namespace
+#   Egress:  Only to PostgreSQL, Ollama, NeMo, Presidio, DNS
+# ═══════════════════════════════════════════════════════
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+  namespace: secure-ai-dev
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+---
+# Allow ingress to the gateway pod from within the namespace
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-gateway-ingress
+  namespace: secure-ai-dev
+spec:
+  podSelector:
+    matchLabels:
+      app: secure-ai-gateway
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: secure-ai-dev
+      ports:
+        - protocol: TCP
+          port: 8080
+---
+# Allow egress from gateway to PostgreSQL, Ollama, NeMo, Presidio, DNS
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-gateway-egress
+  namespace: secure-ai-dev
+spec:
+  podSelector:
+    matchLabels:
+      app: secure-ai-gateway
+  policyTypes:
+    - Egress
+  egress:
+    # PostgreSQL
+    - to:
+        - podSelector:
+            matchLabels:
+              app: postgres
+      ports:
+        - protocol: TCP
+          port: 5432
+    # Ollama LLM (sidecar or separate pod)
+    - to:
+        - podSelector:
+            matchLabels:
+              app: secure-ai-gateway
+      ports:
+        - protocol: TCP
+          port: 11434
+    # NeMo Guardrails (sidecar)
+    - to:
+        - podSelector:
+            matchLabels:
+              app: secure-ai-gateway
+      ports:
+        - protocol: TCP
+          port: 8001
+    # Presidio PII Analyzer (sidecar)
+    - to:
+        - podSelector:
+            matchLabels:
+              app: secure-ai-gateway
+      ports:
+        - protocol: TCP
+          port: 5002
+    # DNS resolution (kube-dns)
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+---
+# Allow ingress to PostgreSQL only from gateway pods
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-postgres-ingress
+  namespace: secure-ai-dev
+spec:
+  podSelector:
+    matchLabels:
+      app: postgres
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: secure-ai-gateway
+      ports:
+        - protocol: TCP
+          port: 5432

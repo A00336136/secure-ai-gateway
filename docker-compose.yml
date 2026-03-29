@@ -48,10 +48,10 @@ services:
       DB_PORT: 5432
       DB_NAME: ${DB_NAME:-secureai}
       DB_USERNAME: ${DB_USERNAME:-secureai_user}
-      DB_PASSWORD: ${DB_PASSWORD:-SecureAIGw@Db2026!}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD must be set in .env}
       OLLAMA_BASE_URL: http://secureai-ollama:11434
       OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.1:8b}
-      JWT_SECRET: ${JWT_SECRET:-L7mvWP+sGS9utYDXFlL8GJ4G4esF/pnnG9cpKwDCoj09lcPXKUmdrb+f/1oSwXSa}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set in .env}
       NEMO_GUARDRAILS_URL: http://secureai-nemo-guardrails:8001
       PRESIDIO_URL: http://secureai-presidio:5002
       LLAMAGUARD_MODEL: ${LLAMAGUARD_MODEL:-llamaguard3:1b}
@@ -85,7 +85,7 @@ services:
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-secureai}
       POSTGRES_USER: ${POSTGRES_USER:-secureai_user}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-SecureAIGw@Db2026!}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in .env}
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
       - secureai_postgres_data:/var/lib/postgresql/data

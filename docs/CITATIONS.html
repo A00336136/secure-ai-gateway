@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SecureAI Gateway - Academic Citations</title>
+<title>SecureAI Gateway - IEEE References</title>
 <style>
 :root {
   --bg-primary: #0d1117;
@@ -19,7 +19,6 @@
   --accent-orange: #d29922;
   --accent-red: #f85149;
   --accent-teal: #39d2c0;
-  --accent-pink: #f778ba;
   --shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
 
@@ -37,7 +36,6 @@
   --accent-orange: #9a6700;
   --accent-red: #cf222e;
   --accent-teal: #1b7c83;
-  --accent-pink: #bf3989;
   --shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
@@ -50,16 +48,26 @@ body {
   line-height: 1.6;
 }
 
-.container { max-width: 1100px; margin: 0 auto; padding: 2rem; }
+.container { max-width: 1000px; margin: 0 auto; padding: 2rem; }
 
-h1 { font-size: 2rem; font-weight: 600; margin-bottom: 0.5rem; }
-.subtitle { color: var(--text-secondary); font-size: 1rem; margin-bottom: 2rem; }
+h1 { font-size: 2rem; font-weight: 600; margin-bottom: 0.25rem; }
+.subtitle { color: var(--text-secondary); font-size: 1rem; margin-bottom: 0.5rem; }
+.format-badge {
+  display: inline-block;
+  background: var(--accent-blue);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  margin-bottom: 1.5rem;
+}
 
 .controls {
   display: flex; gap: 0.75rem; margin-bottom: 2rem; flex-wrap: wrap;
 }
 
-.controls button, .format-tab {
+.controls button {
   padding: 0.5rem 1rem;
   border: 1px solid var(--border);
   border-radius: 6px;
@@ -70,7 +78,15 @@ h1 { font-size: 2rem; font-weight: 600; margin-bottom: 0.5rem; }
   transition: all 0.2s;
 }
 
-.controls button:hover, .format-tab:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
+.controls button:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
+
+.copy-all-btn {
+  background: var(--accent-blue) !important;
+  color: #fff !important;
+  border-color: var(--accent-blue) !important;
+}
+
+.copy-all-btn:hover { opacity: 0.85; }
 
 .section {
   background: var(--bg-secondary);
@@ -104,103 +120,84 @@ h1 { font-size: 2rem; font-weight: 600; margin-bottom: 0.5rem; }
 
 .section-body { padding: 1.5rem; }
 
-.citation-entry {
+.ref-entry {
   background: var(--bg-tertiary);
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 1.25rem;
-  margin-bottom: 1rem;
+  padding: 1rem 1.25rem;
+  margin-bottom: 0.75rem;
   position: relative;
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
 }
 
-.citation-entry:last-child { margin-bottom: 0; }
+.ref-entry:last-child { margin-bottom: 0; }
 
-.citation-id {
-  display: inline-block;
+.ref-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  height: 2rem;
   background: var(--accent-blue);
   color: #fff;
-  font-size: 0.7rem;
-  font-weight: 700;
-  padding: 0.15rem 0.5rem;
-  border-radius: 4px;
-  margin-bottom: 0.5rem;
-}
-
-.citation-id.guardrails { background: var(--accent-red); }
-.citation-id.security { background: var(--accent-orange); }
-.citation-id.tooling { background: var(--accent-teal); }
-.citation-id.foundation { background: var(--accent-purple); }
-.citation-id.compliance { background: var(--accent-green); }
-
-.citation-title {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 0.35rem;
-}
-
-.citation-authors { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.25rem; }
-.citation-venue { color: var(--text-muted); font-size: 0.85rem; font-style: italic; margin-bottom: 0.75rem; }
-
-.format-tabs {
-  display: flex; gap: 0.5rem; margin-bottom: 0.75rem; flex-wrap: wrap;
-}
-
-.format-tab {
-  padding: 0.3rem 0.7rem;
   font-size: 0.75rem;
-  border-radius: 5px;
-  background: var(--bg-primary);
-}
-
-.format-tab.active { background: var(--accent-blue); color: #fff; border-color: var(--accent-blue); }
-
-.citation-text {
-  background: var(--bg-primary);
-  border: 1px solid var(--border);
+  font-weight: 700;
   border-radius: 6px;
-  padding: 0.75rem 1rem;
-  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
-  font-size: 0.8rem;
-  color: var(--text-primary);
-  line-height: 1.5;
-  white-space: pre-wrap;
-  word-break: break-word;
-  position: relative;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
 }
+
+.ref-num.guardrails { background: var(--accent-red); }
+.ref-num.security { background: var(--accent-orange); }
+.ref-num.tooling { background: var(--accent-teal); }
+.ref-num.foundation { background: var(--accent-purple); }
+.ref-num.compliance { background: var(--accent-green); }
+
+.ref-text {
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+  flex: 1;
+}
+
+.ref-text .title { font-style: italic; }
+.ref-text a { color: var(--accent-blue); text-decoration: none; word-break: break-all; }
+.ref-text a:hover { text-decoration: underline; }
 
 .copy-btn {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  padding: 0.25rem 0.6rem;
+  padding: 0.2rem 0.5rem;
   border: 1px solid var(--border);
   border-radius: 5px;
   background: var(--bg-secondary);
   color: var(--text-secondary);
   cursor: pointer;
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   transition: all 0.2s;
+  flex-shrink: 0;
+  align-self: center;
 }
 
 .copy-btn:hover { color: var(--accent-blue); border-color: var(--accent-blue); }
 .copy-btn.copied { color: var(--accent-green); border-color: var(--accent-green); }
 
-.copy-all-btn {
-  padding: 0.4rem 0.8rem;
-  border: 1px solid var(--accent-blue);
-  border-radius: 6px;
-  background: var(--accent-blue);
-  color: #fff;
-  cursor: pointer;
-  font-size: 0.8rem;
-  transition: all 0.2s;
+/* Full reference block for copy-all */
+.full-refs {
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  font-family: 'Times New Roman', 'Georgia', serif;
+  font-size: 0.95rem;
+  line-height: 1.8;
+  color: var(--text-primary);
+  white-space: pre-wrap;
+  word-break: break-word;
+  position: relative;
 }
 
-.copy-all-btn:hover { opacity: 0.85; }
-
 .how-to-cite {
-  background: var(--accent-blue);
   background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
   color: #fff;
   border-radius: 12px;
@@ -209,10 +206,18 @@ h1 { font-size: 2rem; font-weight: 600; margin-bottom: 0.5rem; }
 }
 
 .how-to-cite h2 { color: #fff; margin-bottom: 1rem; }
-.how-to-cite .citation-text {
+.how-to-cite .cite-block {
   background: rgba(0,0,0,0.3);
-  border-color: rgba(255,255,255,0.2);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 6px;
+  padding: 1rem;
+  font-family: 'Times New Roman', 'Georgia', serif;
+  font-size: 0.95rem;
+  line-height: 1.7;
   color: #fff;
+  white-space: pre-wrap;
+  position: relative;
+  margin-bottom: 1rem;
 }
 
 .toc { margin-bottom: 2rem; }
@@ -220,7 +225,7 @@ h1 { font-size: 2rem; font-weight: 600; margin-bottom: 0.5rem; }
 .toc a:hover { text-decoration: underline; }
 .toc ul { list-style: none; padding-left: 0; }
 .toc li { padding: 0.3rem 0; font-size: 0.9rem; }
-.toc li::before { content: "# "; color: var(--text-muted); }
+.toc li::before { content: "\00A7 "; color: var(--text-muted); }
 
 .toast {
   position: fixed; bottom: 2rem; right: 2rem;
@@ -232,1019 +237,367 @@ h1 { font-size: 2rem; font-weight: 600; margin-bottom: 0.5rem; }
 }
 .toast.show { opacity: 1; transform: translateY(0); }
 
+.note {
+  background: var(--bg-tertiary);
+  border-left: 3px solid var(--accent-blue);
+  padding: 0.75rem 1rem;
+  border-radius: 0 6px 6px 0;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+}
+
 @media print {
   body { background: #fff !important; color: #000 !important; }
-  .controls, .copy-btn, .format-tabs, .copy-all-btn { display: none !important; }
+  .controls, .copy-btn, .toast { display: none !important; }
   .section { border: 1px solid #ccc !important; box-shadow: none !important; background: #fff !important; }
-  .citation-entry { background: #f5f5f5 !important; border: 1px solid #ccc !important; }
-  .citation-text { background: #fff !important; border: 1px solid #ccc !important; color: #000 !important; }
+  .ref-entry { background: #f5f5f5 !important; border: 1px solid #ccc !important; }
+  .full-refs { background: #fff !important; border: 1px solid #ccc !important; color: #000 !important; }
   .how-to-cite { background: #f0f0f0 !important; color: #000 !important; }
-  .how-to-cite .citation-text { background: #fff !important; color: #000 !important; border-color: #ccc !important; }
+  .how-to-cite .cite-block { background: #fff !important; color: #000 !important; border-color: #ccc !important; }
 }
 </style>
 </head>
 <body>
 
 <div class="container">
-  <h1>SecureAI Gateway - Academic Citations</h1>
-  <p class="subtitle">Complete bibliography for the research paper with multiple citation formats.</p>
+  <h1>SecureAI Gateway - References</h1>
+  <p class="subtitle">Complete bibliography formatted per IEEE citation standards.</p>
+  <span class="format-badge">IEEE FORMAT</span>
 
   <div class="controls">
     <button onclick="document.body.classList.toggle('light-mode')">Toggle Light/Dark</button>
     <button onclick="window.print()">Print / Export PDF</button>
-    <button class="copy-all-btn" onclick="copyAllBibtex()">Copy All BibTeX</button>
+    <button class="copy-all-btn" onclick="copyAll()">Copy All IEEE References</button>
+  </div>
+
+  <div class="note">
+    All references follow the <strong>IEEE Reference Style</strong> as specified in the
+    <em>IEEE Editorial Style Manual</em>. Numbered in citation order. Use [<em>n</em>] in-text markers.
   </div>
 
   <nav class="toc">
     <ul>
-      <li><a href="#core-ai">Core AI Safety &amp; Guardrails (Citations 1-3)</a></li>
-      <li><a href="#foundation">Foundation Models (Citations 4-8)</a></li>
-      <li><a href="#security">Security &amp; Prompt Injection (Citations 9-10)</a></li>
-      <li><a href="#compliance">Compliance &amp; Standards (Citation 11)</a></li>
-      <li><a href="#tooling">Frameworks &amp; Tooling (Citations 12-14)</a></li>
-      <li><a href="#formats">All Citations by Format</a></li>
+      <li><a href="#core-ai">Core AI Safety &amp; Guardrails [1]-[3]</a></li>
+      <li><a href="#foundation">Foundation Models &amp; PII Protection [4]-[8]</a></li>
+      <li><a href="#security">Security &amp; Prompt Injection [9]-[10]</a></li>
+      <li><a href="#compliance">Compliance &amp; Standards [11]-[13]</a></li>
+      <li><a href="#tooling">Frameworks &amp; Tooling [14]-[20]</a></li>
+      <li><a href="#full">Complete Reference List (Copy-Ready)</a></li>
       <li><a href="#howto">How to Cite This Project</a></li>
     </ul>
   </nav>
 
-  <!-- ============================ -->
-  <!-- CORE AI SAFETY & GUARDRAILS -->
-  <!-- ============================ -->
+  <!-- ================================ -->
+  <!-- CORE AI SAFETY & GUARDRAILS      -->
+  <!-- ================================ -->
   <div class="section" id="core-ai">
     <div class="section-header">
       <h2>Core AI Safety &amp; Guardrails</h2>
-      <span class="badge">Citations 1-3</span>
+      <span class="badge">[1] - [3]</span>
     </div>
     <div class="section-body">
 
-      <!-- Citation 1 -->
-      <div class="citation-entry" id="cite-1">
-        <span class="citation-id guardrails">1</span>
-        <div class="citation-title">ReAct: Synergizing Reasoning and Acting in Language Models</div>
-        <div class="citation-authors">Shunyu Yao, Jeffrey Zhao, Dian Yu, Nan Du, Izhak Shafran, Karthik Narasimhan, Yuan Cao</div>
-        <div class="citation-venue">International Conference on Learning Representations (ICLR), 2023</div>
-        <div class="format-tabs">
-          <button class="format-tab active" onclick="showFormat(this, 'c1', 'bibtex')">BibTeX</button>
-          <button class="format-tab" onclick="showFormat(this, 'c1', 'ieee')">IEEE</button>
-          <button class="format-tab" onclick="showFormat(this, 'c1', 'acm')">ACM</button>
-          <button class="format-tab" onclick="showFormat(this, 'c1', 'apa')">APA</button>
-        </div>
-        <div class="citation-text" id="c1-text">@inproceedings{yao2023react,
-  title     = {ReAct: Synergizing Reasoning and Acting in Language Models},
-  author    = {Yao, Shunyu and Zhao, Jeffrey and Yu, Dian and Du, Nan and Shafran, Izhak and Narasimhan, Karthik and Cao, Yuan},
-  booktitle = {International Conference on Learning Representations (ICLR)},
-  year      = {2023},
-  url       = {https://arxiv.org/abs/2210.03629}
-}</div>
-        <button class="copy-btn" onclick="copyText('c1-text', this)">Copy</button>
+      <div class="ref-entry" id="ref1">
+        <span class="ref-num guardrails">1</span>
+        <div class="ref-text">S. Yao, J. Zhao, D. Yu, N. Du, I. Shafran, K. Narasimhan, and Y. Cao, &ldquo;ReAct: Synergizing reasoning and acting in language models,&rdquo; in <span class="title">Proc. Int. Conf. Learn. Represent. (ICLR)</span>, 2023. [Online]. Available: <a href="https://arxiv.org/abs/2210.03629">https://arxiv.org/abs/2210.03629</a></div>
+        <button class="copy-btn" onclick="copyRef(1, this)">Copy</button>
       </div>
 
-      <!-- Citation 2 -->
-      <div class="citation-entry" id="cite-2">
-        <span class="citation-id guardrails">2</span>
-        <div class="citation-title">Llama Guard: LLM-based Input-Output Safeguard for Human-AI Conversations</div>
-        <div class="citation-authors">Hakan Inan, Kartikeya Upasani, Jianfeng Chi, Rashi Rungta, Krithika Iyer, Yuning Mao, Michael Tontchev, Qing Hu, Brian Fuller, Davide Testuggine, Madian Khabsa</div>
-        <div class="citation-venue">Meta AI Research, 2023. arXiv:2312.06674</div>
-        <div class="format-tabs">
-          <button class="format-tab active" onclick="showFormat(this, 'c2', 'bibtex')">BibTeX</button>
-          <button class="format-tab" onclick="showFormat(this, 'c2', 'ieee')">IEEE</button>
-          <button class="format-tab" onclick="showFormat(this, 'c2', 'acm')">ACM</button>
-          <button class="format-tab" onclick="showFormat(this, 'c2', 'apa')">APA</button>
-        </div>
-        <div class="citation-text" id="c2-text">@article{inan2023llamaguard,
-  title   = {Llama Guard: LLM-based Input-Output Safeguard for Human-AI Conversations},
-  author  = {Inan, Hakan and Upasani, Kartikeya and Chi, Jianfeng and Rungta, Rashi and Iyer, Krithika and Mao, Yuning and Tontchev, Michael and Hu, Qing and Fuller, Brian and Testuggine, Davide and Khabsa, Madian},
-  journal = {arXiv preprint arXiv:2312.06674},
-  year    = {2023},
-  url     = {https://arxiv.org/abs/2312.06674}
-}</div>
-        <button class="copy-btn" onclick="copyText('c2-text', this)">Copy</button>
+      <div class="ref-entry" id="ref2">
+        <span class="ref-num guardrails">2</span>
+        <div class="ref-text">H. Inan <em>et al.</em>, &ldquo;Llama Guard: LLM-based input-output safeguard for human-AI conversations,&rdquo; <span class="title">arXiv preprint arXiv:2312.06674</span>, 2023. [Online]. Available: <a href="https://arxiv.org/abs/2312.06674">https://arxiv.org/abs/2312.06674</a></div>
+        <button class="copy-btn" onclick="copyRef(2, this)">Copy</button>
       </div>
 
-      <!-- Citation 3 -->
-      <div class="citation-entry" id="cite-3">
-        <span class="citation-id guardrails">3</span>
-        <div class="citation-title">NeMo Guardrails: A Toolkit for Controllable and Safe LLM Applications with Programmable Rails</div>
-        <div class="citation-authors">Traian Rebedea, Razvan Dinu, Makesh Narsimhan Sreedhar, Christopher Parisien, Jonathan Cohen</div>
-        <div class="citation-venue">Empirical Methods in Natural Language Processing (EMNLP), 2023. NVIDIA.</div>
-        <div class="format-tabs">
-          <button class="format-tab active" onclick="showFormat(this, 'c3', 'bibtex')">BibTeX</button>
-          <button class="format-tab" onclick="showFormat(this, 'c3', 'ieee')">IEEE</button>
-          <button class="format-tab" onclick="showFormat(this, 'c3', 'acm')">ACM</button>
-          <button class="format-tab" onclick="showFormat(this, 'c3', 'apa')">APA</button>
-        </div>
-        <div class="citation-text" id="c3-text">@inproceedings{rebedea2023nemo,
-  title     = {NeMo Guardrails: A Toolkit for Controllable and Safe LLM Applications with Programmable Rails},
-  author    = {Rebedea, Traian and Dinu, Razvan and Sreedhar, Makesh Narsimhan and Parisien, Christopher and Cohen, Jonathan},
-  booktitle = {Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing (EMNLP): System Demonstrations},
-  year      = {2023},
-  publisher = {Association for Computational Linguistics},
-  url       = {https://arxiv.org/abs/2310.10501}
-}</div>
-        <button class="copy-btn" onclick="copyText('c3-text', this)">Copy</button>
+      <div class="ref-entry" id="ref3">
+        <span class="ref-num guardrails">3</span>
+        <div class="ref-text">T. Rebedea, R. Dinu, M. N. Sreedhar, C. Parisien, and J. Cohen, &ldquo;NeMo Guardrails: A toolkit for controllable and safe LLM applications with programmable rails,&rdquo; in <span class="title">Proc. Conf. Empirical Methods Nat. Lang. Process. (EMNLP): System Demonstrations</span>. Association for Computational Linguistics, 2023. [Online]. Available: <a href="https://arxiv.org/abs/2310.10501">https://arxiv.org/abs/2310.10501</a></div>
+        <button class="copy-btn" onclick="copyRef(3, this)">Copy</button>
       </div>
 
     </div>
   </div>
 
-  <!-- ============================ -->
-  <!-- FOUNDATION MODELS -->
-  <!-- ============================ -->
+  <!-- ================================ -->
+  <!-- FOUNDATION MODELS & PII          -->
+  <!-- ================================ -->
   <div class="section" id="foundation">
     <div class="section-header">
       <h2>Foundation Models &amp; PII Protection</h2>
-      <span class="badge">Citations 4-8</span>
+      <span class="badge">[4] - [8]</span>
     </div>
     <div class="section-body">
 
-      <!-- Citation 4 -->
-      <div class="citation-entry" id="cite-4">
-        <span class="citation-id tooling">4</span>
-        <div class="citation-title">Presidio - Data Protection and Anonymization SDK</div>
-        <div class="citation-authors">Microsoft</div>
-        <div class="citation-venue">GitHub, 2019-present. Open-source SDK for PII detection and anonymization.</div>
-        <div class="format-tabs">
-          <button class="format-tab active" onclick="showFormat(this, 'c4', 'bibtex')">BibTeX</button>
-          <button class="format-tab" onclick="showFormat(this, 'c4', 'ieee')">IEEE</button>
-          <button class="format-tab" onclick="showFormat(this, 'c4', 'acm')">ACM</button>
-          <button class="format-tab" onclick="showFormat(this, 'c4', 'apa')">APA</button>
-        </div>
-        <div class="citation-text" id="c4-text">@misc{microsoft2019presidio,
-  title        = {Presidio - Data Protection and Anonymization SDK},
-  author       = {{Microsoft}},
-  year         = {2019},
-  howpublished = {\url{https://github.com/microsoft/presidio}},
-  note         = {Open-source SDK for PII detection and anonymization}
-}</div>
-        <button class="copy-btn" onclick="copyText('c4-text', this)">Copy</button>
+      <div class="ref-entry" id="ref4">
+        <span class="ref-num foundation">4</span>
+        <div class="ref-text">Microsoft, &ldquo;Presidio &mdash; Data protection and anonymization SDK,&rdquo; GitHub, 2019. [Online]. Available: <a href="https://github.com/microsoft/presidio">https://github.com/microsoft/presidio</a></div>
+        <button class="copy-btn" onclick="copyRef(4, this)">Copy</button>
       </div>
 
-      <!-- Citation 5 -->
-      <div class="citation-entry" id="cite-5">
-        <span class="citation-id security">5</span>
-        <div class="citation-title">OWASP Top 10 for Large Language Model Applications v1.1</div>
-        <div class="citation-authors">OWASP Foundation</div>
-        <div class="citation-venue">OWASP, 2023.</div>
-        <div class="format-tabs">
-          <button class="format-tab active" onclick="showFormat(this, 'c5', 'bibtex')">BibTeX</button>
-          <button class="format-tab" onclick="showFormat(this, 'c5', 'ieee')">IEEE</button>
-          <button class="format-tab" onclick="showFormat(this, 'c5', 'acm')">ACM</button>
-          <button class="format-tab" onclick="showFormat(this, 'c5', 'apa')">APA</button>
-        </div>
-        <div class="citation-text" id="c5-text">@misc{owasp2023llmtop10,
-  title        = {OWASP Top 10 for Large Language Model Applications v1.1},
-  author       = {{OWASP Foundation}},
-  year         = {2023},
-  howpublished = {\url{https://owasp.org/www-project-top-10-for-large-language-model-applications/}},
-  note         = {Security risks and mitigations for LLM applications}
-}</div>
-        <button class="copy-btn" onclick="copyText('c5-text', this)">Copy</button>
+      <div class="ref-entry" id="ref5">
+        <span class="ref-num foundation">5</span>
+        <div class="ref-text">OWASP Foundation, &ldquo;OWASP Top 10 for Large Language Model Applications v1.1,&rdquo; 2023. [Online]. Available: <a href="https://owasp.org/www-project-top-10-for-large-language-model-applications/">https://owasp.org/www-project-top-10-for-large-language-model-applications/</a></div>
+        <button class="copy-btn" onclick="copyRef(5, this)">Copy</button>
       </div>
 
-      <!-- Citation 6 -->
-      <div class="citation-entry" id="cite-6">
-        <span class="citation-id foundation">6</span>
-        <div class="citation-title">Llama 2: Open Foundation and Fine-Tuned Chat Models</div>
-        <div class="citation-authors">Hugo Touvron, Louis Martin, Kevin Stone, Peter Albert, Amjad Almahairi, Yasmine Babaei, et al.</div>
-        <div class="citation-venue">Meta AI Research, 2023. arXiv:2307.09288</div>
-        <div class="format-tabs">
-          <button class="format-tab active" onclick="showFormat(this, 'c6', 'bibtex')">BibTeX</button>
-          <button class="format-tab" onclick="showFormat(this, 'c6', 'ieee')">IEEE</button>
-          <button class="format-tab" onclick="showFormat(this, 'c6', 'acm')">ACM</button>
-          <button class="format-tab" onclick="showFormat(this, 'c6', 'apa')">APA</button>
-        </div>
-        <div class="citation-text" id="c6-text">@article{touvron2023llama2,
-  title   = {Llama 2: Open Foundation and Fine-Tuned Chat Models},
-  author  = {Touvron, Hugo and Martin, Louis and Stone, Kevin and Albert, Peter and Almahairi, Amjad and Babaei, Yasmine and Bashlykov, Nikolay and Batra, Soumya and Bhargava, Prajjwal and Bhosale, Shruti and others},
-  journal = {arXiv preprint arXiv:2307.09288},
-  year    = {2023},
-  url     = {https://arxiv.org/abs/2307.09288}
-}</div>
-        <button class="copy-btn" onclick="copyText('c6-text', this)">Copy</button>
+      <div class="ref-entry" id="ref6">
+        <span class="ref-num foundation">6</span>
+        <div class="ref-text">H. Touvron <em>et al.</em>, &ldquo;Llama 2: Open foundation and fine-tuned chat models,&rdquo; <span class="title">arXiv preprint arXiv:2307.09288</span>, 2023. [Online]. Available: <a href="https://arxiv.org/abs/2307.09288">https://arxiv.org/abs/2307.09288</a></div>
+        <button class="copy-btn" onclick="copyRef(6, this)">Copy</button>
       </div>
 
-      <!-- Citation 7 -->
-      <div class="citation-entry" id="cite-7">
-        <span class="citation-id foundation">7</span>
-        <div class="citation-title">Attention Is All You Need</div>
-        <div class="citation-authors">Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Lukasz Kaiser, Illia Polosukhin</div>
-        <div class="citation-venue">Advances in Neural Information Processing Systems (NeurIPS), 2017.</div>
-        <div class="format-tabs">
-          <button class="format-tab active" onclick="showFormat(this, 'c7', 'bibtex')">BibTeX</button>
-          <button class="format-tab" onclick="showFormat(this, 'c7', 'ieee')">IEEE</button>
-          <button class="format-tab" onclick="showFormat(this, 'c7', 'acm')">ACM</button>
-          <button class="format-tab" onclick="showFormat(this, 'c7', 'apa')">APA</button>
-        </div>
-        <div class="citation-text" id="c7-text">@inproceedings{vaswani2017attention,
-  title     = {Attention Is All You Need},
-  author    = {Vaswani, Ashish and Shazeer, Noam and Parmar, Niki and Uszkoreit, Jakob and Jones, Llion and Gomez, Aidan N. and Kaiser, Lukasz and Polosukhin, Illia},
-  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
-  volume    = {30},
-  year      = {2017},
-  url       = {https://arxiv.org/abs/1706.03762}
-}</div>
-        <button class="copy-btn" onclick="copyText('c7-text', this)">Copy</button>
+      <div class="ref-entry" id="ref7">
+        <span class="ref-num foundation">7</span>
+        <div class="ref-text">A. Vaswani, N. Shazeer, N. Parmar, J. Uszkoreit, L. Jones, A. N. Gomez, L. Kaiser, and I. Polosukhin, &ldquo;Attention is all you need,&rdquo; in <span class="title">Proc. Adv. Neural Inf. Process. Syst. (NeurIPS)</span>, vol. 30, 2017. [Online]. Available: <a href="https://arxiv.org/abs/1706.03762">https://arxiv.org/abs/1706.03762</a></div>
+        <button class="copy-btn" onclick="copyRef(7, this)">Copy</button>
       </div>
 
-      <!-- Citation 8 -->
-      <div class="citation-entry" id="cite-8">
-        <span class="citation-id foundation">8</span>
-        <div class="citation-title">Language Models are Few-Shot Learners</div>
-        <div class="citation-authors">Tom Brown, Benjamin Mann, Nick Ryder, Melanie Subbiah, Jared Kaplan, Prafulla Dhariwal, et al.</div>
-        <div class="citation-venue">Advances in Neural Information Processing Systems (NeurIPS), 2020. (GPT-3)</div>
-        <div class="format-tabs">
-          <button class="format-tab active" onclick="showFormat(this, 'c8', 'bibtex')">BibTeX</button>
-          <button class="format-tab" onclick="showFormat(this, 'c8', 'ieee')">IEEE</button>
-          <button class="format-tab" onclick="showFormat(this, 'c8', 'acm')">ACM</button>
-          <button class="format-tab" onclick="showFormat(this, 'c8', 'apa')">APA</button>
-        </div>
-        <div class="citation-text" id="c8-text">@inproceedings{brown2020language,
-  title     = {Language Models are Few-Shot Learners},
-  author    = {Brown, Tom and Mann, Benjamin and Ryder, Nick and Subbiah, Melanie and Kaplan, Jared and Dhariwal, Prafulla and Neelakantan, Arvind and Shyam, Pranav and Sastry, Girish and Askell, Amanda and others},
-  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
-  volume    = {33},
-  pages     = {1877--1901},
-  year      = {2020},
-  url       = {https://arxiv.org/abs/2005.14165}
-}</div>
-        <button class="copy-btn" onclick="copyText('c8-text', this)">Copy</button>
+      <div class="ref-entry" id="ref8">
+        <span class="ref-num foundation">8</span>
+        <div class="ref-text">T. Brown <em>et al.</em>, &ldquo;Language models are few-shot learners,&rdquo; in <span class="title">Proc. Adv. Neural Inf. Process. Syst. (NeurIPS)</span>, vol. 33, pp. 1877&ndash;1901, 2020. [Online]. Available: <a href="https://arxiv.org/abs/2005.14165">https://arxiv.org/abs/2005.14165</a></div>
+        <button class="copy-btn" onclick="copyRef(8, this)">Copy</button>
       </div>
 
     </div>
   </div>
 
-  <!-- ============================ -->
-  <!-- SECURITY & PROMPT INJECTION -->
-  <!-- ============================ -->
+  <!-- ================================ -->
+  <!-- SECURITY & PROMPT INJECTION      -->
+  <!-- ================================ -->
   <div class="section" id="security">
     <div class="section-header">
       <h2>Security &amp; Prompt Injection</h2>
-      <span class="badge">Citations 9-10</span>
+      <span class="badge">[9] - [10]</span>
     </div>
     <div class="section-body">
 
-      <!-- Citation 9 -->
-      <div class="citation-entry" id="cite-9">
-        <span class="citation-id security">9</span>
-        <div class="citation-title">Not What You've Signed Up For: Compromising Real-World LLM-Integrated Applications with Indirect Prompt Injection</div>
-        <div class="citation-authors">Kai Greshake, Sahar Abdelnabi, Shailesh Mishra, Christoph Endres, Thorsten Holz, Mario Fritz</div>
-        <div class="citation-venue">ACM Workshop on Artificial Intelligence and Security (AISec), 2023. arXiv:2302.12173</div>
-        <div class="format-tabs">
-          <button class="format-tab active" onclick="showFormat(this, 'c9', 'bibtex')">BibTeX</button>
-          <button class="format-tab" onclick="showFormat(this, 'c9', 'ieee')">IEEE</button>
-          <button class="format-tab" onclick="showFormat(this, 'c9', 'acm')">ACM</button>
-          <button class="format-tab" onclick="showFormat(this, 'c9', 'apa')">APA</button>
-        </div>
-        <div class="citation-text" id="c9-text">@inproceedings{greshake2023not,
-  title     = {Not What You've Signed Up For: Compromising Real-World LLM-Integrated Applications with Indirect Prompt Injection},
-  author    = {Greshake, Kai and Abdelnabi, Sahar and Mishra, Shailesh and Endres, Christoph and Holz, Thorsten and Fritz, Mario},
-  booktitle = {Proceedings of the 16th ACM Workshop on Artificial Intelligence and Security (AISec)},
-  year      = {2023},
-  url       = {https://arxiv.org/abs/2302.12173}
-}</div>
-        <button class="copy-btn" onclick="copyText('c9-text', this)">Copy</button>
+      <div class="ref-entry" id="ref9">
+        <span class="ref-num security">9</span>
+        <div class="ref-text">K. Greshake, S. Abdelnabi, S. Mishra, C. Endres, T. Holz, and M. Fritz, &ldquo;Not what you&rsquo;ve signed up for: Compromising real-world LLM-integrated applications with indirect prompt injection,&rdquo; in <span class="title">Proc. 16th ACM Workshop Artif. Intell. Secur. (AISec)</span>, 2023. [Online]. Available: <a href="https://arxiv.org/abs/2302.12173">https://arxiv.org/abs/2302.12173</a></div>
+        <button class="copy-btn" onclick="copyRef(9, this)">Copy</button>
       </div>
 
-      <!-- Citation 10 -->
-      <div class="citation-entry" id="cite-10">
-        <span class="citation-id security">10</span>
-        <div class="citation-title">Ignore This Title and HackAPrompt: Evaluating Prompt Injection in Large Language Models</div>
-        <div class="citation-authors">Favio Perez, Ian Ribeiro</div>
-        <div class="citation-venue">arXiv:2302.09382, 2022.</div>
-        <div class="format-tabs">
-          <button class="format-tab active" onclick="showFormat(this, 'c10', 'bibtex')">BibTeX</button>
-          <button class="format-tab" onclick="showFormat(this, 'c10', 'ieee')">IEEE</button>
-          <button class="format-tab" onclick="showFormat(this, 'c10', 'acm')">ACM</button>
-          <button class="format-tab" onclick="showFormat(this, 'c10', 'apa')">APA</button>
-        </div>
-        <div class="citation-text" id="c10-text">@article{perez2022ignore,
-  title   = {Ignore This Title and HackAPrompt: Evaluating Prompt Injection in Large Language Models},
-  author  = {Perez, Favio and Ribeiro, Ian},
-  journal = {arXiv preprint arXiv:2302.09382},
-  year    = {2022},
-  url     = {https://arxiv.org/abs/2302.09382}
-}</div>
-        <button class="copy-btn" onclick="copyText('c10-text', this)">Copy</button>
+      <div class="ref-entry" id="ref10">
+        <span class="ref-num security">10</span>
+        <div class="ref-text">F. Perez and I. Ribeiro, &ldquo;Ignore this title and HackAPrompt: Evaluating prompt injection in large language models,&rdquo; <span class="title">arXiv preprint arXiv:2302.09382</span>, 2023. [Online]. Available: <a href="https://arxiv.org/abs/2302.09382">https://arxiv.org/abs/2302.09382</a></div>
+        <button class="copy-btn" onclick="copyRef(10, this)">Copy</button>
       </div>
 
     </div>
   </div>
 
-  <!-- ============================ -->
-  <!-- COMPLIANCE & STANDARDS -->
-  <!-- ============================ -->
+  <!-- ================================ -->
+  <!-- COMPLIANCE & STANDARDS           -->
+  <!-- ================================ -->
   <div class="section" id="compliance">
     <div class="section-header">
       <h2>Compliance &amp; Standards</h2>
-      <span class="badge">Citation 11</span>
+      <span class="badge">[11] - [13]</span>
     </div>
     <div class="section-body">
 
-      <!-- Citation 11a -->
-      <div class="citation-entry" id="cite-11a">
-        <span class="citation-id compliance">11a</span>
-        <div class="citation-title">NIST SP 800-218: Secure Software Development Framework (SSDF) Version 1.1</div>
-        <div class="citation-authors">National Institute of Standards and Technology (NIST)</div>
-        <div class="citation-venue">NIST Special Publication, February 2022.</div>
-        <div class="format-tabs">
-          <button class="format-tab active" onclick="showFormat(this, 'c11a', 'bibtex')">BibTeX</button>
-          <button class="format-tab" onclick="showFormat(this, 'c11a', 'ieee')">IEEE</button>
-          <button class="format-tab" onclick="showFormat(this, 'c11a', 'acm')">ACM</button>
-          <button class="format-tab" onclick="showFormat(this, 'c11a', 'apa')">APA</button>
-        </div>
-        <div class="citation-text" id="c11a-text">@techreport{nist2022sp800218,
-  title       = {Secure Software Development Framework (SSDF) Version 1.1: Recommendations for Mitigating the Risk of Software Vulnerabilities},
-  author      = {{National Institute of Standards and Technology}},
-  institution = {NIST},
-  number      = {SP 800-218},
-  year        = {2022},
-  month       = {February},
-  url         = {https://doi.org/10.6028/NIST.SP.800-218}
-}</div>
-        <button class="copy-btn" onclick="copyText('c11a-text', this)">Copy</button>
+      <div class="ref-entry" id="ref11">
+        <span class="ref-num compliance">11</span>
+        <div class="ref-text">National Institute of Standards and Technology, &ldquo;Secure Software Development Framework (SSDF) Version 1.1: Recommendations for mitigating the risk of software vulnerabilities,&rdquo; NIST Special Publication 800-218, Feb. 2022. [Online]. Available: <a href="https://doi.org/10.6028/NIST.SP.800-218">https://doi.org/10.6028/NIST.SP.800-218</a></div>
+        <button class="copy-btn" onclick="copyRef(11, this)">Copy</button>
       </div>
 
-      <!-- Citation 11b -->
-      <div class="citation-entry" id="cite-11b">
-        <span class="citation-id compliance">11b</span>
-        <div class="citation-title">ISO/IEC 27001:2022 - Information Security Management Systems</div>
-        <div class="citation-authors">International Organization for Standardization (ISO)</div>
-        <div class="citation-venue">ISO/IEC 27001:2022, October 2022.</div>
-        <div class="format-tabs">
-          <button class="format-tab active" onclick="showFormat(this, 'c11b', 'bibtex')">BibTeX</button>
-          <button class="format-tab" onclick="showFormat(this, 'c11b', 'ieee')">IEEE</button>
-          <button class="format-tab" onclick="showFormat(this, 'c11b', 'acm')">ACM</button>
-          <button class="format-tab" onclick="showFormat(this, 'c11b', 'apa')">APA</button>
-        </div>
-        <div class="citation-text" id="c11b-text">@misc{iso2022_27001,
-  title        = {ISO/IEC 27001:2022 - Information Security, Cybersecurity and Privacy Protection -- Information Security Management Systems -- Requirements},
-  author       = {{International Organization for Standardization}},
-  year         = {2022},
-  howpublished = {\url{https://www.iso.org/standard/27001}},
-  note         = {Third edition, October 2022}
-}</div>
-        <button class="copy-btn" onclick="copyText('c11b-text', this)">Copy</button>
+      <div class="ref-entry" id="ref12">
+        <span class="ref-num compliance">12</span>
+        <div class="ref-text">International Organization for Standardization, &ldquo;ISO/IEC 27001:2022 &mdash; Information security, cybersecurity and privacy protection &mdash; Information security management systems &mdash; Requirements,&rdquo; 3rd ed., Oct. 2022. [Online]. Available: <a href="https://www.iso.org/standard/27001">https://www.iso.org/standard/27001</a></div>
+        <button class="copy-btn" onclick="copyRef(12, this)">Copy</button>
       </div>
 
-      <!-- Citation 11c -->
-      <div class="citation-entry" id="cite-11c">
-        <span class="citation-id compliance">11c</span>
-        <div class="citation-title">General Data Protection Regulation (GDPR) - Article 25: Data Protection by Design and by Default</div>
-        <div class="citation-authors">European Parliament and Council of the European Union</div>
-        <div class="citation-venue">Official Journal of the European Union, Regulation (EU) 2016/679, 2016.</div>
-        <div class="format-tabs">
-          <button class="format-tab active" onclick="showFormat(this, 'c11c', 'bibtex')">BibTeX</button>
-          <button class="format-tab" onclick="showFormat(this, 'c11c', 'ieee')">IEEE</button>
-          <button class="format-tab" onclick="showFormat(this, 'c11c', 'acm')">ACM</button>
-          <button class="format-tab" onclick="showFormat(this, 'c11c', 'apa')">APA</button>
-        </div>
-        <div class="citation-text" id="c11c-text">@misc{eu2016gdpr,
-  title        = {Regulation (EU) 2016/679 of the European Parliament and of the Council (General Data Protection Regulation)},
-  author       = {{European Parliament and Council of the European Union}},
-  year         = {2016},
-  howpublished = {Official Journal of the European Union, L 119, 1-88},
-  url          = {https://eur-lex.europa.eu/eli/reg/2016/679/oj},
-  note         = {Article 25: Data protection by design and by default}
-}</div>
-        <button class="copy-btn" onclick="copyText('c11c-text', this)">Copy</button>
+      <div class="ref-entry" id="ref13">
+        <span class="ref-num compliance">13</span>
+        <div class="ref-text">European Parliament and Council of the European Union, &ldquo;Regulation (EU) 2016/679 of the European Parliament and of the Council (General Data Protection Regulation),&rdquo; <span class="title">Official Journal of the European Union</span>, L 119, pp. 1&ndash;88, 2016. [Online]. Available: <a href="https://eur-lex.europa.eu/eli/reg/2016/679/oj">https://eur-lex.europa.eu/eli/reg/2016/679/oj</a></div>
+        <button class="copy-btn" onclick="copyRef(13, this)">Copy</button>
       </div>
 
     </div>
   </div>
 
-  <!-- ============================ -->
-  <!-- FRAMEWORKS & TOOLING -->
-  <!-- ============================ -->
+  <!-- ================================ -->
+  <!-- FRAMEWORKS & TOOLING             -->
+  <!-- ================================ -->
   <div class="section" id="tooling">
     <div class="section-header">
       <h2>Frameworks &amp; Tooling</h2>
-      <span class="badge">Citations 12-14</span>
+      <span class="badge">[14] - [20]</span>
     </div>
     <div class="section-body">
 
-      <!-- Citation 12a -->
-      <div class="citation-entry" id="cite-12a">
-        <span class="citation-id tooling">12a</span>
-        <div class="citation-title">Spring Boot 3.x Reference Documentation</div>
-        <div class="citation-authors">VMware (Broadcom)</div>
-        <div class="citation-venue">Spring Framework, 2023.</div>
-        <div class="format-tabs">
-          <button class="format-tab active" onclick="showFormat(this, 'c12a', 'bibtex')">BibTeX</button>
-          <button class="format-tab" onclick="showFormat(this, 'c12a', 'ieee')">IEEE</button>
-          <button class="format-tab" onclick="showFormat(this, 'c12a', 'acm')">ACM</button>
-          <button class="format-tab" onclick="showFormat(this, 'c12a', 'apa')">APA</button>
-        </div>
-        <div class="citation-text" id="c12a-text">@misc{spring2023boot,
-  title        = {Spring Boot 3.x Reference Documentation},
-  author       = {{VMware (Broadcom)}},
-  year         = {2023},
-  howpublished = {\url{https://docs.spring.io/spring-boot/docs/current/reference/html/}},
-  note         = {Java application framework with embedded server, auto-configuration, and production-ready features}
-}</div>
-        <button class="copy-btn" onclick="copyText('c12a-text', this)">Copy</button>
+      <div class="ref-entry" id="ref14">
+        <span class="ref-num tooling">14</span>
+        <div class="ref-text">VMware (Broadcom), &ldquo;Spring Boot 3.x reference documentation,&rdquo; 2023. [Online]. Available: <a href="https://docs.spring.io/spring-boot/docs/current/reference/html/">https://docs.spring.io/spring-boot/docs/current/reference/html/</a></div>
+        <button class="copy-btn" onclick="copyRef(14, this)">Copy</button>
       </div>
 
-      <!-- Citation 12b -->
-      <div class="citation-entry" id="cite-12b">
-        <span class="citation-id tooling">12b</span>
-        <div class="citation-title">Spring Security Reference Documentation</div>
-        <div class="citation-authors">VMware (Broadcom)</div>
-        <div class="citation-venue">Spring Framework, 2023.</div>
-        <div class="format-tabs">
-          <button class="format-tab active" onclick="showFormat(this, 'c12b', 'bibtex')">BibTeX</button>
-          <button class="format-tab" onclick="showFormat(this, 'c12b', 'ieee')">IEEE</button>
-          <button class="format-tab" onclick="showFormat(this, 'c12b', 'acm')">ACM</button>
-          <button class="format-tab" onclick="showFormat(this, 'c12b', 'apa')">APA</button>
-        </div>
-        <div class="citation-text" id="c12b-text">@misc{spring2023security,
-  title        = {Spring Security Reference Documentation},
-  author       = {{VMware (Broadcom)}},
-  year         = {2023},
-  howpublished = {\url{https://docs.spring.io/spring-security/reference/}},
-  note         = {Authentication, authorization, CSRF protection, and security filter chain for Spring applications}
-}</div>
-        <button class="copy-btn" onclick="copyText('c12b-text', this)">Copy</button>
+      <div class="ref-entry" id="ref15">
+        <span class="ref-num tooling">15</span>
+        <div class="ref-text">VMware (Broadcom), &ldquo;Spring Security reference documentation,&rdquo; 2023. [Online]. Available: <a href="https://docs.spring.io/spring-security/reference/">https://docs.spring.io/spring-security/reference/</a></div>
+        <button class="copy-btn" onclick="copyRef(15, this)">Copy</button>
       </div>
 
-      <!-- Citation 13a -->
-      <div class="citation-entry" id="cite-13a">
-        <span class="citation-id tooling">13a</span>
-        <div class="citation-title">Docker: Accelerated Container Application Development</div>
-        <div class="citation-authors">Docker, Inc.</div>
-        <div class="citation-venue">Docker Documentation, 2023.</div>
-        <div class="format-tabs">
-          <button class="format-tab active" onclick="showFormat(this, 'c13a', 'bibtex')">BibTeX</button>
-          <button class="format-tab" onclick="showFormat(this, 'c13a', 'ieee')">IEEE</button>
-          <button class="format-tab" onclick="showFormat(this, 'c13a', 'acm')">ACM</button>
-          <button class="format-tab" onclick="showFormat(this, 'c13a', 'apa')">APA</button>
-        </div>
-        <div class="citation-text" id="c13a-text">@misc{docker2023,
-  title        = {Docker Documentation},
-  author       = {{Docker, Inc.}},
-  year         = {2023},
-  howpublished = {\url{https://docs.docker.com/}},
-  note         = {Container platform for building, shipping, and running applications with multi-stage builds and Compose orchestration}
-}</div>
-        <button class="copy-btn" onclick="copyText('c13a-text', this)">Copy</button>
+      <div class="ref-entry" id="ref16">
+        <span class="ref-num tooling">16</span>
+        <div class="ref-text">Docker, Inc., &ldquo;Docker documentation,&rdquo; 2023. [Online]. Available: <a href="https://docs.docker.com/">https://docs.docker.com/</a></div>
+        <button class="copy-btn" onclick="copyRef(16, this)">Copy</button>
       </div>
 
-      <!-- Citation 13b -->
-      <div class="citation-entry" id="cite-13b">
-        <span class="citation-id tooling">13b</span>
-        <div class="citation-title">Kubernetes Documentation</div>
-        <div class="citation-authors">Cloud Native Computing Foundation (CNCF)</div>
-        <div class="citation-venue">Kubernetes.io, 2023.</div>
-        <div class="format-tabs">
-          <button class="format-tab active" onclick="showFormat(this, 'c13b', 'bibtex')">BibTeX</button>
-          <button class="format-tab" onclick="showFormat(this, 'c13b', 'ieee')">IEEE</button>
-          <button class="format-tab" onclick="showFormat(this, 'c13b', 'acm')">ACM</button>
-          <button class="format-tab" onclick="showFormat(this, 'c13b', 'apa')">APA</button>
-        </div>
-        <div class="citation-text" id="c13b-text">@misc{kubernetes2023,
-  title        = {Kubernetes Documentation},
-  author       = {{Cloud Native Computing Foundation}},
-  year         = {2023},
-  howpublished = {\url{https://kubernetes.io/docs/}},
-  note         = {Container orchestration platform for automating deployment, scaling, and management}
-}</div>
-        <button class="copy-btn" onclick="copyText('c13b-text', this)">Copy</button>
+      <div class="ref-entry" id="ref17">
+        <span class="ref-num tooling">17</span>
+        <div class="ref-text">Cloud Native Computing Foundation, &ldquo;Kubernetes documentation,&rdquo; 2023. [Online]. Available: <a href="https://kubernetes.io/docs/">https://kubernetes.io/docs/</a></div>
+        <button class="copy-btn" onclick="copyRef(17, this)">Copy</button>
       </div>
 
-      <!-- Citation 14a -->
-      <div class="citation-entry" id="cite-14a">
-        <span class="citation-id tooling">14a</span>
-        <div class="citation-title">JaCoCo - Java Code Coverage Library</div>
-        <div class="citation-authors">EclEmma Team</div>
-        <div class="citation-venue">Eclipse Foundation, 2023.</div>
-        <div class="format-tabs">
-          <button class="format-tab active" onclick="showFormat(this, 'c14a', 'bibtex')">BibTeX</button>
-          <button class="format-tab" onclick="showFormat(this, 'c14a', 'ieee')">IEEE</button>
-          <button class="format-tab" onclick="showFormat(this, 'c14a', 'acm')">ACM</button>
-          <button class="format-tab" onclick="showFormat(this, 'c14a', 'apa')">APA</button>
-        </div>
-        <div class="citation-text" id="c14a-text">@misc{jacoco2023,
-  title        = {JaCoCo - Java Code Coverage Library},
-  author       = {{EclEmma Team}},
-  year         = {2023},
-  howpublished = {\url{https://www.jacoco.org/jacoco/}},
-  note         = {Code coverage analysis for Java with branch, line, and instruction coverage metrics}
-}</div>
-        <button class="copy-btn" onclick="copyText('c14a-text', this)">Copy</button>
+      <div class="ref-entry" id="ref18">
+        <span class="ref-num tooling">18</span>
+        <div class="ref-text">EclEmma Team, &ldquo;JaCoCo &mdash; Java code coverage library,&rdquo; Eclipse Foundation, 2023. [Online]. Available: <a href="https://www.jacoco.org/jacoco/">https://www.jacoco.org/jacoco/</a></div>
+        <button class="copy-btn" onclick="copyRef(18, this)">Copy</button>
       </div>
 
-      <!-- Citation 14b -->
-      <div class="citation-entry" id="cite-14b">
-        <span class="citation-id tooling">14b</span>
-        <div class="citation-title">SonarQube - Continuous Code Quality Inspection</div>
-        <div class="citation-authors">SonarSource SA</div>
-        <div class="citation-venue">SonarSource, 2023.</div>
-        <div class="format-tabs">
-          <button class="format-tab active" onclick="showFormat(this, 'c14b', 'bibtex')">BibTeX</button>
-          <button class="format-tab" onclick="showFormat(this, 'c14b', 'ieee')">IEEE</button>
-          <button class="format-tab" onclick="showFormat(this, 'c14b', 'acm')">ACM</button>
-          <button class="format-tab" onclick="showFormat(this, 'c14b', 'apa')">APA</button>
-        </div>
-        <div class="citation-text" id="c14b-text">@misc{sonarqube2023,
-  title        = {SonarQube - Continuous Inspection of Code Quality and Security},
-  author       = {{SonarSource SA}},
-  year         = {2023},
-  howpublished = {\url{https://www.sonarsource.com/products/sonarqube/}},
-  note         = {Static analysis platform with quality gates for bugs, vulnerabilities, code smells, and coverage}
-}</div>
-        <button class="copy-btn" onclick="copyText('c14b-text', this)">Copy</button>
+      <div class="ref-entry" id="ref19">
+        <span class="ref-num tooling">19</span>
+        <div class="ref-text">SonarSource SA, &ldquo;SonarQube &mdash; Continuous inspection of code quality and security,&rdquo; 2023. [Online]. Available: <a href="https://www.sonarsource.com/products/sonarqube/">https://www.sonarsource.com/products/sonarqube/</a></div>
+        <button class="copy-btn" onclick="copyRef(19, this)">Copy</button>
       </div>
 
-      <!-- Citation 14c -->
-      <div class="citation-entry" id="cite-14c">
-        <span class="citation-id tooling">14c</span>
-        <div class="citation-title">SpotBugs - Find Bugs in Java Programs</div>
-        <div class="citation-authors">SpotBugs Community</div>
-        <div class="citation-venue">GitHub, 2023.</div>
-        <div class="format-tabs">
-          <button class="format-tab active" onclick="showFormat(this, 'c14c', 'bibtex')">BibTeX</button>
-          <button class="format-tab" onclick="showFormat(this, 'c14c', 'ieee')">IEEE</button>
-          <button class="format-tab" onclick="showFormat(this, 'c14c', 'acm')">ACM</button>
-          <button class="format-tab" onclick="showFormat(this, 'c14c', 'apa')">APA</button>
-        </div>
-        <div class="citation-text" id="c14c-text">@misc{spotbugs2023,
-  title        = {SpotBugs - Find Bugs in Java Programs},
-  author       = {{SpotBugs Community}},
-  year         = {2023},
-  howpublished = {\url{https://spotbugs.github.io/}},
-  note         = {Static analysis tool for detecting bug patterns in Java bytecode, successor to FindBugs}
-}</div>
-        <button class="copy-btn" onclick="copyText('c14c-text', this)">Copy</button>
+      <div class="ref-entry" id="ref20">
+        <span class="ref-num tooling">20</span>
+        <div class="ref-text">SpotBugs Community, &ldquo;SpotBugs &mdash; Find bugs in Java programs,&rdquo; GitHub, 2023. [Online]. Available: <a href="https://spotbugs.github.io/">https://spotbugs.github.io/</a></div>
+        <button class="copy-btn" onclick="copyRef(20, this)">Copy</button>
       </div>
 
     </div>
   </div>
 
-  <!-- ============================ -->
-  <!-- ALL CITATIONS BY FORMAT -->
-  <!-- ============================ -->
-  <div class="section" id="formats">
+  <!-- ================================ -->
+  <!-- COMPLETE REFERENCE LIST          -->
+  <!-- ================================ -->
+  <div class="section" id="full">
     <div class="section-header">
-      <h2>All Citations - Formatted</h2>
-      <span class="badge">IEEE / ACM / APA</span>
+      <h2>Complete Reference List (Copy-Ready)</h2>
+      <button class="copy-all-btn" onclick="copyAll()" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; border: none; border-radius: 6px; cursor: pointer;">Copy All</button>
     </div>
     <div class="section-body">
+      <div class="full-refs" id="all-ieee-refs">
+[1] S. Yao, J. Zhao, D. Yu, N. Du, I. Shafran, K. Narasimhan, and Y. Cao, "ReAct: Synergizing reasoning and acting in language models," in Proc. Int. Conf. Learn. Represent. (ICLR), 2023. [Online]. Available: https://arxiv.org/abs/2210.03629
 
-      <h3 style="color: var(--accent-blue); margin-bottom: 1rem;">IEEE Format</h3>
-      <div class="citation-text" id="all-ieee" style="margin-bottom: 1.5rem; position: relative;">
-[1] S. Yao, J. Zhao, D. Yu, N. Du, I. Shafran, K. Narasimhan, and Y. Cao, "ReAct: Synergizing Reasoning and Acting in Language Models," in Proc. Int. Conf. Learn. Represent. (ICLR), 2023.
+[2] H. Inan et al., "Llama Guard: LLM-based input-output safeguard for human-AI conversations," arXiv preprint arXiv:2312.06674, 2023. [Online]. Available: https://arxiv.org/abs/2312.06674
 
-[2] H. Inan et al., "Llama Guard: LLM-based Input-Output Safeguard for Human-AI Conversations," arXiv preprint arXiv:2312.06674, 2023.
+[3] T. Rebedea, R. Dinu, M. N. Sreedhar, C. Parisien, and J. Cohen, "NeMo Guardrails: A toolkit for controllable and safe LLM applications with programmable rails," in Proc. Conf. Empirical Methods Nat. Lang. Process. (EMNLP): System Demonstrations. Association for Computational Linguistics, 2023. [Online]. Available: https://arxiv.org/abs/2310.10501
 
-[3] T. Rebedea, R. Dinu, M. N. Sreedhar, C. Parisien, and J. Cohen, "NeMo Guardrails: A Toolkit for Controllable and Safe LLM Applications with Programmable Rails," in Proc. Conf. Empirical Methods Nat. Lang. Process. (EMNLP), 2023.
-
-[4] Microsoft, "Presidio - Data Protection and Anonymization SDK," GitHub, 2019. [Online]. Available: https://github.com/microsoft/presidio
+[4] Microsoft, "Presidio - Data protection and anonymization SDK," GitHub, 2019. [Online]. Available: https://github.com/microsoft/presidio
 
 [5] OWASP Foundation, "OWASP Top 10 for Large Language Model Applications v1.1," 2023. [Online]. Available: https://owasp.org/www-project-top-10-for-large-language-model-applications/
 
-[6] H. Touvron et al., "Llama 2: Open Foundation and Fine-Tuned Chat Models," arXiv preprint arXiv:2307.09288, 2023.
+[6] H. Touvron et al., "Llama 2: Open foundation and fine-tuned chat models," arXiv preprint arXiv:2307.09288, 2023. [Online]. Available: https://arxiv.org/abs/2307.09288
 
-[7] A. Vaswani, N. Shazeer, N. Parmar, J. Uszkoreit, L. Jones, A. N. Gomez, L. Kaiser, and I. Polosukhin, "Attention Is All You Need," in Proc. Adv. Neural Inf. Process. Syst. (NeurIPS), vol. 30, 2017.
+[7] A. Vaswani, N. Shazeer, N. Parmar, J. Uszkoreit, L. Jones, A. N. Gomez, L. Kaiser, and I. Polosukhin, "Attention is all you need," in Proc. Adv. Neural Inf. Process. Syst. (NeurIPS), vol. 30, 2017. [Online]. Available: https://arxiv.org/abs/1706.03762
 
-[8] T. Brown et al., "Language Models are Few-Shot Learners," in Proc. Adv. Neural Inf. Process. Syst. (NeurIPS), vol. 33, pp. 1877-1901, 2020.
+[8] T. Brown et al., "Language models are few-shot learners," in Proc. Adv. Neural Inf. Process. Syst. (NeurIPS), vol. 33, pp. 1877-1901, 2020. [Online]. Available: https://arxiv.org/abs/2005.14165
 
-[9] K. Greshake, S. Abdelnabi, S. Mishra, C. Endres, T. Holz, and M. Fritz, "Not What You've Signed Up For: Compromising Real-World LLM-Integrated Applications with Indirect Prompt Injection," in Proc. 16th ACM Workshop Artif. Intell. Secur. (AISec), 2023.
+[9] K. Greshake, S. Abdelnabi, S. Mishra, C. Endres, T. Holz, and M. Fritz, "Not what you've signed up for: Compromising real-world LLM-integrated applications with indirect prompt injection," in Proc. 16th ACM Workshop Artif. Intell. Secur. (AISec), 2023. [Online]. Available: https://arxiv.org/abs/2302.12173
 
-[10] F. Perez and I. Ribeiro, "Ignore This Title and HackAPrompt: Evaluating Prompt Injection in Large Language Models," arXiv preprint arXiv:2302.09382, 2022.
+[10] F. Perez and I. Ribeiro, "Ignore this title and HackAPrompt: Evaluating prompt injection in large language models," arXiv preprint arXiv:2302.09382, 2023. [Online]. Available: https://arxiv.org/abs/2302.09382
 
-[11a] National Institute of Standards and Technology, "Secure Software Development Framework (SSDF) Version 1.1," NIST SP 800-218, Feb. 2022.
+[11] National Institute of Standards and Technology, "Secure Software Development Framework (SSDF) Version 1.1: Recommendations for mitigating the risk of software vulnerabilities," NIST Special Publication 800-218, Feb. 2022. [Online]. Available: https://doi.org/10.6028/NIST.SP.800-218
 
-[11b] International Organization for Standardization, "ISO/IEC 27001:2022 - Information Security Management Systems," Oct. 2022.
+[12] International Organization for Standardization, "ISO/IEC 27001:2022 - Information security, cybersecurity and privacy protection - Information security management systems - Requirements," 3rd ed., Oct. 2022. [Online]. Available: https://www.iso.org/standard/27001
 
-[11c] European Parliament, "Regulation (EU) 2016/679 - General Data Protection Regulation," Official Journal of the European Union, 2016.
+[13] European Parliament and Council of the European Union, "Regulation (EU) 2016/679 of the European Parliament and of the Council (General Data Protection Regulation)," Official Journal of the European Union, L 119, pp. 1-88, 2016. [Online]. Available: https://eur-lex.europa.eu/eli/reg/2016/679/oj
 
-[12a] VMware (Broadcom), "Spring Boot 3.x Reference Documentation," 2023. [Online]. Available: https://docs.spring.io/spring-boot/
+[14] VMware (Broadcom), "Spring Boot 3.x reference documentation," 2023. [Online]. Available: https://docs.spring.io/spring-boot/docs/current/reference/html/
 
-[12b] VMware (Broadcom), "Spring Security Reference Documentation," 2023. [Online]. Available: https://docs.spring.io/spring-security/
+[15] VMware (Broadcom), "Spring Security reference documentation," 2023. [Online]. Available: https://docs.spring.io/spring-security/reference/
 
-[13a] Docker, Inc., "Docker Documentation," 2023. [Online]. Available: https://docs.docker.com/
+[16] Docker, Inc., "Docker documentation," 2023. [Online]. Available: https://docs.docker.com/
 
-[13b] Cloud Native Computing Foundation, "Kubernetes Documentation," 2023. [Online]. Available: https://kubernetes.io/docs/
+[17] Cloud Native Computing Foundation, "Kubernetes documentation," 2023. [Online]. Available: https://kubernetes.io/docs/
 
-[14a] EclEmma Team, "JaCoCo - Java Code Coverage Library," 2023. [Online]. Available: https://www.jacoco.org/jacoco/
+[18] EclEmma Team, "JaCoCo - Java code coverage library," Eclipse Foundation, 2023. [Online]. Available: https://www.jacoco.org/jacoco/
 
-[14b] SonarSource SA, "SonarQube - Continuous Inspection of Code Quality and Security," 2023. [Online]. Available: https://www.sonarsource.com/products/sonarqube/
+[19] SonarSource SA, "SonarQube - Continuous inspection of code quality and security," 2023. [Online]. Available: https://www.sonarsource.com/products/sonarqube/
 
-[14c] SpotBugs Community, "SpotBugs - Find Bugs in Java Programs," 2023. [Online]. Available: https://spotbugs.github.io/
-<button class="copy-btn" onclick="copyText('all-ieee', this)">Copy</button></div>
-
-      <h3 style="color: var(--accent-purple); margin-bottom: 1rem;">ACM Format</h3>
-      <div class="citation-text" id="all-acm" style="margin-bottom: 1.5rem; position: relative;">
-Shunyu Yao, Jeffrey Zhao, Dian Yu, Nan Du, Izhak Shafran, Karthik Narasimhan, and Yuan Cao. 2023. ReAct: Synergizing Reasoning and Acting in Language Models. In International Conference on Learning Representations (ICLR '23).
-
-Hakan Inan, Kartikeya Upasani, Jianfeng Chi, Rashi Rungta, Krithika Iyer, Yuning Mao, Michael Tontchev, Qing Hu, Brian Fuller, Davide Testuggine, and Madian Khabsa. 2023. Llama Guard: LLM-based Input-Output Safeguard for Human-AI Conversations. arXiv:2312.06674.
-
-Traian Rebedea, Razvan Dinu, Makesh Narsimhan Sreedhar, Christopher Parisien, and Jonathan Cohen. 2023. NeMo Guardrails: A Toolkit for Controllable and Safe LLM Applications with Programmable Rails. In Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing: System Demonstrations (EMNLP '23). Association for Computational Linguistics.
-
-Microsoft. 2019. Presidio - Data Protection and Anonymization SDK. https://github.com/microsoft/presidio
-
-OWASP Foundation. 2023. OWASP Top 10 for Large Language Model Applications v1.1. https://owasp.org/www-project-top-10-for-large-language-model-applications/
-
-Hugo Touvron, Louis Martin, Kevin Stone, Peter Albert, Amjad Almahairi, Yasmine Babaei, et al. 2023. Llama 2: Open Foundation and Fine-Tuned Chat Models. arXiv:2307.09288.
-
-Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Lukasz Kaiser, and Illia Polosukhin. 2017. Attention Is All You Need. In Advances in Neural Information Processing Systems (NeurIPS '17), Vol. 30.
-
-Tom Brown, Benjamin Mann, Nick Ryder, Melanie Subbiah, Jared Kaplan, Prafulla Dhariwal, et al. 2020. Language Models are Few-Shot Learners. In Advances in Neural Information Processing Systems (NeurIPS '20), Vol. 33, 1877-1901.
-
-Kai Greshake, Sahar Abdelnabi, Shailesh Mishra, Christoph Endres, Thorsten Holz, and Mario Fritz. 2023. Not What You've Signed Up For: Compromising Real-World LLM-Integrated Applications with Indirect Prompt Injection. In Proceedings of the 16th ACM Workshop on Artificial Intelligence and Security (AISec '23).
-
-Favio Perez and Ian Ribeiro. 2022. Ignore This Title and HackAPrompt: Evaluating Prompt Injection in Large Language Models. arXiv:2302.09382.
-
-NIST. 2022. Secure Software Development Framework (SSDF) Version 1.1. NIST Special Publication 800-218.
-
-ISO. 2022. ISO/IEC 27001:2022 - Information Security, Cybersecurity and Privacy Protection.
-
-European Parliament. 2016. Regulation (EU) 2016/679 (General Data Protection Regulation). Official Journal of the European Union.
-
-VMware (Broadcom). 2023. Spring Boot 3.x Reference Documentation. https://docs.spring.io/spring-boot/
-
-VMware (Broadcom). 2023. Spring Security Reference Documentation. https://docs.spring.io/spring-security/
-
-Docker, Inc. 2023. Docker Documentation. https://docs.docker.com/
-
-Cloud Native Computing Foundation. 2023. Kubernetes Documentation. https://kubernetes.io/docs/
-
-EclEmma Team. 2023. JaCoCo - Java Code Coverage Library. https://www.jacoco.org/jacoco/
-
-SonarSource SA. 2023. SonarQube - Continuous Inspection of Code Quality and Security. https://www.sonarsource.com/products/sonarqube/
-
-SpotBugs Community. 2023. SpotBugs - Find Bugs in Java Programs. https://spotbugs.github.io/
-<button class="copy-btn" onclick="copyText('all-acm', this)">Copy</button></div>
-
-      <h3 style="color: var(--accent-orange); margin-bottom: 1rem;">APA Format (7th Edition)</h3>
-      <div class="citation-text" id="all-apa" style="position: relative;">
-Yao, S., Zhao, J., Yu, D., Du, N., Shafran, I., Narasimhan, K., &amp; Cao, Y. (2023). ReAct: Synergizing reasoning and acting in language models. In Proceedings of the International Conference on Learning Representations (ICLR). https://arxiv.org/abs/2210.03629
-
-Inan, H., Upasani, K., Chi, J., Rungta, R., Iyer, K., Mao, Y., Tontchev, M., Hu, Q., Fuller, B., Testuggine, D., &amp; Khabsa, M. (2023). Llama Guard: LLM-based input-output safeguard for human-AI conversations. arXiv. https://arxiv.org/abs/2312.06674
-
-Rebedea, T., Dinu, R., Sreedhar, M. N., Parisien, C., &amp; Cohen, J. (2023). NeMo Guardrails: A toolkit for controllable and safe LLM applications with programmable rails. In Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing: System Demonstrations. Association for Computational Linguistics. https://arxiv.org/abs/2310.10501
-
-Microsoft. (2019). Presidio - Data protection and anonymization SDK. GitHub. https://github.com/microsoft/presidio
-
-OWASP Foundation. (2023). OWASP Top 10 for Large Language Model Applications v1.1. https://owasp.org/www-project-top-10-for-large-language-model-applications/
-
-Touvron, H., Martin, L., Stone, K., Albert, P., Almahairi, A., Babaei, Y., et al. (2023). Llama 2: Open foundation and fine-tuned chat models. arXiv. https://arxiv.org/abs/2307.09288
-
-Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez, A. N., Kaiser, L., &amp; Polosukhin, I. (2017). Attention is all you need. In Advances in Neural Information Processing Systems, 30. https://arxiv.org/abs/1706.03762
-
-Brown, T., Mann, B., Ryder, N., Subbiah, M., Kaplan, J., Dhariwal, P., et al. (2020). Language models are few-shot learners. In Advances in Neural Information Processing Systems, 33, 1877-1901. https://arxiv.org/abs/2005.14165
-
-Greshake, K., Abdelnabi, S., Mishra, S., Endres, C., Holz, T., &amp; Fritz, M. (2023). Not what you've signed up for: Compromising real-world LLM-integrated applications with indirect prompt injection. In Proceedings of the 16th ACM Workshop on Artificial Intelligence and Security. https://arxiv.org/abs/2302.12173
-
-Perez, F., &amp; Ribeiro, I. (2022). Ignore this title and HackAPrompt: Evaluating prompt injection in large language models. arXiv. https://arxiv.org/abs/2302.09382
-
-National Institute of Standards and Technology. (2022). Secure Software Development Framework (SSDF) Version 1.1 (SP 800-218). https://doi.org/10.6028/NIST.SP.800-218
-
-International Organization for Standardization. (2022). ISO/IEC 27001:2022 - Information security, cybersecurity and privacy protection. https://www.iso.org/standard/27001
-
-European Parliament and Council of the European Union. (2016). Regulation (EU) 2016/679 (General Data Protection Regulation). Official Journal of the European Union.
-
-VMware (Broadcom). (2023). Spring Boot 3.x reference documentation. https://docs.spring.io/spring-boot/
-
-VMware (Broadcom). (2023). Spring Security reference documentation. https://docs.spring.io/spring-security/
-
-Docker, Inc. (2023). Docker documentation. https://docs.docker.com/
-
-Cloud Native Computing Foundation. (2023). Kubernetes documentation. https://kubernetes.io/docs/
-
-EclEmma Team. (2023). JaCoCo - Java code coverage library. https://www.jacoco.org/jacoco/
-
-SonarSource SA. (2023). SonarQube - Continuous inspection of code quality and security. https://www.sonarsource.com/products/sonarqube/
-
-SpotBugs Community. (2023). SpotBugs - Find bugs in Java programs. https://spotbugs.github.io/
-<button class="copy-btn" onclick="copyText('all-apa', this)">Copy</button></div>
-
+[20] SpotBugs Community, "SpotBugs - Find bugs in Java programs," GitHub, 2023. [Online]. Available: https://spotbugs.github.io/</div>
+      <button class="copy-btn" onclick="copyAll()" style="position: absolute; top: 0.5rem; right: 0.5rem;">Copy All</button>
     </div>
   </div>
 
-  <!-- ============================ -->
-  <!-- HOW TO CITE THIS PROJECT -->
-  <!-- ============================ -->
+  <!-- ================================ -->
+  <!-- HOW TO CITE THIS PROJECT         -->
+  <!-- ================================ -->
   <div class="how-to-cite" id="howto">
     <h2>How to Cite This Project</h2>
-    <p style="margin-bottom: 1rem; opacity: 0.9;">If you use or reference the SecureAI Gateway in your research, please use one of the following citation formats:</p>
+    <p style="margin-bottom: 1rem; opacity: 0.9;">Use the following IEEE-formatted citation when referencing the SecureAI Gateway project in your paper:</p>
 
-    <h3 style="margin-bottom: 0.5rem; font-size: 1rem;">BibTeX</h3>
-    <div class="citation-text" id="cite-project-bibtex" style="margin-bottom: 1.25rem; position: relative;">
-@misc{shaik2024secureaigw,
-  title        = {SecureAI Gateway: A Defence-in-Depth Architecture for Securing LLM Applications with Multi-Layer Guardrails and DevSecOps Integration},
-  author       = {Shaik, Afroz},
-  year         = {2024},
-  howpublished = {\url{https://github.com/afrozshaik/secure-ai-gateway}},
-  note         = {Spring Boot 3.x application with NeMo Guardrails, LlamaGuard, and Presidio integration; 15-stage Jenkins DevSecOps pipeline}
-}
-<button class="copy-btn" onclick="copyText('cite-project-bibtex', this)" style="color: rgba(255,255,255,0.7); border-color: rgba(255,255,255,0.3);">Copy</button></div>
+    <div class="cite-block" id="project-cite">A. Shaik, "SecureAI Gateway: A three-layer defence-in-depth framework for securing enterprise LLM applications," M.S. thesis, Atlantic Technological University, Galway, Ireland, 2025. [Online]. Available: https://github.com/A00336136/secure-ai-gateway</div>
+    <button class="copy-btn" onclick="copyCite(this)" style="position: absolute; top: 0.5rem; right: 0.5rem; background: rgba(0,0,0,0.3); border-color: rgba(255,255,255,0.3); color: #fff;">Copy</button>
 
-    <h3 style="margin-bottom: 0.5rem; font-size: 1rem;">IEEE</h3>
-    <div class="citation-text" id="cite-project-ieee" style="margin-bottom: 1.25rem; position: relative;">
-A. Shaik, "SecureAI Gateway: A Defence-in-Depth Architecture for Securing LLM Applications with Multi-Layer Guardrails and DevSecOps Integration," 2024. [Online]. Available: https://github.com/afrozshaik/secure-ai-gateway
-<button class="copy-btn" onclick="copyText('cite-project-ieee', this)" style="color: rgba(255,255,255,0.7); border-color: rgba(255,255,255,0.3);">Copy</button></div>
-
-    <h3 style="margin-bottom: 0.5rem; font-size: 1rem;">APA</h3>
-    <div class="citation-text" id="cite-project-apa" style="position: relative;">
-Shaik, A. (2024). SecureAI Gateway: A defence-in-depth architecture for securing LLM applications with multi-layer guardrails and DevSecOps integration. https://github.com/afrozshaik/secure-ai-gateway
-<button class="copy-btn" onclick="copyText('cite-project-apa', this)" style="color: rgba(255,255,255,0.7); border-color: rgba(255,255,255,0.3);">Copy</button></div>
+    <p style="margin-top: 1rem; font-size: 0.85rem; opacity: 0.75;">In-text usage: &ldquo;...as demonstrated by the SecureAI Gateway framework [<em>n</em>].&rdquo;</p>
   </div>
 
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast">Copied to clipboard!</div>
 
 <script>
+// All 20 IEEE references as plain text for copying
+const refs = {
+  1: '[1] S. Yao, J. Zhao, D. Yu, N. Du, I. Shafran, K. Narasimhan, and Y. Cao, "ReAct: Synergizing reasoning and acting in language models," in Proc. Int. Conf. Learn. Represent. (ICLR), 2023. [Online]. Available: https://arxiv.org/abs/2210.03629',
+  2: '[2] H. Inan et al., "Llama Guard: LLM-based input-output safeguard for human-AI conversations," arXiv preprint arXiv:2312.06674, 2023. [Online]. Available: https://arxiv.org/abs/2312.06674',
+  3: '[3] T. Rebedea, R. Dinu, M. N. Sreedhar, C. Parisien, and J. Cohen, "NeMo Guardrails: A toolkit for controllable and safe LLM applications with programmable rails," in Proc. Conf. Empirical Methods Nat. Lang. Process. (EMNLP): System Demonstrations. Association for Computational Linguistics, 2023. [Online]. Available: https://arxiv.org/abs/2310.10501',
+  4: '[4] Microsoft, "Presidio - Data protection and anonymization SDK," GitHub, 2019. [Online]. Available: https://github.com/microsoft/presidio',
+  5: '[5] OWASP Foundation, "OWASP Top 10 for Large Language Model Applications v1.1," 2023. [Online]. Available: https://owasp.org/www-project-top-10-for-large-language-model-applications/',
+  6: '[6] H. Touvron et al., "Llama 2: Open foundation and fine-tuned chat models," arXiv preprint arXiv:2307.09288, 2023. [Online]. Available: https://arxiv.org/abs/2307.09288',
+  7: '[7] A. Vaswani, N. Shazeer, N. Parmar, J. Uszkoreit, L. Jones, A. N. Gomez, L. Kaiser, and I. Polosukhin, "Attention is all you need," in Proc. Adv. Neural Inf. Process. Syst. (NeurIPS), vol. 30, 2017. [Online]. Available: https://arxiv.org/abs/1706.03762',
+  8: '[8] T. Brown et al., "Language models are few-shot learners," in Proc. Adv. Neural Inf. Process. Syst. (NeurIPS), vol. 33, pp. 1877-1901, 2020. [Online]. Available: https://arxiv.org/abs/2005.14165',
+  9: '[9] K. Greshake, S. Abdelnabi, S. Mishra, C. Endres, T. Holz, and M. Fritz, "Not what you\'ve signed up for: Compromising real-world LLM-integrated applications with indirect prompt injection," in Proc. 16th ACM Workshop Artif. Intell. Secur. (AISec), 2023. [Online]. Available: https://arxiv.org/abs/2302.12173',
+  10: '[10] F. Perez and I. Ribeiro, "Ignore this title and HackAPrompt: Evaluating prompt injection in large language models," arXiv preprint arXiv:2302.09382, 2023. [Online]. Available: https://arxiv.org/abs/2302.09382',
+  11: '[11] National Institute of Standards and Technology, "Secure Software Development Framework (SSDF) Version 1.1: Recommendations for mitigating the risk of software vulnerabilities," NIST Special Publication 800-218, Feb. 2022. [Online]. Available: https://doi.org/10.6028/NIST.SP.800-218',
+  12: '[12] International Organization for Standardization, "ISO/IEC 27001:2022 - Information security, cybersecurity and privacy protection - Information security management systems - Requirements," 3rd ed., Oct. 2022. [Online]. Available: https://www.iso.org/standard/27001',
+  13: '[13] European Parliament and Council of the European Union, "Regulation (EU) 2016/679 of the European Parliament and of the Council (General Data Protection Regulation)," Official Journal of the European Union, L 119, pp. 1-88, 2016. [Online]. Available: https://eur-lex.europa.eu/eli/reg/2016/679/oj',
+  14: '[14] VMware (Broadcom), "Spring Boot 3.x reference documentation," 2023. [Online]. Available: https://docs.spring.io/spring-boot/docs/current/reference/html/',
+  15: '[15] VMware (Broadcom), "Spring Security reference documentation," 2023. [Online]. Available: https://docs.spring.io/spring-security/reference/',
+  16: '[16] Docker, Inc., "Docker documentation," 2023. [Online]. Available: https://docs.docker.com/',
+  17: '[17] Cloud Native Computing Foundation, "Kubernetes documentation," 2023. [Online]. Available: https://kubernetes.io/docs/',
+  18: '[18] EclEmma Team, "JaCoCo - Java code coverage library," Eclipse Foundation, 2023. [Online]. Available: https://www.jacoco.org/jacoco/',
+  19: '[19] SonarSource SA, "SonarQube - Continuous inspection of code quality and security," 2023. [Online]. Available: https://www.sonarsource.com/products/sonarqube/',
+  20: '[20] SpotBugs Community, "SpotBugs - Find bugs in Java programs," GitHub, 2023. [Online]. Available: https://spotbugs.github.io/'
+};
+
 function showToast(msg) {
   const t = document.getElementById('toast');
-  t.textContent = msg;
+  t.textContent = msg || 'Copied to clipboard!';
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2000);
 }
 
-function copyText(id, btn) {
-  const el = document.getElementById(id);
-  // Get text content excluding the copy button
-  let text = el.textContent.replace(/Copy$/, '').replace(/Copied!$/, '').trim();
-  navigator.clipboard.writeText(text).then(() => {
-    if (btn) {
-      btn.classList.add('copied');
-      const orig = btn.textContent;
-      btn.textContent = 'Copied!';
-      setTimeout(() => { btn.classList.remove('copied'); btn.textContent = orig; }, 1500);
-    }
-    showToast('Copied to clipboard!');
+function copyRef(n, btn) {
+  navigator.clipboard.writeText(refs[n]).then(() => {
+    btn.classList.add('copied');
+    btn.textContent = 'Copied!';
+    showToast('Reference [' + n + '] copied!');
+    setTimeout(() => { btn.classList.remove('copied'); btn.textContent = 'Copy'; }, 2000);
   });
 }
 
-// Format switching data
-const formats = {
-  c1: {
-    bibtex: `@inproceedings{yao2023react,
-  title     = {ReAct: Synergizing Reasoning and Acting in Language Models},
-  author    = {Yao, Shunyu and Zhao, Jeffrey and Yu, Dian and Du, Nan and Shafran, Izhak and Narasimhan, Karthik and Cao, Yuan},
-  booktitle = {International Conference on Learning Representations (ICLR)},
-  year      = {2023},
-  url       = {https://arxiv.org/abs/2210.03629}
-}`,
-    ieee: `S. Yao, J. Zhao, D. Yu, N. Du, I. Shafran, K. Narasimhan, and Y. Cao, "ReAct: Synergizing Reasoning and Acting in Language Models," in Proc. Int. Conf. Learn. Represent. (ICLR), 2023.`,
-    acm: `Shunyu Yao, Jeffrey Zhao, Dian Yu, Nan Du, Izhak Shafran, Karthik Narasimhan, and Yuan Cao. 2023. ReAct: Synergizing Reasoning and Acting in Language Models. In International Conference on Learning Representations (ICLR '23).`,
-    apa: `Yao, S., Zhao, J., Yu, D., Du, N., Shafran, I., Narasimhan, K., & Cao, Y. (2023). ReAct: Synergizing reasoning and acting in language models. In Proceedings of the International Conference on Learning Representations (ICLR). https://arxiv.org/abs/2210.03629`
-  },
-  c2: {
-    bibtex: `@article{inan2023llamaguard,
-  title   = {Llama Guard: LLM-based Input-Output Safeguard for Human-AI Conversations},
-  author  = {Inan, Hakan and Upasani, Kartikeya and Chi, Jianfeng and Rungta, Rashi and Iyer, Krithika and Mao, Yuning and Tontchev, Michael and Hu, Qing and Fuller, Brian and Testuggine, Davide and Khabsa, Madian},
-  journal = {arXiv preprint arXiv:2312.06674},
-  year    = {2023},
-  url     = {https://arxiv.org/abs/2312.06674}
-}`,
-    ieee: `H. Inan et al., "Llama Guard: LLM-based Input-Output Safeguard for Human-AI Conversations," arXiv preprint arXiv:2312.06674, 2023.`,
-    acm: `Hakan Inan, Kartikeya Upasani, Jianfeng Chi, Rashi Rungta, Krithika Iyer, Yuning Mao, Michael Tontchev, Qing Hu, Brian Fuller, Davide Testuggine, and Madian Khabsa. 2023. Llama Guard: LLM-based Input-Output Safeguard for Human-AI Conversations. arXiv:2312.06674.`,
-    apa: `Inan, H., Upasani, K., Chi, J., Rungta, R., Iyer, K., Mao, Y., Tontchev, M., Hu, Q., Fuller, B., Testuggine, D., & Khabsa, M. (2023). Llama Guard: LLM-based input-output safeguard for human-AI conversations. arXiv. https://arxiv.org/abs/2312.06674`
-  },
-  c3: {
-    bibtex: `@inproceedings{rebedea2023nemo,
-  title     = {NeMo Guardrails: A Toolkit for Controllable and Safe LLM Applications with Programmable Rails},
-  author    = {Rebedea, Traian and Dinu, Razvan and Sreedhar, Makesh Narsimhan and Parisien, Christopher and Cohen, Jonathan},
-  booktitle = {Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing (EMNLP): System Demonstrations},
-  year      = {2023},
-  publisher = {Association for Computational Linguistics},
-  url       = {https://arxiv.org/abs/2310.10501}
-}`,
-    ieee: `T. Rebedea, R. Dinu, M. N. Sreedhar, C. Parisien, and J. Cohen, "NeMo Guardrails: A Toolkit for Controllable and Safe LLM Applications with Programmable Rails," in Proc. Conf. Empirical Methods Nat. Lang. Process. (EMNLP), 2023.`,
-    acm: `Traian Rebedea, Razvan Dinu, Makesh Narsimhan Sreedhar, Christopher Parisien, and Jonathan Cohen. 2023. NeMo Guardrails: A Toolkit for Controllable and Safe LLM Applications with Programmable Rails. In Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing: System Demonstrations (EMNLP '23). Association for Computational Linguistics.`,
-    apa: `Rebedea, T., Dinu, R., Sreedhar, M. N., Parisien, C., & Cohen, J. (2023). NeMo Guardrails: A toolkit for controllable and safe LLM applications with programmable rails. In Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing: System Demonstrations. Association for Computational Linguistics. https://arxiv.org/abs/2310.10501`
-  },
-  c4: {
-    bibtex: `@misc{microsoft2019presidio,
-  title        = {Presidio - Data Protection and Anonymization SDK},
-  author       = {{Microsoft}},
-  year         = {2019},
-  howpublished = {\\url{https://github.com/microsoft/presidio}},
-  note         = {Open-source SDK for PII detection and anonymization}
-}`,
-    ieee: `Microsoft, "Presidio - Data Protection and Anonymization SDK," GitHub, 2019. [Online]. Available: https://github.com/microsoft/presidio`,
-    acm: `Microsoft. 2019. Presidio - Data Protection and Anonymization SDK. https://github.com/microsoft/presidio`,
-    apa: `Microsoft. (2019). Presidio - Data protection and anonymization SDK. GitHub. https://github.com/microsoft/presidio`
-  },
-  c5: {
-    bibtex: `@misc{owasp2023llmtop10,
-  title        = {OWASP Top 10 for Large Language Model Applications v1.1},
-  author       = {{OWASP Foundation}},
-  year         = {2023},
-  howpublished = {\\url{https://owasp.org/www-project-top-10-for-large-language-model-applications/}},
-  note         = {Security risks and mitigations for LLM applications}
-}`,
-    ieee: `OWASP Foundation, "OWASP Top 10 for Large Language Model Applications v1.1," 2023. [Online]. Available: https://owasp.org/www-project-top-10-for-large-language-model-applications/`,
-    acm: `OWASP Foundation. 2023. OWASP Top 10 for Large Language Model Applications v1.1. https://owasp.org/www-project-top-10-for-large-language-model-applications/`,
-    apa: `OWASP Foundation. (2023). OWASP Top 10 for Large Language Model Applications v1.1. https://owasp.org/www-project-top-10-for-large-language-model-applications/`
-  },
-  c6: {
-    bibtex: `@article{touvron2023llama2,
-  title   = {Llama 2: Open Foundation and Fine-Tuned Chat Models},
-  author  = {Touvron, Hugo and Martin, Louis and Stone, Kevin and Albert, Peter and Almahairi, Amjad and Babaei, Yasmine and Bashlykov, Nikolay and Batra, Soumya and Bhargava, Prajjwal and Bhosale, Shruti and others},
-  journal = {arXiv preprint arXiv:2307.09288},
-  year    = {2023},
-  url     = {https://arxiv.org/abs/2307.09288}
-}`,
-    ieee: `H. Touvron et al., "Llama 2: Open Foundation and Fine-Tuned Chat Models," arXiv preprint arXiv:2307.09288, 2023.`,
-    acm: `Hugo Touvron, Louis Martin, Kevin Stone, Peter Albert, Amjad Almahairi, Yasmine Babaei, et al. 2023. Llama 2: Open Foundation and Fine-Tuned Chat Models. arXiv:2307.09288.`,
-    apa: `Touvron, H., Martin, L., Stone, K., Albert, P., Almahairi, A., Babaei, Y., et al. (2023). Llama 2: Open foundation and fine-tuned chat models. arXiv. https://arxiv.org/abs/2307.09288`
-  },
-  c7: {
-    bibtex: `@inproceedings{vaswani2017attention,
-  title     = {Attention Is All You Need},
-  author    = {Vaswani, Ashish and Shazeer, Noam and Parmar, Niki and Uszkoreit, Jakob and Jones, Llion and Gomez, Aidan N. and Kaiser, Lukasz and Polosukhin, Illia},
-  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
-  volume    = {30},
-  year      = {2017},
-  url       = {https://arxiv.org/abs/1706.03762}
-}`,
-    ieee: `A. Vaswani, N. Shazeer, N. Parmar, J. Uszkoreit, L. Jones, A. N. Gomez, L. Kaiser, and I. Polosukhin, "Attention Is All You Need," in Proc. Adv. Neural Inf. Process. Syst. (NeurIPS), vol. 30, 2017.`,
-    acm: `Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Lukasz Kaiser, and Illia Polosukhin. 2017. Attention Is All You Need. In Advances in Neural Information Processing Systems (NeurIPS '17), Vol. 30.`,
-    apa: `Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez, A. N., Kaiser, L., & Polosukhin, I. (2017). Attention is all you need. In Advances in Neural Information Processing Systems, 30. https://arxiv.org/abs/1706.03762`
-  },
-  c8: {
-    bibtex: `@inproceedings{brown2020language,
-  title     = {Language Models are Few-Shot Learners},
-  author    = {Brown, Tom and Mann, Benjamin and Ryder, Nick and Subbiah, Melanie and Kaplan, Jared and Dhariwal, Prafulla and Neelakantan, Arvind and Shyam, Pranav and Sastry, Girish and Askell, Amanda and others},
-  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
-  volume    = {33},
-  pages     = {1877--1901},
-  year      = {2020},
-  url       = {https://arxiv.org/abs/2005.14165}
-}`,
-    ieee: `T. Brown et al., "Language Models are Few-Shot Learners," in Proc. Adv. Neural Inf. Process. Syst. (NeurIPS), vol. 33, pp. 1877-1901, 2020.`,
-    acm: `Tom Brown, Benjamin Mann, Nick Ryder, Melanie Subbiah, Jared Kaplan, Prafulla Dhariwal, et al. 2020. Language Models are Few-Shot Learners. In Advances in Neural Information Processing Systems (NeurIPS '20), Vol. 33, 1877-1901.`,
-    apa: `Brown, T., Mann, B., Ryder, N., Subbiah, M., Kaplan, J., Dhariwal, P., et al. (2020). Language models are few-shot learners. In Advances in Neural Information Processing Systems, 33, 1877-1901. https://arxiv.org/abs/2005.14165`
-  },
-  c9: {
-    bibtex: `@inproceedings{greshake2023not,
-  title     = {Not What You've Signed Up For: Compromising Real-World LLM-Integrated Applications with Indirect Prompt Injection},
-  author    = {Greshake, Kai and Abdelnabi, Sahar and Mishra, Shailesh and Endres, Christoph and Holz, Thorsten and Fritz, Mario},
-  booktitle = {Proceedings of the 16th ACM Workshop on Artificial Intelligence and Security (AISec)},
-  year      = {2023},
-  url       = {https://arxiv.org/abs/2302.12173}
-}`,
-    ieee: `K. Greshake, S. Abdelnabi, S. Mishra, C. Endres, T. Holz, and M. Fritz, "Not What You've Signed Up For: Compromising Real-World LLM-Integrated Applications with Indirect Prompt Injection," in Proc. 16th ACM Workshop Artif. Intell. Secur. (AISec), 2023.`,
-    acm: `Kai Greshake, Sahar Abdelnabi, Shailesh Mishra, Christoph Endres, Thorsten Holz, and Mario Fritz. 2023. Not What You've Signed Up For: Compromising Real-World LLM-Integrated Applications with Indirect Prompt Injection. In Proceedings of the 16th ACM Workshop on Artificial Intelligence and Security (AISec '23).`,
-    apa: `Greshake, K., Abdelnabi, S., Mishra, S., Endres, C., Holz, T., & Fritz, M. (2023). Not what you've signed up for: Compromising real-world LLM-integrated applications with indirect prompt injection. In Proceedings of the 16th ACM Workshop on Artificial Intelligence and Security. https://arxiv.org/abs/2302.12173`
-  },
-  c10: {
-    bibtex: `@article{perez2022ignore,
-  title   = {Ignore This Title and HackAPrompt: Evaluating Prompt Injection in Large Language Models},
-  author  = {Perez, Favio and Ribeiro, Ian},
-  journal = {arXiv preprint arXiv:2302.09382},
-  year    = {2022},
-  url     = {https://arxiv.org/abs/2302.09382}
-}`,
-    ieee: `F. Perez and I. Ribeiro, "Ignore This Title and HackAPrompt: Evaluating Prompt Injection in Large Language Models," arXiv preprint arXiv:2302.09382, 2022.`,
-    acm: `Favio Perez and Ian Ribeiro. 2022. Ignore This Title and HackAPrompt: Evaluating Prompt Injection in Large Language Models. arXiv:2302.09382.`,
-    apa: `Perez, F., & Ribeiro, I. (2022). Ignore this title and HackAPrompt: Evaluating prompt injection in large language models. arXiv. https://arxiv.org/abs/2302.09382`
-  },
-  c11a: {
-    bibtex: `@techreport{nist2022sp800218,
-  title       = {Secure Software Development Framework (SSDF) Version 1.1},
-  author      = {{National Institute of Standards and Technology}},
-  institution = {NIST},
-  number      = {SP 800-218},
-  year        = {2022},
-  month       = {February},
-  url         = {https://doi.org/10.6028/NIST.SP.800-218}
-}`,
-    ieee: `National Institute of Standards and Technology, "Secure Software Development Framework (SSDF) Version 1.1," NIST SP 800-218, Feb. 2022.`,
-    acm: `NIST. 2022. Secure Software Development Framework (SSDF) Version 1.1. NIST Special Publication 800-218.`,
-    apa: `National Institute of Standards and Technology. (2022). Secure Software Development Framework (SSDF) Version 1.1 (SP 800-218). https://doi.org/10.6028/NIST.SP.800-218`
-  },
-  c11b: {
-    bibtex: `@misc{iso2022_27001,
-  title        = {ISO/IEC 27001:2022 - Information Security Management Systems},
-  author       = {{International Organization for Standardization}},
-  year         = {2022},
-  howpublished = {\\url{https://www.iso.org/standard/27001}},
-  note         = {Third edition, October 2022}
-}`,
-    ieee: `International Organization for Standardization, "ISO/IEC 27001:2022 - Information Security Management Systems," Oct. 2022.`,
-    acm: `ISO. 2022. ISO/IEC 27001:2022 - Information Security, Cybersecurity and Privacy Protection.`,
-    apa: `International Organization for Standardization. (2022). ISO/IEC 27001:2022 - Information security, cybersecurity and privacy protection. https://www.iso.org/standard/27001`
-  },
-  c11c: {
-    bibtex: `@misc{eu2016gdpr,
-  title        = {Regulation (EU) 2016/679 (General Data Protection Regulation)},
-  author       = {{European Parliament and Council of the European Union}},
-  year         = {2016},
-  howpublished = {Official Journal of the European Union, L 119, 1-88},
-  url          = {https://eur-lex.europa.eu/eli/reg/2016/679/oj},
-  note         = {Article 25: Data protection by design and by default}
-}`,
-    ieee: `European Parliament, "Regulation (EU) 2016/679 - General Data Protection Regulation," Official Journal of the European Union, 2016.`,
-    acm: `European Parliament. 2016. Regulation (EU) 2016/679 (General Data Protection Regulation). Official Journal of the European Union.`,
-    apa: `European Parliament and Council of the European Union. (2016). Regulation (EU) 2016/679 (General Data Protection Regulation). Official Journal of the European Union.`
-  },
-  c12a: {
-    bibtex: `@misc{spring2023boot,
-  title        = {Spring Boot 3.x Reference Documentation},
-  author       = {{VMware (Broadcom)}},
-  year         = {2023},
-  howpublished = {\\url{https://docs.spring.io/spring-boot/docs/current/reference/html/}},
-  note         = {Java application framework}
-}`,
-    ieee: `VMware (Broadcom), "Spring Boot 3.x Reference Documentation," 2023. [Online]. Available: https://docs.spring.io/spring-boot/`,
-    acm: `VMware (Broadcom). 2023. Spring Boot 3.x Reference Documentation. https://docs.spring.io/spring-boot/`,
-    apa: `VMware (Broadcom). (2023). Spring Boot 3.x reference documentation. https://docs.spring.io/spring-boot/`
-  },
-  c12b: {
-    bibtex: `@misc{spring2023security,
-  title        = {Spring Security Reference Documentation},
-  author       = {{VMware (Broadcom)}},
-  year         = {2023},
-  howpublished = {\\url{https://docs.spring.io/spring-security/reference/}},
-  note         = {Authentication and authorization framework}
-}`,
-    ieee: `VMware (Broadcom), "Spring Security Reference Documentation," 2023. [Online]. Available: https://docs.spring.io/spring-security/`,
-    acm: `VMware (Broadcom). 2023. Spring Security Reference Documentation. https://docs.spring.io/spring-security/`,
-    apa: `VMware (Broadcom). (2023). Spring Security reference documentation. https://docs.spring.io/spring-security/`
-  },
-  c13a: {
-    bibtex: `@misc{docker2023,
-  title        = {Docker Documentation},
-  author       = {{Docker, Inc.}},
-  year         = {2023},
-  howpublished = {\\url{https://docs.docker.com/}}
-}`,
-    ieee: `Docker, Inc., "Docker Documentation," 2023. [Online]. Available: https://docs.docker.com/`,
-    acm: `Docker, Inc. 2023. Docker Documentation. https://docs.docker.com/`,
-    apa: `Docker, Inc. (2023). Docker documentation. https://docs.docker.com/`
-  },
-  c13b: {
-    bibtex: `@misc{kubernetes2023,
-  title        = {Kubernetes Documentation},
-  author       = {{Cloud Native Computing Foundation}},
-  year         = {2023},
-  howpublished = {\\url{https://kubernetes.io/docs/}}
-}`,
-    ieee: `Cloud Native Computing Foundation, "Kubernetes Documentation," 2023. [Online]. Available: https://kubernetes.io/docs/`,
-    acm: `Cloud Native Computing Foundation. 2023. Kubernetes Documentation. https://kubernetes.io/docs/`,
-    apa: `Cloud Native Computing Foundation. (2023). Kubernetes documentation. https://kubernetes.io/docs/`
-  },
-  c14a: {
-    bibtex: `@misc{jacoco2023,
-  title        = {JaCoCo - Java Code Coverage Library},
-  author       = {{EclEmma Team}},
-  year         = {2023},
-  howpublished = {\\url{https://www.jacoco.org/jacoco/}}
-}`,
-    ieee: `EclEmma Team, "JaCoCo - Java Code Coverage Library," 2023. [Online]. Available: https://www.jacoco.org/jacoco/`,
-    acm: `EclEmma Team. 2023. JaCoCo - Java Code Coverage Library. https://www.jacoco.org/jacoco/`,
-    apa: `EclEmma Team. (2023). JaCoCo - Java code coverage library. https://www.jacoco.org/jacoco/`
-  },
-  c14b: {
-    bibtex: `@misc{sonarqube2023,
-  title        = {SonarQube - Continuous Inspection of Code Quality and Security},
-  author       = {{SonarSource SA}},
-  year         = {2023},
-  howpublished = {\\url{https://www.sonarsource.com/products/sonarqube/}}
-}`,
-    ieee: `SonarSource SA, "SonarQube - Continuous Inspection of Code Quality and Security," 2023. [Online]. Available: https://www.sonarsource.com/products/sonarqube/`,
-    acm: `SonarSource SA. 2023. SonarQube - Continuous Inspection of Code Quality and Security. https://www.sonarsource.com/products/sonarqube/`,
-    apa: `SonarSource SA. (2023). SonarQube - Continuous inspection of code quality and security. https://www.sonarsource.com/products/sonarqube/`
-  },
-  c14c: {
-    bibtex: `@misc{spotbugs2023,
-  title        = {SpotBugs - Find Bugs in Java Programs},
-  author       = {{SpotBugs Community}},
-  year         = {2023},
-  howpublished = {\\url{https://spotbugs.github.io/}}
-}`,
-    ieee: `SpotBugs Community, "SpotBugs - Find Bugs in Java Programs," 2023. [Online]. Available: https://spotbugs.github.io/`,
-    acm: `SpotBugs Community. 2023. SpotBugs - Find Bugs in Java Programs. https://spotbugs.github.io/`,
-    apa: `SpotBugs Community. (2023). SpotBugs - Find bugs in Java programs. https://spotbugs.github.io/`
-  }
-};
-
-function showFormat(tabEl, citeId, format) {
-  // Update active tab
-  const tabs = tabEl.parentElement.querySelectorAll('.format-tab');
-  tabs.forEach(t => t.classList.remove('active'));
-  tabEl.classList.add('active');
-
-  // Update content
-  const textEl = document.getElementById(citeId + '-text');
-  textEl.textContent = formats[citeId][format];
-
-  // Re-add copy button
-  const btn = document.createElement('button');
-  btn.className = 'copy-btn';
-  btn.textContent = 'Copy';
-  btn.onclick = function() { copyText(citeId + '-text', this); };
-  textEl.appendChild(btn);
+function copyAll() {
+  const all = Object.values(refs).join('\n\n');
+  navigator.clipboard.writeText(all).then(() => {
+    showToast('All 20 IEEE references copied!');
+  });
 }
 
-function copyAllBibtex() {
-  const allBibtex = Object.keys(formats).map(k => formats[k].bibtex).join('\n\n');
-  navigator.clipboard.writeText(allBibtex).then(() => {
-    showToast('All BibTeX entries copied to clipboard!');
+function copyCite(btn) {
+  const text = document.getElementById('project-cite').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.classList.add('copied');
+    btn.textContent = 'Copied!';
+    showToast('Project citation copied!');
+    setTimeout(() => { btn.classList.remove('copied'); btn.textContent = 'Copy'; }, 2000);
   });
 }
 </script>
