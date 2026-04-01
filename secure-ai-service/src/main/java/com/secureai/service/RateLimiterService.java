@@ -119,6 +119,7 @@ public class RateLimiterService {
     // ─────────────────────────────────────────────────────────────────────────
 
     private boolean tryConsumeRedis(String username) {
+        if (redisTemplate == null) return true; // fail-open; caller ensures non-null in practice
         try {
             String key = REDIS_RATE_PREFIX + username;
             Long count = redisTemplate.opsForValue().increment(key);
@@ -139,6 +140,7 @@ public class RateLimiterService {
     }
 
     private long getRemainingRedis(String username) {
+        if (redisTemplate == null) return capacity; // caller ensures non-null in practice
         try {
             String key = REDIS_RATE_PREFIX + username;
             String val = redisTemplate.opsForValue().get(key);
