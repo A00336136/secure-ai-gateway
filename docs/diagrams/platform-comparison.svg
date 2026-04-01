@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 340" font-family="Arial, Helvetica, sans-serif">
+  <defs>
+    <linearGradient id="hdrP" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#CC0000"/><stop offset="100%" style="stop-color:#A30000"/>
+    </linearGradient>
+  </defs>
+  <rect width="680" height="340" fill="#FAFAFA" rx="8"/>
+  <rect x="0" y="0" width="680" height="38" fill="url(#hdrP)" rx="8"/>
+  <rect x="0" y="24" width="680" height="14" fill="url(#hdrP)"/>
+  <text x="340" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Platform Comparison — SecureAI Gateway vs Commercial Solutions</text>
+
+  <!-- Table Header -->
+  <rect x="20" y="52" width="640" height="30" fill="#151515" rx="4"/>
+  <text x="100" y="72" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Feature</text>
+  <text x="240" y="72" text-anchor="middle" fill="#CC0000" font-size="10" font-weight="bold">SecureAI GW</text>
+  <text x="370" y="72" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">OpenAI</text>
+  <text x="480" y="72" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">AWS Bedrock</text>
+  <text x="590" y="72" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Azure AI</text>
+
+  <!-- Row function -->
+  <!-- Row 1: On-Premise -->
+  <rect x="20" y="84" width="640" height="28" fill="#E9F5E8" rx="0"/>
+  <text x="100" y="103" text-anchor="middle" fill="#333" font-size="9" font-weight="bold">On-Premise</text>
+  <text x="240" y="103" text-anchor="middle" fill="#3E8635" font-size="12" font-weight="bold">✓</text>
+  <text x="370" y="103" text-anchor="middle" fill="#CC0000" font-size="12" font-weight="bold">✗</text>
+  <text x="480" y="103" text-anchor="middle" fill="#CC0000" font-size="12" font-weight="bold">✗</text>
+  <text x="590" y="103" text-anchor="middle" fill="#CC0000" font-size="12" font-weight="bold">✗</text>
+
+  <!-- Row 2: Open Source -->
+  <rect x="20" y="112" width="640" height="28" fill="#fff"/>
+  <text x="100" y="131" text-anchor="middle" fill="#333" font-size="9" font-weight="bold">Open Source</text>
+  <text x="240" y="131" text-anchor="middle" fill="#3E8635" font-size="12" font-weight="bold">✓</text>
+  <text x="370" y="131" text-anchor="middle" fill="#CC0000" font-size="12" font-weight="bold">✗</text>
+  <text x="480" y="131" text-anchor="middle" fill="#CC0000" font-size="12" font-weight="bold">✗</text>
+  <text x="590" y="131" text-anchor="middle" fill="#CC0000" font-size="12" font-weight="bold">✗</text>
+
+  <!-- Row 3: Guard Layers -->
+  <rect x="20" y="140" width="640" height="28" fill="#E9F5E8"/>
+  <text x="100" y="159" text-anchor="middle" fill="#333" font-size="9" font-weight="bold">Guard Layers</text>
+  <text x="240" y="159" text-anchor="middle" fill="#3E8635" font-size="11" font-weight="bold">3</text>
+  <text x="370" y="159" text-anchor="middle" fill="#333" font-size="11">1</text>
+  <text x="480" y="159" text-anchor="middle" fill="#333" font-size="11">1</text>
+  <text x="590" y="159" text-anchor="middle" fill="#333" font-size="11">1</text>
+
+  <!-- Row 4: PII Detection -->
+  <rect x="20" y="168" width="640" height="28" fill="#fff"/>
+  <text x="100" y="187" text-anchor="middle" fill="#333" font-size="9" font-weight="bold">PII Detection</text>
+  <text x="240" y="187" text-anchor="middle" fill="#3E8635" font-size="9" font-weight="bold">50+ entities</text>
+  <text x="370" y="187" text-anchor="middle" fill="#CC0000" font-size="9">No</text>
+  <text x="480" y="187" text-anchor="middle" fill="#8A6D3B" font-size="9">Limited</text>
+  <text x="590" y="187" text-anchor="middle" fill="#8A6D3B" font-size="9">Limited</text>
+
+  <!-- Row 5: Custom Rules -->
+  <rect x="20" y="196" width="640" height="28" fill="#E9F5E8"/>
+  <text x="100" y="215" text-anchor="middle" fill="#333" font-size="9" font-weight="bold">Custom Rules</text>
+  <text x="240" y="215" text-anchor="middle" fill="#3E8635" font-size="9" font-weight="bold">Colang DSL</text>
+  <text x="370" y="215" text-anchor="middle" fill="#CC0000" font-size="9">No</text>
+  <text x="480" y="215" text-anchor="middle" fill="#CC0000" font-size="9">No</text>
+  <text x="590" y="215" text-anchor="middle" fill="#8A6D3B" font-size="9">Limited</text>
+
+  <!-- Row 6: Data Sovereignty -->
+  <rect x="20" y="224" width="640" height="28" fill="#fff"/>
+  <text x="100" y="243" text-anchor="middle" fill="#333" font-size="9" font-weight="bold">Data Sovereignty</text>
+  <text x="240" y="243" text-anchor="middle" fill="#3E8635" font-size="9" font-weight="bold">100% local</text>
+  <text x="370" y="243" text-anchor="middle" fill="#CC0000" font-size="9">Cloud only</text>
+  <text x="480" y="243" text-anchor="middle" fill="#CC0000" font-size="9">Cloud only</text>
+  <text x="590" y="243" text-anchor="middle" fill="#CC0000" font-size="9">Cloud only</text>
+
+  <!-- Row 7: GDPR Compliant -->
+  <rect x="20" y="252" width="640" height="28" fill="#E9F5E8"/>
+  <text x="100" y="271" text-anchor="middle" fill="#333" font-size="9" font-weight="bold">GDPR Art. 25</text>
+  <text x="240" y="271" text-anchor="middle" fill="#3E8635" font-size="12" font-weight="bold">✓</text>
+  <text x="370" y="271" text-anchor="middle" fill="#CC0000" font-size="9">DPA needed</text>
+  <text x="480" y="271" text-anchor="middle" fill="#CC0000" font-size="9">DPA needed</text>
+  <text x="590" y="271" text-anchor="middle" fill="#CC0000" font-size="9">DPA needed</text>
+
+  <!-- Row 8: Annual Cost -->
+  <rect x="20" y="280" width="640" height="30" fill="#151515" rx="0"/>
+  <text x="100" y="300" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Annual Cost (Med)</text>
+  <text x="240" y="300" text-anchor="middle" fill="#3E8635" font-size="10" font-weight="bold">~$6,000/yr</text>
+  <text x="370" y="300" text-anchor="middle" fill="#CC0000" font-size="10" font-weight="bold">~$126K/yr</text>
+  <text x="480" y="300" text-anchor="middle" fill="#CC0000" font-size="10" font-weight="bold">~$210K/yr</text>
+  <text x="590" y="300" text-anchor="middle" fill="#CC0000" font-size="10" font-weight="bold">~$180K/yr</text>
+
+  <!-- Footer -->
+  <text x="340" y="330" text-anchor="middle" fill="#CC0000" font-size="11" font-weight="bold">SecureAI Gateway: Only solution combining on-premise deployment, multi-layer guardrails, and GDPR compliance at 87-93% lower cost</text>
+</svg>

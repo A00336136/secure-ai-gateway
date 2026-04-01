@@ -49,7 +49,7 @@ services:
       DB_NAME: ${DB_NAME:-secureai}
       DB_USERNAME: ${DB_USERNAME:-secureai_user}
       DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD must be set in .env}
-      OLLAMA_BASE_URL: http://secureai-ollama:11434
+      OLLAMA_BASE_URL: http://host.docker.internal:11434
       OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.1:8b}
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set in .env}
       NEMO_GUARDRAILS_URL: http://secureai-nemo-guardrails:8001
@@ -105,6 +105,11 @@ services:
     container_name: secureai-ollama
     ports:
       - "11434:11434"
+    environment:
+      OLLAMA_KEEP_ALIVE: "-1"
+      OLLAMA_NUM_PARALLEL: "3"
+      OLLAMA_MAX_LOADED_MODELS: "3"
+      OLLAMA_FLASH_ATTENTION: "1"
     volumes:
       - secureai_ollama_data:/root/.ollama
     networks:
@@ -129,7 +134,7 @@ services:
     ports:
       - "8001:8001"
     environment:
-      OLLAMA_BASE_URL: http://secureai-ollama:11434
+      OLLAMA_BASE_URL: http://host.docker.internal:11434
       GUARDRAILS_MODEL: gemma2:2b
     volumes:
       - ./nemo-guardrails/config:/app/config

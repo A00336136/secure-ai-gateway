@@ -91,17 +91,38 @@ public class PresidioClient {
                     List<PresidioEntity> entities = objectMapper.readValue(
                             response.getBody(), new TypeReference<List<PresidioEntity>>() {});
 
-                    if (entities.isEmpty()) {
-                        log.debug("{}: no PII detected — {}ms", GUARD_NAME, latency);
+                    // Filter: only block on truly sensitive PII, not general entities
+                    // LOCATION, PERSON, DATE_TIME, NRP are common in normal prompts
+                    var SENSITIVE_TYPES = java.util.Set.of(
+                            "CREDIT_CARD", "CRYPTO", "US_SSN", "US_BANK_NUMBER",
+                            "IBAN_CODE", "US_PASSPORT", "US_DRIVER_LICENSE",
+                            "UK_NHS", "MEDICAL_LICENSE", "IP_ADDRESS",
+                            "EMAIL_ADDRESS", "PHONE_NUMBER", "US_ITIN",
+                            "AU_ABN", "AU_ACN", "AU_TFN", "AU_MEDICARE",
+                            "SG_NRIC_FIN", "IN_PAN", "IN_AADHAAR"
+                    );
+
+                    List<PresidioEntity> sensitiveEntities = entities.stream()
+                            .filter(e -> SENSITIVE_TYPES.contains(e.getEntityType()))
+                            .collect(Collectors.toList());
+
+                    if (sensitiveEntities.isEmpty()) {
+                        if (!entities.isEmpty()) {
+                            String ignoredTypes = entities.stream()
+                                    .map(PresidioEntity::getEntityType).distinct()
+                                    .collect(Collectors.joining(", "));
+                            log.debug("{}: detected non-sensitive entities [{}] — ignored — {}ms",
+                                    GUARD_NAME, ignoredTypes, latency);
+                        }
                         return GuardrailsResult.pass(GUARD_NAME, latency);
                     }
 
-                    String piiTypes = entities.stream()
+                    String piiTypes = sensitiveEntities.stream()
                             .map(PresidioEntity::getEntityType)
                             .distinct()
                             .collect(Collectors.joining(", "));
 
-                    double maxScore = entities.stream()
+                    double maxScore = sensitiveEntities.stream()
                             .mapToDouble(PresidioEntity::getScore)
                             .max()
                             .orElse(0.0);

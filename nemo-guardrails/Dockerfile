@@ -19,7 +19,7 @@ USER nemoapp
 
 EXPOSE 8001
 
-HEALTHCHECK --interval=30s --timeout=10s --retries=3 --start-period=45s \
-    CMD curl -f http://localhost:8001/v1/health || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --retries=3 --start-period=60s \
+    CMD curl -sf http://localhost:8001/ -o /dev/null || exit 1
 
-CMD ["nemoguardrails", "server", "--config", "/app/config", "--port", "8001"]
+CMD ["nemoguardrails", "server", "--config", "/app/config", "--port", "8001", "--default-config-id", "config"]

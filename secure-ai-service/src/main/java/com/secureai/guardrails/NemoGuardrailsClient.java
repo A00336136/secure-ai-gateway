@@ -66,18 +66,36 @@ public class NemoGuardrailsClient {
 
                 HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
                 ResponseEntity<String> response = restTemplate.postForEntity(
-                        baseUrl + "/v1/guardrail/chat/completions", entity, String.class);
+                        baseUrl + "/v1/chat/completions", entity, String.class);
 
                 long latency = System.currentTimeMillis() - start;
 
                 if (response.getStatusCode().is2xxSuccessful()) {
+                    String responseBody = response.getBody();
+                    // NeMo returns 200 with refusal text when Colang blocks
+                    // Check response content for block indicators
+                    if (responseBody != null) {
+                        String lower = responseBody.toLowerCase();
+                        if (lower.contains("cannot comply") || lower.contains("cannot provide")
+                                || lower.contains("cannot assist") || lower.contains("not able to")
+                                || lower.contains("i'm sorry") || lower.contains("security guardrails")
+                                || lower.contains("cannot help") || lower.contains("illegal")
+                                || lower.contains("harmful") || lower.contains("flagged")
+                                || lower.contains("been blocked") || lower.contains("been logged")
+                                || lower.contains("content safety") || lower.contains("audit purposes")
+                                || lower.contains("not allowed") || lower.contains("refuse")
+                                || lower.contains("not permitted") || lower.contains("policy violation")) {
+                            log.warn("NeMo Guardrails BLOCKED prompt (content refusal) — {}ms", latency);
+                            return GuardrailsResult.block("NeMo", "colang_policy_violation", null, latency);
+                        }
+                    }
                     log.debug("NeMo Guardrails PASS — {}ms", latency);
                     return GuardrailsResult.pass("NeMo", latency);
                 }
 
-                // 422 = content blocked by Colang policy
+                // 422 = content blocked by Colang policy (legacy check)
                 if (response.getStatusCode().value() == 422) {
-                    log.warn("NeMo Guardrails BLOCKED prompt — {}ms", latency);
+                    log.warn("NeMo Guardrails BLOCKED prompt (422) — {}ms", latency);
                     return GuardrailsResult.block("NeMo", "colang_policy_violation", null, latency);
                 }
 
@@ -97,7 +115,7 @@ public class NemoGuardrailsClient {
     public boolean isHealthy() {
         try {
             ResponseEntity<String> response = restTemplate.getForEntity(
-                    baseUrl + "/v1/health", String.class);
+                    baseUrl + "/", String.class);
             return response.getStatusCode().is2xxSuccessful();
         } catch (RestClientException e) {
             return false;

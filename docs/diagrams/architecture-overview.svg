@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 680" font-family="'Helvetica Neue', Arial, sans-serif">
+  <defs>
+    <marker id="arr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#555"/>
+    </marker>
+    <marker id="arrR" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#CC0000"/>
+    </marker>
+    <marker id="arrG" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#3E8635"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="520" height="680" fill="#fff"/>
+
+  <!-- Title -->
+  <text x="260" y="30" text-anchor="middle" font-size="16" font-weight="bold" fill="#1a1a1a">SecureAI Gateway</text>
+  <text x="260" y="48" text-anchor="middle" font-size="11" fill="#666">Three-Layer Defence-in-Depth Architecture</text>
+  <line x1="160" y1="56" x2="360" y2="56" stroke="#CC0000" stroke-width="2"/>
+
+  <!-- User Request -->
+  <rect x="195" y="72" width="130" height="40" rx="20" fill="#fff" stroke="#333" stroke-width="1.5"/>
+  <text x="260" y="96" text-anchor="middle" font-size="11" font-weight="bold" fill="#333">User Request</text>
+
+  <!-- Arrow down -->
+  <line x1="260" y1="112" x2="260" y2="132" stroke="#555" stroke-width="1.2" stroke-dasharray="5,3" marker-end="url(#arr)"/>
+
+  <!-- JWT Auth -->
+  <rect x="175" y="136" width="170" height="44" rx="8" fill="#F0ECF7" stroke="#6753AC" stroke-width="1.2"/>
+  <text x="260" y="155" text-anchor="middle" font-size="10" font-weight="bold" fill="#6753AC">JWT Authentication</text>
+  <text x="260" y="170" text-anchor="middle" font-size="8" fill="#888">HMAC-SHA256 | 7 validation checks | ~2ms</text>
+
+  <!-- Arrow down -->
+  <line x1="260" y1="180" x2="260" y2="200" stroke="#555" stroke-width="1.2" stroke-dasharray="5,3" marker-end="url(#arr)"/>
+
+  <!-- Rate Limiter -->
+  <rect x="175" y="204" width="170" height="44" rx="8" fill="#E0F5F5" stroke="#009596" stroke-width="1.2"/>
+  <text x="260" y="223" text-anchor="middle" font-size="10" font-weight="bold" fill="#009596">Rate Limiter</text>
+  <text x="260" y="238" text-anchor="middle" font-size="8" fill="#888">Bucket4j token-bucket | 100 req/hr/user</text>
+
+  <!-- Arrow down -->
+  <line x1="260" y1="248" x2="260" y2="268" stroke="#555" stroke-width="1.2" stroke-dasharray="5,3" marker-end="url(#arr)"/>
+
+  <!-- Parallel Guardrails Box -->
+  <rect x="30" y="272" width="460" height="180" rx="10" fill="#fff" stroke="#CC0000" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <text x="260" y="290" text-anchor="middle" font-size="10" font-weight="bold" fill="#CC0000">Parallel Execution (Project Reactor Mono.zip)</text>
+
+  <!-- Layer 1 -->
+  <rect x="50" y="300" width="135" height="60" rx="8" fill="#E7F1FA" stroke="#0066CC" stroke-width="1.2"/>
+  <text x="117" y="318" text-anchor="middle" font-size="9" font-weight="bold" fill="#0066CC">Layer 1</text>
+  <text x="117" y="332" text-anchor="middle" font-size="8" fill="#333">NeMo Guardrails</text>
+  <text x="117" y="344" text-anchor="middle" font-size="7" fill="#888">Colang DSL | ~30ms</text>
+  <text x="117" y="355" text-anchor="middle" font-size="7" fill="#888">Jailbreak Detection</text>
+
+  <!-- Layer 2 -->
+  <rect x="192" y="300" width="135" height="60" rx="8" fill="#FDF3D8" stroke="#D4940A" stroke-width="1.2"/>
+  <text x="259" y="318" text-anchor="middle" font-size="9" font-weight="bold" fill="#8A6D3B">Layer 2</text>
+  <text x="259" y="332" text-anchor="middle" font-size="8" fill="#333">LlamaGuard 3</text>
+  <text x="259" y="344" text-anchor="middle" font-size="7" fill="#888">S1-S12 Safety | ~60ms</text>
+  <text x="259" y="355" text-anchor="middle" font-size="7" fill="#888">Content Classification</text>
+
+  <!-- Layer 3 -->
+  <rect x="334" y="300" width="135" height="60" rx="8" fill="#E9F5E8" stroke="#3E8635" stroke-width="1.2"/>
+  <text x="401" y="318" text-anchor="middle" font-size="9" font-weight="bold" fill="#3E8635">Layer 3</text>
+  <text x="401" y="332" text-anchor="middle" font-size="8" fill="#333">Presidio PII</text>
+  <text x="401" y="344" text-anchor="middle" font-size="7" fill="#888">50+ entities | ~40ms</text>
+  <text x="401" y="355" text-anchor="middle" font-size="7" fill="#888">NER + Pattern Match</text>
+
+  <!-- Combined latency -->
+  <rect x="140" y="370" width="240" height="22" rx="4" fill="#CC0000"/>
+  <text x="260" y="385" text-anchor="middle" font-size="8" font-weight="bold" fill="#fff">Combined: ~90ms (44% faster than sequential)</text>
+
+  <!-- Arrows from parallel block -->
+  <!-- Arrow down to decision -->
+  <line x1="260" y1="452" x2="260" y2="472" stroke="#555" stroke-width="1.2" stroke-dasharray="5,3" marker-end="url(#arr)"/>
+
+  <!-- Decision diamond -->
+  <polygon points="260,474 310,500 260,526 210,500" fill="#fff" stroke="#333" stroke-width="1.2"/>
+  <text x="260" y="497" text-anchor="middle" font-size="8" font-weight="bold" fill="#333">Any layer</text>
+  <text x="260" y="508" text-anchor="middle" font-size="8" font-weight="bold" fill="#333">blocked?</text>
+
+  <!-- Yes arrow to BLOCKED -->
+  <text x="327" y="488" font-size="8" font-weight="bold" fill="#CC0000">Yes</text>
+  <line x1="310" y1="500" x2="380" y2="500" stroke="#CC0000" stroke-width="1.2" stroke-dasharray="5,3" marker-end="url(#arrR)"/>
+  <rect x="384" y="485" width="90" height="30" rx="6" fill="#CC0000"/>
+  <text x="429" y="504" text-anchor="middle" font-size="9" font-weight="bold" fill="#fff">BLOCKED</text>
+
+  <!-- No arrow down to LLM -->
+  <text x="245" y="540" font-size="8" font-weight="bold" fill="#3E8635">No</text>
+  <line x1="260" y1="526" x2="260" y2="552" stroke="#3E8635" stroke-width="1.2" stroke-dasharray="5,3" marker-end="url(#arrG)"/>
+
+  <!-- LLM Inference -->
+  <rect x="155" y="556" width="210" height="44" rx="8" fill="#2D2D2D" stroke="#2D2D2D" stroke-width="1.2"/>
+  <text x="260" y="575" text-anchor="middle" font-size="10" font-weight="bold" fill="#fff">Ollama LLM Inference</text>
+  <text x="260" y="590" text-anchor="middle" font-size="8" fill="#aaa">LLaMA 3.1 8B | On-Premise | ~1500ms</text>
+
+  <!-- Arrow down to PII Redaction -->
+  <line x1="260" y1="600" x2="260" y2="618" stroke="#555" stroke-width="1.2" stroke-dasharray="5,3" marker-end="url(#arr)"/>
+
+  <!-- PII Redaction -->
+  <rect x="175" y="622" width="170" height="34" rx="8" fill="#E9F5E8" stroke="#3E8635" stroke-width="1.2"/>
+  <text x="260" y="642" text-anchor="middle" font-size="9" font-weight="bold" fill="#3E8635">PII Redaction → Safe Response</text>
+
+  <!-- Footer -->
+  <line x1="30" y1="668" x2="490" y2="668" stroke="#eee" stroke-width="1"/>
+  <text x="260" y="678" text-anchor="middle" font-size="7" fill="#999">Docker Bridge Network | Zero Cloud Dependencies | GDPR Art. 25 Compliant</text>
+</svg>
