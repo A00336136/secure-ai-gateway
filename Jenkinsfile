@@ -37,6 +37,20 @@ pipeline {
         pollSCM('* * * * *')
     }
 
+    // ── Tool Installations ───────────────────────────────────────────────────
+    // Requires these to be registered in:
+    //   Jenkins → Manage Jenkins → Global Tool Configuration
+    //
+    //   Maven : name = "Maven", install automatically (Apache 3.9.x)
+    //   JDK   : name = "JDK21", install automatically (Adoptium 21)
+    //
+    // Jenkins will auto-install on first run and add them to PATH for every
+    // sh/bat step — this is why bare `mvn` works without a full path.
+    tools {
+        maven 'Maven'
+        jdk   'JDK21'
+    }
+
     // ── Credentials ─────────────────────────────────────────────────────────
     // sonarqube-token       — SonarQube auth token (Jenkins Credentials Store)
     // dockerhub-credentials — Docker Hub username/PAT (for push)
@@ -46,7 +60,7 @@ pipeline {
         DOCKERHUB_USER  = 'absartus'
         SONAR_TOKEN     = credentials('sonarqube-token')
         SONAR_URL       = 'http://host.docker.internal:9001'
-        JAVA_HOME       = '/opt/java/openjdk'
+        JAVA_HOME       = "${tool 'JDK21'}"
     }
 
     options {
