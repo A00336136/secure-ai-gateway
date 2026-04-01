@@ -27,7 +27,7 @@ class RateLimiterPerfTest {
 
     @BeforeEach
     void setUp() {
-        rateLimiterService = new RateLimiterService();
+        rateLimiterService = new RateLimiterService(null);
         try {
             var capacityField = RateLimiterService.class.getDeclaredField("capacity");
             capacityField.setAccessible(true);
