@@ -20,7 +20,7 @@ version: '3.9'
 networks:
   secure-ai-net:
     external: true
-    name: secure-ai-gateway_secure-ai-net
+    name: secure-ai-net
 
 volumes:
   sonarqube_data:

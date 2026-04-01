@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 620" font-family="'Helvetica Neue', Arial, sans-serif">
+  <rect width="520" height="620" fill="#fff"/>
+
+  <!-- Title -->
+  <text x="260" y="28" text-anchor="middle" font-size="15" font-weight="bold" fill="#1a1a1a">Enterprise Cost Analysis</text>
+  <text x="260" y="44" text-anchor="middle" font-size="10" fill="#666">3-Year Total Cost of Ownership — On-Premise vs Cloud</text>
+  <line x1="150" y1="52" x2="370" y2="52" stroke="#CC0000" stroke-width="2"/>
+
+  <!-- Small Enterprise -->
+  <rect x="20" y="66" width="480" height="110" rx="10" fill="#fff" stroke="#eee" stroke-width="1"/>
+  <rect x="20" y="66" width="480" height="28" rx="10" fill="#F0ECF7"/>
+  <rect x="20" y="82" width="480" height="4" fill="#F0ECF7"/>
+  <text x="260" y="84" text-anchor="middle" font-size="11" font-weight="bold" fill="#6753AC">Small Enterprise (10-50 users)</text>
+
+  <rect x="40" y="102" width="140" height="32" rx="6" fill="#E9F5E8" stroke="#3E8635" stroke-width="1.2"/>
+  <text x="110" y="117" text-anchor="middle" font-size="9" font-weight="bold" fill="#3E8635">SecureAI: ~$10K</text>
+  <text x="110" y="130" text-anchor="middle" font-size="7" fill="#888">GPU + power only</text>
+
+  <text x="195" y="120" font-size="11" fill="#555">vs</text>
+
+  <rect x="215" y="102" width="160" height="32" rx="6" fill="#FCE8E8" stroke="#CC0000" stroke-width="1.2"/>
+  <text x="295" y="117" text-anchor="middle" font-size="9" font-weight="bold" fill="#CC0000">Cloud: $72K-$180K</text>
+  <text x="295" y="130" text-anchor="middle" font-size="7" fill="#888">OpenAI/AWS/Azure</text>
+
+  <rect x="395" y="102" width="85" height="32" rx="6" fill="#3E8635"/>
+  <text x="437" y="117" text-anchor="middle" font-size="11" font-weight="bold" fill="#fff">87%</text>
+  <text x="437" y="130" text-anchor="middle" font-size="7" fill="#ddd">savings</text>
+
+  <text x="110" y="162" text-anchor="middle" font-size="7" fill="#888">Docker on existing server</text>
+  <text x="295" y="162" text-anchor="middle" font-size="7" fill="#888">$500-2K/mo API + $500-1.5K/mo infra</text>
+
+  <!-- Medium Enterprise -->
+  <rect x="20" y="186" width="480" height="110" rx="10" fill="#fff" stroke="#eee" stroke-width="1"/>
+  <rect x="20" y="186" width="480" height="28" rx="10" fill="#E7F1FA"/>
+  <rect x="20" y="202" width="480" height="4" fill="#E7F1FA"/>
+  <text x="260" y="204" text-anchor="middle" font-size="11" font-weight="bold" fill="#0066CC">Medium Enterprise (100-500 users)</text>
+
+  <rect x="40" y="222" width="140" height="32" rx="6" fill="#E9F5E8" stroke="#3E8635" stroke-width="1.2"/>
+  <text x="110" y="237" text-anchor="middle" font-size="9" font-weight="bold" fill="#3E8635">SecureAI: ~$38K</text>
+  <text x="110" y="250" text-anchor="middle" font-size="7" fill="#888">2x A100 + ops</text>
+
+  <text x="195" y="240" font-size="11" fill="#555">vs</text>
+
+  <rect x="215" y="222" width="160" height="32" rx="6" fill="#FCE8E8" stroke="#CC0000" stroke-width="1.2"/>
+  <text x="295" y="237" text-anchor="middle" font-size="9" font-weight="bold" fill="#CC0000">Cloud: $378K-$630K</text>
+  <text x="295" y="250" text-anchor="middle" font-size="7" fill="#888">Enterprise guardrails + GPU</text>
+
+  <rect x="395" y="222" width="85" height="32" rx="6" fill="#3E8635"/>
+  <text x="437" y="237" text-anchor="middle" font-size="11" font-weight="bold" fill="#fff">90%</text>
+  <text x="437" y="250" text-anchor="middle" font-size="7" fill="#ddd">savings</text>
+
+  <text x="110" y="282" text-anchor="middle" font-size="7" fill="#888">$26K Y1, then ~$6K/yr ongoing</text>
+  <text x="295" y="282" text-anchor="middle" font-size="7" fill="#888">$8-15K/mo cloud + $30K/yr guardrails</text>
+
+  <!-- Large Enterprise -->
+  <rect x="20" y="306" width="480" height="110" rx="10" fill="#fff" stroke="#eee" stroke-width="1"/>
+  <rect x="20" y="306" width="480" height="28" rx="10" fill="#2D2D2D"/>
+  <rect x="20" y="322" width="480" height="4" fill="#2D2D2D"/>
+  <text x="260" y="324" text-anchor="middle" font-size="11" font-weight="bold" fill="#fff">Large Enterprise (1000+ users)</text>
+
+  <rect x="40" y="342" width="140" height="32" rx="6" fill="#E9F5E8" stroke="#3E8635" stroke-width="1.5"/>
+  <text x="110" y="357" text-anchor="middle" font-size="9" font-weight="bold" fill="#3E8635">SecureAI: ~$140K</text>
+  <text x="110" y="370" text-anchor="middle" font-size="7" fill="#888">8x H100 + K8s</text>
+
+  <text x="195" y="360" font-size="11" fill="#555">vs</text>
+
+  <rect x="215" y="342" width="160" height="32" rx="6" fill="#FCE8E8" stroke="#CC0000" stroke-width="1.5"/>
+  <text x="295" y="357" text-anchor="middle" font-size="9" font-weight="bold" fill="#CC0000">Cloud: $1.5M-$2.0M</text>
+  <text x="295" y="370" text-anchor="middle" font-size="7" fill="#888">Enterprise cloud stack</text>
+
+  <rect x="395" y="342" width="85" height="32" rx="6" fill="#CC0000"/>
+  <text x="437" y="357" text-anchor="middle" font-size="12" font-weight="bold" fill="#fff">93%</text>
+  <text x="437" y="370" text-anchor="middle" font-size="7" fill="#ddd">savings</text>
+
+  <text x="110" y="402" text-anchor="middle" font-size="7" fill="#888">$80K Y1, then ~$30K/yr ongoing</text>
+  <text x="295" y="402" text-anchor="middle" font-size="7" fill="#888">$20-50K/mo GPU + $100K+/yr guardrails</text>
+
+  <!-- Why cheaper section -->
+  <rect x="20" y="426" width="480" height="140" rx="10" fill="#FAFAFA" stroke="#eee" stroke-width="1"/>
+  <text x="260" y="448" text-anchor="middle" font-size="11" font-weight="bold" fill="#333">Why 87-93% Cheaper?</text>
+
+  <!-- 5 reasons as clean list -->
+  <circle cx="48" cy="470" r="8" fill="#3E8635"/>
+  <text x="48" y="474" text-anchor="middle" font-size="8" font-weight="bold" fill="#fff">1</text>
+  <text x="62" y="474" font-size="9" fill="#333">Zero licensing fees — all open-source (NeMo, LlamaGuard, Presidio, Ollama)</text>
+
+  <circle cx="48" cy="492" r="8" fill="#3E8635"/>
+  <text x="48" y="496" text-anchor="middle" font-size="8" font-weight="bold" fill="#fff">2</text>
+  <text x="62" y="496" font-size="9" fill="#333">No per-request pricing — commercial guardrails charge $15-30 per 1K evaluations</text>
+
+  <circle cx="48" cy="514" r="8" fill="#3E8635"/>
+  <text x="48" y="518" text-anchor="middle" font-size="8" font-weight="bold" fill="#fff">3</text>
+  <text x="62" y="518" font-size="9" fill="#333">No cloud GPU rental — on-premise GPU pays for itself in 2-3 months</text>
+
+  <circle cx="48" cy="536" r="8" fill="#3E8635"/>
+  <text x="48" y="540" text-anchor="middle" font-size="8" font-weight="bold" fill="#fff">4</text>
+  <text x="62" y="540" font-size="9" fill="#333">No vendor lock-in — swap any component without contract penalties</text>
+
+  <circle cx="48" cy="558" r="8" fill="#3E8635"/>
+  <text x="48" y="562" text-anchor="middle" font-size="8" font-weight="bold" fill="#fff">5</text>
+  <text x="62" y="562" font-size="9" fill="#333">Built-in GDPR compliance — no expensive Data Processing Agreements needed</text>
+
+  <!-- Footer -->
+  <rect x="20" y="580" width="480" height="30" rx="8" fill="#2D2D2D"/>
+  <text x="260" y="598" text-anchor="middle" font-size="9" font-weight="bold" fill="#CC0000">Breakeven: Organisations with >2M LLM requests/month save 10x vs any commercial alternative</text>
+</svg>
