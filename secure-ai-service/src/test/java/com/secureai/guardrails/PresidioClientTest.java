@@ -57,14 +57,15 @@ class PresidioClientTest {
     @Test
     @DisplayName("evaluate should block when Presidio detects PII")
     void evaluateShouldBlockWhenPiiDetected() {
-        String mockResponse = "[{\"entity_type\": \"EMAIL\", \"score\": 0.95, \"start\": 0, \"end\": 10}]";
+        // Presidio's actual entity type for email addresses is EMAIL_ADDRESS, not EMAIL
+        String mockResponse = "[{\"entity_type\": \"EMAIL_ADDRESS\", \"score\": 0.95, \"start\": 0, \"end\": 24}]";
         when(restTemplate.postForEntity(anyString(), any(), eq(String.class)))
                 .thenReturn(new ResponseEntity<>(mockResponse, HttpStatus.OK));
 
         StepVerifier.create(client.evaluate("my email is test@test.com"))
                 .assertNext(result -> {
                     assertTrue(result.blocked());
-                    assertTrue(result.category().contains("EMAIL"));
+                    assertTrue(result.category().contains("EMAIL_ADDRESS"));
                     assertEquals(0.95, result.confidence());
                 })
                 .verifyComplete();
