@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import java.time.Duration;
 import java.util.Map;
@@ -55,6 +56,9 @@ public class RateLimiterService {
     /** In-memory fallback buckets (dev/test profiles). */
     private final Map<String, Bucket> userBuckets = new ConcurrentHashMap<>();
 
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP2",
+            justification = "StringRedisTemplate is a Spring-managed singleton; " +
+                            "defensive copy is not applicable for injected service beans")
     public RateLimiterService(@Nullable StringRedisTemplate redisTemplate) {
         this.redisTemplate = redisTemplate;
         if (redisTemplate != null) {

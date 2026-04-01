@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.lang.Nullable;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
@@ -68,6 +69,9 @@ public class JwtUtil {
     @Nullable
     private final StringRedisTemplate redisTemplate;
 
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP2",
+            justification = "StringRedisTemplate is a Spring-managed singleton; " +
+                            "defensive copy is not applicable for injected service beans")
     public JwtUtil(@Nullable StringRedisTemplate redisTemplate) {
         this.redisTemplate = redisTemplate;
         if (redisTemplate != null) {
