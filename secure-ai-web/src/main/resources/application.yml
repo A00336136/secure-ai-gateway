@@ -22,6 +22,14 @@ spring:
     serialization:
       write-dates-as-timestamps: false
 
+  # Redis connection (activated when redis.enabled=true via RedisConfig)
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:6380}
+      password: ${REDIS_PASSWORD:}
+      timeout: 2000
+
 # ═══════════════════ Server ═══════════════════
 server:
   port: 8080
@@ -80,14 +88,6 @@ groundedness:
 # ═══════════════════ Redis (disabled by default — enabled in prod via REDIS_ENABLED=true) ═══════════════════
 redis:
   enabled: ${REDIS_ENABLED:false}
-
-spring:
-  data:
-    redis:
-      host: ${SPRING_DATA_REDIS_HOST:localhost}
-      port: ${SPRING_DATA_REDIS_PORT:6380}
-      password: ${REDIS_PASSWORD:}
-      timeout: 2000
 
 # ═══════════════════ Actuator ═══════════════════
 management:
