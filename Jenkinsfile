@@ -21,7 +21,7 @@
 //   ngrok:      managed within secureai-infra stack (port 4041)
 //
 // Ports (completely isolated from NutriTrack):
-//   Jenkins: 9095 | SonarQube: 9001 | SonarDB: 5433 | AppDB: 5434
+//   Jenkins: 9095 | SonarQube: 9000 | SonarDB: 5433 | AppDB: 5434
 //   Prometheus: 9092 | Grafana: 3001 | ngrok: 4041 | App: 8100
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -59,7 +59,7 @@ pipeline {
         DOCKER_IMAGE    = "absartus/${APP_NAME}"
         DOCKERHUB_USER  = 'absartus'
         SONAR_TOKEN     = credentials('sonarqube-token')
-        SONAR_URL       = 'http://host.docker.internal:9001'
+        SONAR_URL       = 'http://host.docker.internal:9000'
         JAVA_HOME       = "${tool 'JDK21'}"
     }
 
@@ -214,7 +214,7 @@ else:
 
         // ─────────────────────────────────────────────────────────────────────
         // STAGE 4 — SONARQUBE SCAN + QUALITY GATE
-        // SecureAIGW SonarQube on port 9001 (isolated from NutriTrack 9000)
+        // SecureAIGW SonarQube on port 9000
         // ─────────────────────────────────────────────────────────────────────
         stage('SonarQube Scan + Quality Gate') {
             steps {
@@ -239,7 +239,7 @@ else:
                             echo "  Token valid   : ${VALID}"
                             if [ "${VALID}" != "True" ] && [ "${VALID}" != "true" ]; then
                                 echo "  WARNING: SonarQube token validation failed"
-                                echo "  Fix: Generate new token at http://localhost:9001 → My Account → Security"
+                                echo "  Fix: Generate new token at http://localhost:9000 → My Account → Security"
                             fi
                             echo "========================================="
                         '''
