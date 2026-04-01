@@ -65,14 +65,21 @@ services:
     restart: unless-stopped
 
   # ─── Jenkins CI/CD (Port 9090) ─────────────────────────────────
+  # Uses custom image with Docker CLI + Trivy baked in (docker/Dockerfile.jenkins)
+  # This prevents "docker: not found" and "trivy: not found" errors in the pipeline
+  # The jenkins_home volume persists all jobs, credentials, and config across restarts
   jenkins:
-    image: jenkins/jenkins:lts-jdk21
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.jenkins
+    image: secure-ai-jenkins:custom
     container_name: secure-ai-jenkins
     ports:
       - "9090:8080"
       - "50000:50000"
     volumes:
       - jenkins_home:/var/jenkins_home
+      # Mount Docker socket — allows Jenkins to build/push images (Docker-in-Docker)
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - secure-ai-net

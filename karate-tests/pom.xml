@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!--
+    ═══════════════════════════════════════════════════════════════
+    Karate E2E API Tests — Secure AI Gateway
+    ═══════════════════════════════════════════════════════════════
+    BDD-style API tests using the Karate DSL framework.
+    Runs against a live deployed instance of the SecureAI Gateway.
+
+    Test Coverage:
+      ✅ JWT Authentication flow (login, register, logout, invalid)
+      ✅ Guardrail enforcement (jailbreak blocked → HTTP 403)
+      ✅ PII protection (SSN/credit card in prompt → redacted)
+      ✅ Rate limiting headers (X-Rate-Limit-Remaining)
+      ✅ Admin endpoint access control (ADMIN vs USER role)
+      ✅ Application health checks
+      ✅ Unauthenticated request rejection (HTTP 401)
+
+    Run locally:
+      cd karate-tests
+      mvn test -Dkarate.env=local
+
+    Run in Docker (CI):
+      mvn test -Dkarate.env=docker -Dkarate.base.url=http://localhost:8100
+
+    OWASP LLM Coverage:
+      LLM01 — Prompt Injection → guardrails.feature
+      LLM02 — Sensitive Info Disclosure → pii-masking.feature
+      LLM06 — Excessive Agency → ask.feature
+      LLM10 — Unbounded Consumption → rate-limiting.feature
+    ═══════════════════════════════════════════════════════════════
+    -->
+
+    <groupId>com.secureai</groupId>
+    <artifactId>karate-tests</artifactId>
+    <version>2.0.0</version>
+    <packaging>jar</packaging>
+
+    <name>Secure AI Gateway - Karate E2E API Tests</name>
+    <description>BDD-style E2E API tests: JWT auth, guardrails, PII masking, rate limiting, access control</description>
+
+    <properties>
+        <java.version>21</java.version>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- Karate DSL — latest stable -->
+        <karate.version>1.4.1</karate.version>
+        <surefire.version>3.5.2</surefire.version>
+
+        <!-- Runtime config — override with -Dkarate.env=docker or CI -->
+        <karate.env>local</karate.env>
+        <karate.base.url>http://localhost:8100</karate.base.url>
+
+        <!-- Test user credentials (pre-seeded in DB) -->
+        <karate.user>karatetest</karate.user>
+        <karate.user.password>Karate@123</karate.user.password>
+        <karate.admin>karateadmin</karate.admin>
+        <karate.admin.password>Karate@123</karate.admin.password>
+    </properties>
+
+    <dependencies>
+        <!-- Karate JUnit 5 — BDD API Testing Framework (MIT License) -->
+        <dependency>
+            <groupId>com.intuit.karate</groupId>
+            <artifactId>karate-junit5</artifactId>
+            <version>${karate.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <!-- Include .feature and .js files from src/test/java for classpath access -->
+        <testResources>
+            <testResource>
+                <directory>src/test/java</directory>
+                <excludes>
+                    <exclude>**/*.java</exclude>
+                </excludes>
+            </testResource>
+            <testResource>
+                <directory>src/test/resources</directory>
+            </testResource>
+        </testResources>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${surefire.version}</version>
+                <configuration>
+                    <!-- Run KarateRunner — picks up all @Karate.Test methods -->
+                    <includes>
+                        <include>**/KarateRunner.java</include>
+                    </includes>
+                    <systemPropertyVariables>
+                        <karate.env>${karate.env}</karate.env>
+                        <karate.base.url>${karate.base.url}</karate.base.url>
+                        <karate.user>${karate.user}</karate.user>
+                        <karate.user.password>${karate.user.password}</karate.user.password>
+                        <karate.admin>${karate.admin}</karate.admin>
+                        <karate.admin.password>${karate.admin.password}</karate.admin.password>
+                    </systemPropertyVariables>
+                    <!-- Java 17+ module system flags required by Karate 1.4.x GraalVM JS engine -->
+                    <argLine>
+                        --add-opens java.base/java.lang=ALL-UNNAMED
+                        --add-opens java.base/java.util=ALL-UNNAMED
+                        --add-opens java.base/java.io=ALL-UNNAMED
+                        --add-opens java.base/java.nio=ALL-UNNAMED
+                        --add-opens java.base/java.net=ALL-UNNAMED
+                        -Dfile.encoding=UTF-8
+                    </argLine>
+                    <forkCount>1</forkCount>
+                    <reuseForks>true</reuseForks>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
