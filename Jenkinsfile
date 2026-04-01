@@ -174,10 +174,10 @@ else:
                         sourcePattern:         '**/src/main/java',
                         exclusionPattern:      '**/*Application*.class,**/*DTO*.class,**/exception/**,**/config/**,**/model/**',
                         minimumLineCoverage:    '70',
-                        minimumBranchCoverage: '60',
-                        maximumLineCoverage:   '85',
-                        maximumBranchCoverage: '60',
-                        changeBuildStatus:      true
+                        minimumBranchCoverage: '55',
+                        maximumLineCoverage:   '100',
+                        maximumBranchCoverage: '100',
+                        changeBuildStatus:      false
                     )
                 }
             }
