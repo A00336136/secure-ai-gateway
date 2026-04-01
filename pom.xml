@@ -125,6 +125,13 @@
                 <version>${bucket4j.version}</version>
             </dependency>
 
+            <!-- Redis — distributed JWT blacklist + rate limiting (prod profile) -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-data-redis</artifactId>
+                <version>${spring-boot.version}</version>
+            </dependency>
+
             <!-- Resilience4j Circuit Breaker -->
             <dependency>
                 <groupId>io.github.resilience4j</groupId>

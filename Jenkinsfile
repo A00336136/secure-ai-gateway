@@ -406,6 +406,137 @@ print(total)
         }
 
         // ─────────────────────────────────────────────────────────────────────
+        // STAGE 7b — AI RED-TEAM SECURITY SCAN
+        // LLM-specific adversarial testing: Garak + Promptfoo
+        // Maps to: OWASP LLM Top 10, MITRE ATLAS, NIST AI RMF
+        // Non-blocking: findings archived as artifacts, build not failed
+        // Run nightly on main/master; per-PR on feature branches
+        // Tools: Garak (NVIDIA), Promptfoo (MIT), JailbreakBench (NeurIPS 2024)
+        // ─────────────────────────────────────────────────────────────────────
+        stage('AI Red-Team Security Scan') {
+            steps {
+                echo "========================================"
+                echo "  Stage 7b: AI Red-Team Security Scan"
+                echo "  Tools: Garak + Promptfoo"
+                echo "  OWASP LLM Top 10 | MITRE ATLAS | NIST AI RMF"
+                echo "========================================"
+                script {
+                    def appUrl = "http://localhost:8100"
+
+                    // ── Garak LLM Vulnerability Scanner (NVIDIA) ─────────────────
+                    sh '''
+                        echo "=== Garak LLM Red-Team Scan ==="
+                        GARAK_PATH=$(which garak 2>/dev/null || echo "")
+                        if [ -n "${GARAK_PATH}" ]; then
+                            echo "Garak found at: ${GARAK_PATH}"
+                            mkdir -p redteam-reports
+                            garak \
+                                --model_type rest \
+                                --model_name secure-ai-gateway \
+                                --probes encoding,jailbreak,leakage,toxicity,continuation \
+                                --report_prefix redteam-reports/garak \
+                                --parallel_attempts 5 \
+                                2>&1 | tee redteam-reports/garak-output.txt || true
+                            echo "Garak scan complete. Results in redteam-reports/garak-*.jsonl"
+                        else
+                            echo "INFO: Garak not installed — skipping."
+                            echo "Install: pip install garak"
+                            echo "Docs: https://github.com/NVIDIA/garak"
+                            mkdir -p redteam-reports
+                            echo "Garak not installed on this Jenkins agent." > redteam-reports/garak-output.txt
+                        fi
+                    '''
+
+                    // ── Promptfoo OWASP LLM Top 10 Scan ─────────────────────────
+                    sh """
+                        echo "=== Promptfoo OWASP LLM Red-Team Scan ==="
+                        PROMPTFOO_PATH=\$(which promptfoo 2>/dev/null || which npx 2>/dev/null || echo "")
+                        if [ -n "\${PROMPTFOO_PATH}" ]; then
+                            echo "Promptfoo found. Running OWASP LLM Top 10 scan..."
+                            mkdir -p redteam-reports
+                            # Generate promptfoo red-team config targeting the deployed gateway
+                            cat > redteam-reports/promptfoo-config.yaml << 'PFEOF'
+targets:
+  - id: http
+    config:
+      url: ${appUrl}/api/ask
+      method: POST
+      headers:
+        Content-Type: application/json
+        Authorization: "Bearer \${GATEWAY_TEST_TOKEN}"
+      body:
+        prompt: "{{prompt}}"
+
+redteam:
+  plugins:
+    - owasp:llm:01   # Prompt Injection
+    - owasp:llm:02   # Sensitive Info Disclosure
+    - owasp:llm:06   # Excessive Agency
+    - owasp:llm:07   # System Prompt Leakage
+    - owasp:llm:09   # Misinformation
+    - owasp:llm:10   # Unbounded Consumption
+    - jailbreak
+    - harmful:hate
+    - harmful:violence
+    - pii:direct
+    - pii:session
+  numTests: 25
+  strategies:
+    - jailbreak
+    - prompt-injection
+PFEOF
+                            promptfoo redteam run \
+                                --config redteam-reports/promptfoo-config.yaml \
+                                --output redteam-reports/promptfoo-results.json \
+                                --no-cache \
+                                2>&1 | tee redteam-reports/promptfoo-output.txt || true
+
+                            # Generate HTML report
+                            promptfoo redteam report \
+                                --file redteam-reports/promptfoo-results.json \
+                                --output redteam-reports/promptfoo-report.html \
+                                2>/dev/null || true
+
+                            echo "Promptfoo scan complete."
+                        else
+                            echo "INFO: Promptfoo not installed — skipping."
+                            echo "Install: npm install -g promptfoo"
+                            echo "Docs: https://www.promptfoo.dev/docs/red-team/"
+                            mkdir -p redteam-reports
+                            echo "Promptfoo not installed on this Jenkins agent." > redteam-reports/promptfoo-output.txt
+                        fi
+                    """
+
+                    // ── Summarise findings ────────────────────────────────────────
+                    sh '''
+                        echo ""
+                        echo "=== AI Red-Team Scan Summary ==="
+                        if [ -f "redteam-reports/garak-output.txt" ]; then
+                            GARAK_FAILS=$(grep -c "FAIL\\|fail\\|vulnerable" redteam-reports/garak-output.txt 2>/dev/null || echo 0)
+                            echo "  Garak failures detected : ${GARAK_FAILS}"
+                        fi
+                        if [ -f "redteam-reports/promptfoo-output.txt" ]; then
+                            PFOO_FAILS=$(grep -c "failed\\|vulnerable\\|FAIL" redteam-reports/promptfoo-output.txt 2>/dev/null || echo 0)
+                            echo "  Promptfoo failures      : ${PFOO_FAILS}"
+                        fi
+                        echo "  Full reports archived in: redteam-reports/"
+                        echo "  Review artifacts to assess LLM security posture."
+                        echo "================================"
+                    '''
+                }
+            }
+            post {
+                always {
+                    archiveArtifacts(
+                        artifacts:         'redteam-reports/**/*',
+                        allowEmptyArchive: true,
+                        fingerprint:       true
+                    )
+                }
+            }
+        }
+
+        // ─────────────────────────────────────────────────────────────────────
         // STAGE 8 — DOCKER PUSH TO HUB
         // Pushes image to Docker Hub using PAT credentials
         // main/master → :branch-build AND :latest

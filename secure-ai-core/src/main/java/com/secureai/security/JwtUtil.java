@@ -12,12 +12,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.lang.Nullable;
+
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 /**
  * JWT Utility — JJWT 0.12.6 API
@@ -30,6 +34,13 @@ import java.util.concurrent.ConcurrentHashMap;
  *  - Issuer validation ("secure-ai-gateway")
  *  - 7-step validation: signature → expiry → issuer → JTI uniqueness → subject → role → blacklist
  *  - Token invalidation via JTI blacklist (POST /api/v1/auth/logout)
+ *
+ * Distributed blacklist (SOC 2 CC6 / Redis):
+ *  - If Redis is available (redis.enabled=true), JTIs are stored in Redis with TTL
+ *    equal to the token's remaining lifetime. This ensures blacklisted tokens are
+ *    automatically purged when they would have expired anyway, and the blacklist
+ *    is consistent across all gateway replicas in a cluster.
+ *  - Falls back to in-memory ConcurrentHashMap (dev/test profiles) transparently.
  *
  * JJWT 0.12.6 API:
  *  - Jwts.builder().subject() replaces deprecated .setSubject()
@@ -45,9 +56,26 @@ public class JwtUtil {
 
     private static final String ROLE_CLAIM = "role";
     private static final String ISSUER = "secure-ai-gateway";
+    private static final String REDIS_BLACKLIST_PREFIX = "jwt:blacklist:";
 
-    /** Blacklisted JTIs — prevents replay attacks. Thread-safe. */
-    private final Set<String> blacklistedJtis = ConcurrentHashMap.newKeySet();
+    /** In-memory fallback blacklist (dev/test profiles). Thread-safe. */
+    private final Set<String> inMemoryBlacklist = ConcurrentHashMap.newKeySet();
+
+    /**
+     * Optional Redis template — injected only when redis.enabled=true.
+     * Null in dev/test profiles; in-memory fallback used automatically.
+     */
+    @Nullable
+    private final StringRedisTemplate redisTemplate;
+
+    public JwtUtil(@Nullable StringRedisTemplate redisTemplate) {
+        this.redisTemplate = redisTemplate;
+        if (redisTemplate != null) {
+            log.info("JwtUtil: Redis blacklist ENABLED — distributed JWT revocation active");
+        } else {
+            log.info("JwtUtil: Redis not available — using in-memory JWT blacklist (single-node)");
+        }
+    }
 
     @Value("${jwt.secret}")
     private String secret;
@@ -103,7 +131,7 @@ public class JwtUtil {
 
             // Step 4: JTI replay / blacklist check
             String jti = claims.getId();
-            if (jti != null && blacklistedJtis.contains(jti)) {
+            if (jti != null && isBlacklisted(jti)) {
                 log.warn("JWT replay attempt detected: JTI={}", jti);
                 return false;
             }
@@ -144,12 +172,34 @@ public class JwtUtil {
             Claims claims = getClaims(token);
             String jti = claims.getId();
             if (jti != null) {
-                blacklistedJtis.add(jti);
-                log.info("JWT invalidated: JTI={}", jti);
+                if (redisTemplate != null) {
+                    // Redis: store with TTL = remaining lifetime → auto-purge on expiry
+                    long ttlMs = claims.getExpiration().getTime() - System.currentTimeMillis();
+                    if (ttlMs > 0) {
+                        redisTemplate.opsForValue()
+                                .set(REDIS_BLACKLIST_PREFIX + jti, "1", ttlMs, TimeUnit.MILLISECONDS);
+                        log.info("JWT invalidated (Redis, TTL={}ms): JTI={}", ttlMs, jti);
+                    }
+                } else {
+                    inMemoryBlacklist.add(jti);
+                    log.info("JWT invalidated (in-memory): JTI={}", jti);
+                }
             }
         } catch (Exception e) {
             log.warn("Failed to invalidate JWT: {}", sanitizeLog(e.getMessage()));
         }
+    }
+
+    private boolean isBlacklisted(String jti) {
+        if (redisTemplate != null) {
+            try {
+                return Boolean.TRUE.equals(redisTemplate.hasKey(REDIS_BLACKLIST_PREFIX + jti));
+            } catch (Exception e) {
+                log.warn("Redis blacklist check failed — falling back to in-memory: {}", e.getMessage());
+                return inMemoryBlacklist.contains(jti);
+            }
+        }
+        return inMemoryBlacklist.contains(jti);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
