@@ -30,6 +30,7 @@ networks:
 volumes:
   secureai_postgres_data:
   secureai_ollama_data:
+  secureai_redis_data:
 
 services:
 
@@ -55,8 +56,13 @@ services:
       NEMO_GUARDRAILS_URL: http://secureai-nemo-guardrails:8001
       PRESIDIO_URL: http://secureai-presidio:5002
       LLAMAGUARD_MODEL: ${LLAMAGUARD_MODEL:-llamaguard3:1b}
+      REDIS_ENABLED: "true"
+      SPRING_DATA_REDIS_HOST: secureai-redis
+      SPRING_DATA_REDIS_PORT: 6379
     depends_on:
       postgres:
+        condition: service_healthy
+      redis:
         condition: service_healthy
       ollama:
         condition: service_started
@@ -149,6 +155,26 @@ services:
       timeout: 10s
       retries: 3
       start_period: 45s
+    restart: unless-stopped
+
+  # ─── Redis (host port 6380) ────────────────────────────────────
+  # Distributed JWT blacklist + rate limiter state (prod profile)
+  # Port 6380 to avoid conflict with any local Redis on 6379
+  redis:
+    image: redis:7.2-alpine
+    container_name: secureai-redis
+    ports:
+      - "6380:6379"
+    command: redis-server --save 60 1 --loglevel warning --maxmemory 128mb --maxmemory-policy allkeys-lru
+    volumes:
+      - secureai_redis_data:/data
+    networks:
+      - secure-ai-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     restart: unless-stopped
 
   # ─── Microsoft Presidio PII Analyzer (host port 5002) ──────────

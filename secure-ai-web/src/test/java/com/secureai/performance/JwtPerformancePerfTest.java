@@ -31,7 +31,7 @@ class JwtPerformancePerfTest {
 
     @BeforeEach
     void setUp() {
-        jwtUtil = new JwtUtil();
+        jwtUtil = new JwtUtil(null);
         // Use reflection or test constructor to set secret
         try {
             var secretField = JwtUtil.class.getDeclaredField("secret");

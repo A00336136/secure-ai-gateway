@@ -71,6 +71,24 @@ pii:
     enabled: true
     redact-in-audit-logs: true
 
+# ═══════════════════ Groundedness Checker (NIST AI 600-1 / OWASP LLM09) ═══════════════════
+groundedness:
+  enabled: true
+  timeout-ms: 8000
+  min-score-threshold: 0.4     # Flag responses below this score as likely hallucinated
+
+# ═══════════════════ Redis (disabled by default — enabled in prod via REDIS_ENABLED=true) ═══════════════════
+redis:
+  enabled: ${REDIS_ENABLED:false}
+
+spring:
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:6380}
+      password: ${REDIS_PASSWORD:}
+      timeout: 2000
+
 # ═══════════════════ Actuator ═══════════════════
 management:
   endpoints:

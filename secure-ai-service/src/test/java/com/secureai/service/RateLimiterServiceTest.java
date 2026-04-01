@@ -16,7 +16,7 @@ class RateLimiterServiceTest {
 
     @BeforeEach
     void setUp() {
-        rateLimiterService = new RateLimiterService();
+        rateLimiterService = new RateLimiterService(null); // null = in-memory mode (no Redis in tests)
         org.springframework.test.util.ReflectionTestUtils.setField(rateLimiterService, "capacity", 100);
         org.springframework.test.util.ReflectionTestUtils.setField(rateLimiterService, "refillTokens", 100);
         org.springframework.test.util.ReflectionTestUtils.setField(rateLimiterService, "refillDurationMinutes", 60);
