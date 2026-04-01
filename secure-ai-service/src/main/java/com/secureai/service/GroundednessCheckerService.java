@@ -1,5 +1,6 @@
 package com.secureai.service;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -82,6 +83,10 @@ public class GroundednessCheckerService {
      * @param llmResponse     the LLM's response to evaluate
      * @return GroundednessResult with score, verdict, and flags
      */
+    @SuppressFBWarnings(value = "VA_FORMAT_STRING_USES_NEWLINE",
+            justification = "LLM prompt template uses literal \\n (LF) intentionally for " +
+                            "consistent cross-platform prompt formatting — %n would produce " +
+                            "platform-specific line separators incompatible with LLM inference")
     public GroundednessResult evaluate(String originalPrompt, String llmResponse) {
         if (!enabled) {
             return GroundednessResult.skipped();
