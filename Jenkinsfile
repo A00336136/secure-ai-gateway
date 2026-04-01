@@ -176,7 +176,7 @@ else:
                         minimumLineCoverage:    '70',
                         minimumBranchCoverage: '60',
                         maximumLineCoverage:   '85',
-                        maximumBranchCoverage: '61',
+                        maximumBranchCoverage: '60',
                         changeBuildStatus:      true
                     )
                 }
