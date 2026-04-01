@@ -1,0 +1,85 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# Secure AI Gateway — Custom Jenkins Image
+# Base: jenkins/jenkins:lts-jdk21
+#
+# Pre-installed tools (baked in — survive container recreation):
+#   ✅ Docker CLI 26.x       — for Stage 6 (build/tag) and Stage 7 (trivy)
+#   ✅ Trivy 0.69.x          — Aqua Security container vulnerability scanner
+#   ✅ python3               — for JSON parsing in pipeline scripts
+#   ✅ curl                  — for health checks and API calls
+#
+# Why a custom image?
+#   The base jenkins/jenkins:lts-jdk21 image has no Docker CLI or Trivy.
+#   Without this image, docker and trivy must be installed manually after
+#   every container restart (data persists in jenkins_home volume, but
+#   /usr/bin/* binaries are in the container layer — lost on recreation).
+#
+# Build:
+#   docker build -f docker/Dockerfile.jenkins -t secure-ai-jenkins:custom .
+#
+# Usage in docker-compose.infra.yml:
+#   jenkins:
+#     build:
+#       context: .
+#       dockerfile: docker/Dockerfile.jenkins
+# ══════════════════════════════════════════════════════════════════════════��
+
+FROM jenkins/jenkins:lts-jdk21
+
+USER root
+
+# ─── Install core tools ─────────────────────────────────────────
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        ca-certificates \
+        curl \
+        gnupg \
+        lsb-release \
+        python3 \
+        python3-pip && \
+    rm -rf /var/lib/apt/lists/*
+
+# ─── Install Docker CLI ─────────────────────────────────────────
+# Only the CLI is needed (daemon runs on the host via socket mount)
+RUN apt-get update && \
+    install -m 0755 -d /etc/apt/keyrings && \
+    curl -fsSL https://download.docker.com/linux/debian/gpg \
+        -o /etc/apt/keyrings/docker.asc && \
+    chmod a+r /etc/apt/keyrings/docker.asc && \
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] \
+        https://download.docker.com/linux/debian \
+        $(. /etc/os-release && echo "${VERSION_CODENAME}") stable" \
+        > /etc/apt/sources.list.d/docker.list && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends docker-ce-cli && \
+    rm -rf /var/lib/apt/lists/*
+
+# ─── Install Trivy (Aqua Security) ──────────────────────────────
+# Scanner for container image CVEs (CRITICAL + HIGH)
+RUN apt-get update && \
+    install -m 0755 -d /etc/apt/keyrings && \
+    curl -fsSL https://aquasecurity.github.io/trivy-repo/deb/public.key \
+        -o /etc/apt/keyrings/trivy.asc && \
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/trivy.asc] \
+        https://aquasecurity.github.io/trivy-repo/deb \
+        $(. /etc/os-release && echo "${VERSION_CODENAME}") main" \
+        > /etc/apt/sources.list.d/trivy.list && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends trivy && \
+    rm -rf /var/lib/apt/lists/*
+
+# ─── Docker socket permissions ───────────────────────────────────
+# Ensure jenkins user can access the Docker socket mounted from host
+# The socket is mounted at /var/run/docker.sock via docker-compose volume
+RUN groupadd -f docker && \
+    usermod -aG docker jenkins
+
+# ─── Verify installations ────────────────────────────────────────
+RUN docker --version && trivy --version && python3 --version
+
+USER jenkins
+
+# Labels for documentation
+LABEL org.opencontainers.image.title="Secure AI Gateway — Jenkins CI"
+LABEL org.opencontainers.image.description="Jenkins LTS + JDK 21 + Docker CLI + Trivy for SecureAI DevSecOps pipeline"
+LABEL org.opencontainers.image.base.name="jenkins/jenkins:lts-jdk21"

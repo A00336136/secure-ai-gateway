@@ -150,7 +150,9 @@ services:
       ollama:
         condition: service_started
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8001/v1/health"]
+      # /v1/rails/configs returns 200 with [{"id":"config"}] — correct NeMo API endpoint
+      # /v1/health returns 404 (not implemented in nemoguardrails 0.10.x)
+      test: ["CMD", "curl", "-sf", "http://localhost:8001/v1/rails/configs"]
       interval: 30s
       timeout: 10s
       retries: 3

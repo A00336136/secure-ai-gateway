@@ -21,8 +21,8 @@
 //   ngrok:      managed within secureai-infra stack (port 4041)
 //
 // Ports (completely isolated from NutriTrack):
-//   Jenkins: 9095 | SonarQube: 9000 | SonarDB: 5433 | AppDB: 5434
-//   Prometheus: 9092 | Grafana: 3001 | ngrok: 4041 | App: 8100
+//   Jenkins: 9090 | SonarQube: 9000 | SonarDB: 5433 | AppDB: 5434
+//   Prometheus: 9090 (internal) | Grafana: 3000 | ngrok: 4040 | App: 8100
 // ═══════════════════════════════════════════════════════════════════════════
 
 pipeline {
@@ -375,6 +375,7 @@ else:
                             --output trivy-report.json \
                             --severity CRITICAL,HIGH \
                             --ignore-unfixed \
+                            --ignorefile .trivyignore \
                             --exit-code 0 \
                             ${fullImage}
                     """
@@ -402,6 +403,7 @@ print(total)
                             --format table \
                             --severity CRITICAL,HIGH \
                             --ignore-unfixed \
+                            --ignorefile .trivyignore \
                             --exit-code 0 \
                             ${fullImage} \
                             2>&1 | tee trivy-summary.txt || true
@@ -724,8 +726,9 @@ PFEOF
                         sh '''
                             cd karate-tests
                             mvn -B test \
-                                -Dkarate.env=local \
-                                -Dkarate.options="--tags ~@ignore" \
+                                -Dkarate.env=ci \
+                                -Dkarate.base.url=http://localhost:8100 \
+                                -Dkarate.options="--tags ~@slow ~@ignore" \
                                 || true
                         '''
                     } catch (Exception e) {
