@@ -155,4 +155,19 @@ class LlamaGuardClientTest {
                 .assertNext(result -> assertTrue(result.blocked()))
                 .verifyComplete();
     }
+
+    @Test
+    @DisplayName("sanitizeLog null branch: evaluate should BLOCK and handle null exception message")
+    void evaluateShouldHandleNullExceptionMessage() {
+        // RestClientException with null message → sanitizeLog(null) hits the null branch → "(null)"
+        when(restTemplate.postForEntity(anyString(), any(), eq(String.class)))
+                .thenThrow(new RestClientException(null) {});
+
+        StepVerifier.create(client.evaluate("prompt"))
+                .assertNext(result -> {
+                    assertTrue(result.blocked());
+                    assertEquals("service_unavailable", result.category());
+                })
+                .verifyComplete();
+    }
 }
