@@ -83,4 +83,43 @@ class GuardrailsOrchestratorTest {
         // presidio might be true, but overall is false
         assertFalse(orchestrator.isHealthy());
     }
+
+    @Test
+    @DisplayName("isHealthy should return false when nemo is healthy but presidio is not (right-side of && branch)")
+    void isHealthyShouldReturnFalseWhenPresidioUnhealthy() {
+        when(nemoClient.isHealthy()).thenReturn(true);
+        when(presidioClient.isHealthy()).thenReturn(false);
+
+        assertFalse(orchestrator.isHealthy());
+    }
+
+    @Test
+    @DisplayName("evaluate should produce combined blockedBy string when multiple layers block (reduce lambda branch)")
+    void evaluateShouldCombineBlockedByWhenMultipleLayersBlock() {
+        // Two layers blocked → reduce BiFunction (a + " | " + b) is called
+        when(nemoClient.evaluate(anyString()))
+                .thenReturn(Mono.just(GuardrailsResult.block("NeMo", "colang_policy_violation", null, 5L)));
+        when(llamaGuardClient.evaluate(anyString()))
+                .thenReturn(Mono.just(GuardrailsResult.block("LlamaGuard", "S1", 0.9, 5L)));
+        when(presidioClient.evaluate(anyString()))
+                .thenReturn(Mono.just(GuardrailsResult.pass("Presidio", 5L)));
+
+        GuardrailsOrchestrator.GuardrailsEvaluation eval = orchestrator.evaluate("prompt");
+
+        assertTrue(eval.blocked());
+        assertNotNull(eval.blockedBy());
+        assertTrue(eval.blockedBy().contains("NeMo"), "blockedBy should contain NeMo");
+        assertTrue(eval.blockedBy().contains("LlamaGuard"), "blockedBy should contain LlamaGuard");
+        assertTrue(eval.blockedBy().contains(" | "), "Multiple blocked layers should be joined with ' | '");
+    }
+
+    @Test
+    @DisplayName("GuardrailsEvaluation constructor: null layerResults defaults to empty list")
+    void guardrailsEvaluationNullLayerResultsDefaultsToEmptyList() {
+        GuardrailsOrchestrator.GuardrailsEvaluation eval =
+                new GuardrailsOrchestrator.GuardrailsEvaluation(true, "test", null, 0L);
+
+        assertNotNull(eval.layerResults(), "layerResults() should never return null");
+        assertTrue(eval.layerResults().isEmpty(), "null input should default to empty list");
+    }
 }
