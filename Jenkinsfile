@@ -710,7 +710,7 @@ PFEOF
                             MAX_WAIT=120
                             ELAPSED=0
                             while [ $ELAPSED -lt $MAX_WAIT ]; do
-                                if curl -sf "http://localhost:8100/actuator/health" > /dev/null 2>&1; then
+                                if curl -sf "http://host.docker.internal:8100/actuator/health" > /dev/null 2>&1; then
                                     echo "SecureAI Gateway is healthy! (${ELAPSED}s)"
                                     break
                                 fi
@@ -727,8 +727,8 @@ PFEOF
                             cd karate-tests
                             mvn -B test \
                                 -Dkarate.env=ci \
-                                -Dkarate.base.url=http://localhost:8100 \
-                                -Dkarate.options="--tags ~@slow ~@ignore" \
+                                -Dkarate.base.url=http://host.docker.internal:8100 \
+                                -Dkarate.options="--tags ~@slow,~@ignore" \
                                 || true
                         '''
                     } catch (Exception e) {
