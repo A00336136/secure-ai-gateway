@@ -158,10 +158,12 @@ public class GroundednessCheckerService {
 
         String upper = rawVerdict.toUpperCase();
 
-        if (upper.startsWith("GROUNDED") || upper.contains("GROUNDED -")) {
+        // NOTE: use " GROUNDED -" (with leading space) to avoid false-positive match on "UNGROUNDED -"
+        // "UNGROUNDED -" contains "GROUNDED -" as a substring, so the space-prefixed form is required
+        if (upper.startsWith("GROUNDED") || upper.contains(" GROUNDED -")) {
             String reason = extractReason(rawVerdict, "GROUNDED");
             return new GroundednessResult(1.0, "GROUNDED", false, reason, latencyMs);
-        } else if (upper.startsWith("PARTIAL") || upper.contains("PARTIAL -")) {
+        } else if (upper.startsWith("PARTIAL") || upper.contains(" PARTIAL -")) {
             String reason = extractReason(rawVerdict, "PARTIAL");
             return new GroundednessResult(0.65, "PARTIAL", false, reason, latencyMs);
         } else if (upper.startsWith("UNGROUNDED") || upper.contains("UNGROUNDED -")) {

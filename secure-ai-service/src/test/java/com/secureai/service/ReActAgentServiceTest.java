@@ -215,6 +215,27 @@ class ReActAgentServiceTest {
     }
 
     @Test
+    @DisplayName("Agent continues loop when action=answer but finalAnswer is null (right side of && false branch)")
+    void agentShouldContinueWhenAnswerActionHasNoFinalAnswer() {
+        // LLM returns "Action: answer" (sets action via ACTION_PATTERN) but no "Final Answer:" line.
+        // parseStep → action="answer", finalAnswer=null.
+        // The compound condition: "answer".equals(action) && finalAnswer != null = true && false = FALSE.
+        // Agent does NOT enter the return block; instead calls executeTool("answer", ...) → default case,
+        // then loops. After maxSteps the fallback result is returned.
+        String responseNoFinalAnswer = """
+                Thought: I think I know.
+                Action: answer
+                Action Input: some input
+                """; // No "Final Answer:" line → finalAnswer=null
+        when(ollamaClient.generateResponse(anyString(), anyString())).thenReturn(responseNoFinalAnswer);
+
+        ReActAgentService.AgentResult result = agentService.execute("test with answer-no-final");
+        // Should exhaust maxSteps (5) since the if condition is false every time
+        assertThat(result.totalSteps).isEqualTo(5);
+        assertThat(result.answer).isNotNull();
+    }
+
+    @Test
     @DisplayName("AgentStep should expose all properties correctly")
     void agentStepShouldExposeProperties() {
         ReActAgentService.AgentStep step = new ReActAgentService.AgentStep(1);
