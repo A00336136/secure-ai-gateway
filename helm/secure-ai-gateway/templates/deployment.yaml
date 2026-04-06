@@ -1,0 +1,153 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "secure-ai-gateway.fullname" . }}
+  namespace: {{ include "secure-ai-gateway.namespace" . }}
+  labels:
+    {{- include "secure-ai-gateway.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "secure-ai-gateway.selectorLabels" . | nindent 6 }}
+  strategy:
+    type: {{ .Values.strategy.type }}
+    {{- if eq .Values.strategy.type "RollingUpdate" }}
+    rollingUpdate:
+      maxUnavailable: {{ .Values.strategy.rollingUpdate.maxUnavailable }}
+      maxSurge: {{ .Values.strategy.rollingUpdate.maxSurge }}
+    {{- end }}
+  template:
+    metadata:
+      labels:
+        {{- include "secure-ai-gateway.selectorLabels" . | nindent 8 }}
+        version: {{ .Chart.AppVersion | quote }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+        {{- if .Values.monitoring.prometheus.enabled }}
+        prometheus.io/scrape: "true"
+        prometheus.io/path: {{ .Values.monitoring.prometheus.path | quote }}
+        prometheus.io/port: {{ .Values.monitoring.prometheus.port | quote }}
+        {{- end }}
+    spec:
+      serviceAccountName: {{ include "secure-ai-gateway.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        # ── Main Container: Secure AI Gateway ──
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.gateway.containerPort }}
+              name: http
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: {{ include "secure-ai-gateway.fullname" . }}-config
+            - secretRef:
+                name: {{ include "secure-ai-gateway.fullname" . }}-secret
+          resources:
+            {{- toYaml .Values.gateway.resources | nindent 12 }}
+          securityContext:
+            {{- toYaml .Values.gateway.securityContext | nindent 12 }}
+          livenessProbe:
+            {{- toYaml .Values.gateway.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.gateway.readinessProbe | nindent 12 }}
+          volumeMounts:
+            - name: tmp-dir
+              mountPath: /tmp
+            - name: logs-dir
+              mountPath: /var/log/secure-ai-gateway
+
+        {{- if .Values.nemo.enabled }}
+        # ── Sidecar: NeMo Guardrails ──
+        - name: nemo-guardrails
+          image: "{{ .Values.nemo.image.repository }}:{{ .Values.nemo.image.tag }}"
+          imagePullPolicy: {{ .Values.nemo.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.nemo.containerPort }}
+              name: nemo
+              protocol: TCP
+          env:
+            - name: OLLAMA_BASE_URL
+              value: {{ .Values.nemo.env.ollamaBaseUrl | quote }}
+            - name: GUARDRAILS_MODEL
+              value: {{ .Values.nemo.env.guardrailsModel | quote }}
+          resources:
+            {{- toYaml .Values.nemo.resources | nindent 12 }}
+          securityContext:
+            {{- toYaml .Values.nemo.securityContext | nindent 12 }}
+          livenessProbe:
+            {{- toYaml .Values.nemo.livenessProbe | nindent 12 }}
+        {{- end }}
+
+        {{- if .Values.presidio.enabled }}
+        # ── Sidecar: Presidio Analyzer ──
+        - name: presidio-analyzer
+          image: "{{ .Values.presidio.image.repository }}:{{ .Values.presidio.image.tag }}"
+          imagePullPolicy: {{ .Values.presidio.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.presidio.containerPort }}
+              name: presidio
+              protocol: TCP
+          env:
+            - name: PORT
+              value: {{ .Values.presidio.containerPort | quote }}
+          resources:
+            {{- toYaml .Values.presidio.resources | nindent 12 }}
+          securityContext:
+            {{- toYaml .Values.presidio.securityContext | nindent 12 }}
+          livenessProbe:
+            {{- toYaml .Values.presidio.livenessProbe | nindent 12 }}
+        {{- end }}
+
+        {{- if .Values.ollama.enabled }}
+        # ── Sidecar: Ollama ──
+        - name: ollama
+          image: "{{ .Values.ollama.image.repository }}:{{ .Values.ollama.image.tag }}"
+          imagePullPolicy: {{ .Values.ollama.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.ollama.containerPort }}
+              name: ollama
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.ollama.resources | nindent 12 }}
+          securityContext:
+            {{- toYaml .Values.ollama.securityContext | nindent 12 }}
+          livenessProbe:
+            {{- toYaml .Values.ollama.livenessProbe | nindent 12 }}
+          volumeMounts:
+            - name: ollama-data
+              mountPath: /root/.ollama
+        {{- end }}
+
+      volumes:
+        - name: tmp-dir
+          emptyDir: {}
+        - name: logs-dir
+          emptyDir: {}
+        {{- if .Values.ollama.enabled }}
+        - name: ollama-data
+          emptyDir: {}
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

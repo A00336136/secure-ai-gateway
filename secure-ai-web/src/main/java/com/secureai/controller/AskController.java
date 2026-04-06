@@ -6,6 +6,7 @@ import com.secureai.guardrails.GuardrailsOrchestrator;
 import com.secureai.model.AskRequest;
 import com.secureai.model.AskResponse;
 import com.secureai.pii.PiiRedactionService;
+import com.secureai.security.OutputSanitizationService;
 import com.secureai.service.AuditLogService;
 import com.secureai.service.GroundednessCheckerService;
 import com.secureai.service.OllamaClient;
@@ -33,6 +34,7 @@ import java.security.Principal;
  *  ③ 3-Layer Guardrails (NeMo + LlamaGuard + Presidio in parallel via Mono.zip())
  *  ④ Route to OllamaClient or ReActAgent
  *  ⑤ PII redaction on response
+ *  ⑤b Output sanitization (OWASP LLM02 — markdown exfiltration prevention)
  *  ⑥ Groundedness check (NIST AI 600-1 / OWASP LLM09 — hallucination detection)
  *  ⑦ Token counting (OWASP LLM10 — unbounded consumption detection)
  *  ⑧ Async audit log to PostgreSQL (SOC 2 PI1 / HIPAA AU — immutable, append-only)
@@ -47,6 +49,7 @@ public class AskController {
 
     private final OllamaClient ollamaClient;
     private final PiiRedactionService piiRedactionService;
+    private final OutputSanitizationService outputSanitizationService;
     private final RateLimiterService rateLimiterService;
     private final ReActAgentService reActAgentService;
     private final AuditLogService auditLogService;
@@ -55,12 +58,14 @@ public class AskController {
     private final TokenCounterService tokenCounterService;
 
     public AskController(OllamaClient ollamaClient, PiiRedactionService piiRedactionService,
+                         OutputSanitizationService outputSanitizationService,
                          RateLimiterService rateLimiterService, ReActAgentService reActAgentService,
                          AuditLogService auditLogService, GuardrailsOrchestrator guardrailsOrchestrator,
                          GroundednessCheckerService groundednessCheckerService,
                          TokenCounterService tokenCounterService) {
         this.ollamaClient = ollamaClient;
         this.piiRedactionService = piiRedactionService;
+        this.outputSanitizationService = outputSanitizationService;
         this.rateLimiterService = rateLimiterService;
         this.reActAgentService = reActAgentService;
         this.auditLogService = auditLogService;
@@ -132,7 +137,14 @@ public class AskController {
 
         // ⑤ PII Redaction
         boolean piiDetected = piiRedactionService.containsPii(rawResponse);
-        String finalResponse = piiDetected ? piiRedactionService.redact(rawResponse) : rawResponse;
+        String redactedResponse = piiDetected ? piiRedactionService.redact(rawResponse) : rawResponse;
+
+        // ⑤b Output Sanitization — OWASP LLM02 (markdown exfiltration prevention)
+        String finalResponse = outputSanitizationService.sanitize(redactedResponse);
+        boolean outputSanitized = !finalResponse.equals(redactedResponse);
+        if (outputSanitized) {
+            log.warn("Output sanitization applied for user '{}': markdown exfil constructs removed", username);
+        }
 
         // ⑥ Groundedness check — NIST AI 600-1 / OWASP LLM09 (hallucination detection)
         var groundedness = groundednessCheckerService.evaluate(request.getPrompt(), finalResponse);
@@ -177,6 +189,7 @@ public class AskController {
                 .header("X-Rate-Limit-Remaining", String.valueOf(remaining))
                 .header("X-Rate-Limit-Capacity", String.valueOf(rateLimiterService.getCapacity()))
                 .header("X-PII-Redacted", String.valueOf(piiDetected))
+                .header("X-Output-Sanitized", String.valueOf(outputSanitized))
                 .header("X-Duration-Ms", String.valueOf(durationMs))
                 .header("X-Tokens-Used", String.valueOf(tokenCount.totalTokens()))
                 .header("X-Groundedness-Score", String.format("%.2f", groundedness.score()))

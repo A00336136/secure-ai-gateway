@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "secure-ai-gateway.fullname" . }}
+  namespace: {{ include "secure-ai-gateway.namespace" . }}
+  labels:
+    {{- include "secure-ai-gateway.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.targetPort }}
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "secure-ai-gateway.selectorLabels" . | nindent 4 }}

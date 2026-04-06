@@ -1,0 +1,109 @@
+groups:
+  - name: secure-ai-gateway-alerts
+    rules:
+      - alert: HighErrorRate
+        expr: >
+          100 * sum(rate(http_server_requests_seconds_count{application="secure-ai-gateway", status=~"4..|5.."}[5m]))
+          / sum(rate(http_server_requests_seconds_count{application="secure-ai-gateway"}[5m])) > 5
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High HTTP error rate on SecureAIGateway"
+          description: "Error rate is {{ $value | printf \"%.1f\" }}% (threshold: 5%) for the last 5 minutes."
+
+      - alert: HighLatency
+        expr: >
+          histogram_quantile(0.99, sum(rate(http_server_requests_seconds_bucket{application="secure-ai-gateway"}[5m])) by (le)) > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High p99 latency on SecureAIGateway"
+          description: "p99 latency is {{ $value | printf \"%.2f\" }}s (threshold: 2s) for the last 5 minutes."
+
+      - alert: GuardrailsDown
+        expr: >
+          up{job="secure-ai-gateway-guardrails"} == 0
+          or guardrails_health_status{application="secure-ai-gateway"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Guardrails health check failing on SecureAIGateway"
+          description: "Guardrails service has been unreachable or unhealthy for over 2 minutes."
+
+      - alert: HighPiiDetectionRate
+        expr: >
+          100 * sum(rate(pii_detections_total{application="secure-ai-gateway"}[5m]))
+          / sum(rate(http_server_requests_seconds_count{application="secure-ai-gateway"}[5m])) > 20
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High PII detection rate on SecureAIGateway"
+          description: "PII detection rate is {{ $value | printf \"%.1f\" }}% of requests (threshold: 20%) for the last 10 minutes."
+
+      - alert: ExcessiveTokenUsage
+        expr: >
+          sum(rate(token_usage_total{application="secure-ai-gateway"}[5m]))
+          / sum(rate(http_server_requests_seconds_count{application="secure-ai-gateway"}[5m])) > 5000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Excessive token usage on SecureAIGateway"
+          description: "Average tokens per request is {{ $value | printf \"%.0f\" }} (threshold: 5000) for the last 5 minutes."
+
+      - alert: HighRateLimitRate
+        expr: >
+          100 * sum(rate(rate_limited_requests_total{application="secure-ai-gateway"}[5m]))
+          / sum(rate(http_server_requests_seconds_count{application="secure-ai-gateway"}[5m])) > 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High rate limiting on SecureAIGateway"
+          description: "{{ $value | printf \"%.1f\" }}% of requests are being rate limited (threshold: 10%) for the last 5 minutes."
+
+      - alert: LowGroundednessScore
+        expr: >
+          avg(groundedness_score{application="secure-ai-gateway"}) < 0.5
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low groundedness score on SecureAIGateway"
+          description: "Average groundedness score is {{ $value | printf \"%.2f\" }} (threshold: 0.5) for the last 10 minutes."
+
+      - alert: PodHighMemory
+        expr: >
+          container_memory_working_set_bytes{container="secure-ai-gateway"}
+          / container_spec_memory_limit_bytes{container="secure-ai-gateway"} > 0.85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "SecureAIGateway pod memory usage is high"
+          description: "Container memory usage is {{ $value | printf \"%.0f\" }}% of limit (threshold: 85%) for the last 5 minutes."
+
+      - alert: PodCrashLooping
+        expr: >
+          increase(kube_pod_container_status_restarts_total{container="secure-ai-gateway"}[10m]) > 3
+        for: 0m
+        labels:
+          severity: critical
+        annotations:
+          summary: "SecureAIGateway pod is crash looping"
+          description: "Pod has restarted {{ $value | printf \"%.0f\" }} times in the last 10 minutes (threshold: 3)."
+
+      - alert: OllamaUnhealthy
+        expr: >
+          up{job="ollama"} == 0
+          or ollama_health_status == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Ollama service is unhealthy"
+          description: "Ollama has been unreachable or unhealthy for over 2 minutes."
