@@ -21,8 +21,8 @@
 //   ngrok:      managed within secureai-infra stack (port 4041)
 //
 // Ports (completely isolated from NutriTrack):
-//   Jenkins: 9090 | SonarQube: 9000 | SonarDB: 5433 | AppDB: 5434
-//   Prometheus: 9090 (internal) | Grafana: 3000 | ngrok: 4040 | App: 8100
+//   Jenkins: 9095 | SonarQube: 9001 | SonarDB: 5433 | AppDB: 5434
+//   Prometheus: 9092 | Grafana: 3001 | ngrok: 4041 | App: 8100
 // ═══════════════════════════════════════════════════════════════════════════
 
 pipeline {
@@ -59,7 +59,7 @@ pipeline {
         DOCKER_IMAGE    = "absartus/${APP_NAME}"
         DOCKERHUB_USER  = 'absartus'
         SONAR_TOKEN     = credentials('sonarqube-token')
-        SONAR_URL       = 'http://host.docker.internal:9000'
+        SONAR_URL       = 'http://host.docker.internal:9001'
         JAVA_HOME       = "${tool 'JDK21'}"
     }
 

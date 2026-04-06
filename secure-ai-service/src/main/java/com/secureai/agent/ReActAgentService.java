@@ -1,5 +1,6 @@
 package com.secureai.agent;
 
+import com.secureai.guardrails.GuardrailsOrchestrator;
 import com.secureai.service.OllamaClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,10 +38,16 @@ public class ReActAgentService {
     @Value("${ollama.react.max-steps:10}")
     private int maxSteps;
 
-    private final OllamaClient ollamaClient;
+    @Value("${ollama.react.guardrail-tool-output:true}")
+    private boolean guardrailToolOutput;
 
-    public ReActAgentService(OllamaClient ollamaClient) {
+    private final OllamaClient ollamaClient;
+    private final GuardrailsOrchestrator guardrailsOrchestrator;
+
+    public ReActAgentService(OllamaClient ollamaClient,
+                             GuardrailsOrchestrator guardrailsOrchestrator) {
         this.ollamaClient = ollamaClient;
+        this.guardrailsOrchestrator = guardrailsOrchestrator;
     }
 
     private static final Pattern THOUGHT_PATTERN =
@@ -113,11 +120,16 @@ public class ReActAgentService {
 
             // Execute tool action and add observation
             String observation = executeTool(agentStep.getAction(), agentStep.getActionInput());
-            agentStep.setObservation(observation);
 
-            // Append to conversation
-            conversationHistory.append(llmResponse).append("\n");
-            conversationHistory.append("Observation: ").append(observation).append("\n\n");
+            // Re-evaluate tool output through guardrails (indirect injection prevention)
+            // This ensures that tool results cannot inject malicious content into the
+            // conversation context. OWASP LLM03 — Supply Chain / Indirect Prompt Injection.
+            String safeObservation = evaluateToolOutput(observation, step);
+            agentStep.setObservation(safeObservation);
+
+            // Append to conversation with sanitized delimiters
+            conversationHistory.append(sanitizeForConversation(llmResponse)).append("\n");
+            conversationHistory.append("Observation: ").append(safeObservation).append("\n\n");
         }
 
         // Max steps reached — return best available response
@@ -125,6 +137,61 @@ public class ReActAgentService {
         String fallback = "I've analyzed this through " + maxSteps +
                 " reasoning steps. Based on my analysis: " + userPrompt;
         return new AgentResult(fallback, steps, maxSteps);
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Tool Output Safety — Indirect Injection Prevention (OWASP LLM03)
+    // ─────────────────────────────────────────────────────────────────────────
+
+    /**
+     * Re-evaluate tool output through guardrails before adding to conversation.
+     * Prevents indirect injection where a tool result contains malicious content
+     * that could manipulate the agent's subsequent reasoning.
+     *
+     * @param observation raw tool output
+     * @param step        current step number (for logging)
+     * @return safe observation (original if clean, sanitized message if flagged)
+     */
+    private String evaluateToolOutput(String observation, int step) {
+        if (!guardrailToolOutput || observation == null || observation.isBlank()) {
+            return observation;
+        }
+
+        try {
+            var result = guardrailsOrchestrator.evaluate(observation);
+            if (result.blocked()) {
+                log.warn("TOOL OUTPUT BLOCKED at step {} — guardrails flagged: {}",
+                        step, result.blockedBy());
+                return "[Tool output blocked by safety guardrails — contained potentially unsafe content]";
+            }
+        } catch (Exception e) {
+            // Fail-CLOSED: if guardrails evaluation fails, sanitize conservatively
+            log.error("Guardrails evaluation failed for tool output at step {}: {}",
+                    step, e.getMessage());
+            return "[Tool output could not be verified — safety check unavailable]";
+        }
+
+        return observation;
+    }
+
+    /**
+     * Sanitize LLM response before appending to conversation history.
+     * Strips delimiter injection attempts that could confuse the ReAct parser
+     * (e.g., user-injected "Action:", "Observation:", "Final Answer:" markers).
+     *
+     * @param llmResponse the raw LLM step response
+     * @return sanitized response safe for conversation history
+     */
+    private String sanitizeForConversation(String llmResponse) {
+        if (llmResponse == null) return "";
+        // Escape any embedded system-level delimiters that could be injected
+        // to manipulate future parsing (e.g., fake "Final Answer:" in tool output)
+        return llmResponse
+                .replace("\\[SYSTEM\\]", "[SYS_ESCAPED]")
+                .replace("\\[USER\\]", "[USR_ESCAPED]")
+                .replace("\\[INST\\]", "[INST_ESCAPED]")
+                .replace("<<SYS>>", "[SYS_ESCAPED]")
+                .replace("<</SYS>>", "[SYS_ESCAPED]");
     }
 
     // ─────────────────────────────────────────────────────────────────────────
