@@ -6,9 +6,12 @@ import com.secureai.guardrails.GuardrailsOrchestrator;
 import com.secureai.model.AskRequest;
 import com.secureai.model.AskResponse;
 import com.secureai.pii.PiiRedactionService;
+import com.secureai.security.OutputSanitizationService;
 import com.secureai.service.AuditLogService;
+import com.secureai.service.GroundednessCheckerService;
 import com.secureai.service.OllamaClient;
 import com.secureai.service.RateLimiterService;
+import com.secureai.service.TokenCounterService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -27,12 +30,15 @@ import java.security.Principal;
  *
  * Pipeline per request:
  *  ① JWT auth (enforced by security filter, not this controller)
- *  ② Rate limit check (Bucket4j — 100 req/hr per user)
+ *  ② Rate limit check (Bucket4j — 100 req/hr per user; Redis-backed in prod)
  *  ③ 3-Layer Guardrails (NeMo + LlamaGuard + Presidio in parallel via Mono.zip())
  *  ④ Route to OllamaClient or ReActAgent
  *  ⑤ PII redaction on response
- *  ⑥ Async audit log to PostgreSQL
- *  ⑦ Return response with rate-limit headers
+ *  ⑤b Output sanitization (OWASP LLM02 — markdown exfiltration prevention)
+ *  ⑥ Groundedness check (NIST AI 600-1 / OWASP LLM09 — hallucination detection)
+ *  ⑦ Token counting (OWASP LLM10 — unbounded consumption detection)
+ *  ⑧ Async audit log to PostgreSQL (SOC 2 PI1 / HIPAA AU — immutable, append-only)
+ *  ⑨ Return response with security headers
  */
 @RestController
 @RequestMapping("/api")
@@ -43,20 +49,29 @@ public class AskController {
 
     private final OllamaClient ollamaClient;
     private final PiiRedactionService piiRedactionService;
+    private final OutputSanitizationService outputSanitizationService;
     private final RateLimiterService rateLimiterService;
     private final ReActAgentService reActAgentService;
     private final AuditLogService auditLogService;
     private final GuardrailsOrchestrator guardrailsOrchestrator;
+    private final GroundednessCheckerService groundednessCheckerService;
+    private final TokenCounterService tokenCounterService;
 
     public AskController(OllamaClient ollamaClient, PiiRedactionService piiRedactionService,
+                         OutputSanitizationService outputSanitizationService,
                          RateLimiterService rateLimiterService, ReActAgentService reActAgentService,
-                         AuditLogService auditLogService, GuardrailsOrchestrator guardrailsOrchestrator) {
+                         AuditLogService auditLogService, GuardrailsOrchestrator guardrailsOrchestrator,
+                         GroundednessCheckerService groundednessCheckerService,
+                         TokenCounterService tokenCounterService) {
         this.ollamaClient = ollamaClient;
         this.piiRedactionService = piiRedactionService;
+        this.outputSanitizationService = outputSanitizationService;
         this.rateLimiterService = rateLimiterService;
         this.reActAgentService = reActAgentService;
         this.auditLogService = auditLogService;
         this.guardrailsOrchestrator = guardrailsOrchestrator;
+        this.groundednessCheckerService = groundednessCheckerService;
+        this.tokenCounterService = tokenCounterService;
     }
 
     @PostMapping("/ask")
@@ -98,7 +113,10 @@ public class AskController {
             auditLogService.logRequest(new AuditLogService.AuditLogEntry(
                     username, request.getPrompt(), null,
                     ollamaClient.getModel(), false, false, null,
-                    422, guardrailsResult.totalLatencyMs(), httpRequest.getRemoteAddr()));
+                    422, guardrailsResult.totalLatencyMs(), httpRequest.getRemoteAddr(),
+                    guardrailsResult.blockedBy(), guardrailsResult.totalLatencyMs(),
+                    computeRequestHash(request.getPrompt()),
+                    null, false, null, null));
 
             long remaining = rateLimiterService.getRemainingTokens(username);
             throw new GuardrailsBlockedException(guardrailsResult.blockedBy(), remaining);
@@ -117,36 +135,65 @@ public class AskController {
             rawResponse = ollamaClient.generateResponse(request.getPrompt());
         }
 
-        // ④ PII Redaction
+        // ⑤ PII Redaction
         boolean piiDetected = piiRedactionService.containsPii(rawResponse);
-        String finalResponse = piiDetected ? piiRedactionService.redact(rawResponse) : rawResponse;
+        String redactedResponse = piiDetected ? piiRedactionService.redact(rawResponse) : rawResponse;
+
+        // ⑤b Output Sanitization — OWASP LLM02 (markdown exfiltration prevention)
+        String finalResponse = outputSanitizationService.sanitize(redactedResponse);
+        boolean outputSanitized = !finalResponse.equals(redactedResponse);
+        if (outputSanitized) {
+            log.warn("Output sanitization applied for user '{}': markdown exfil constructs removed", username);
+        }
+
+        // ⑥ Groundedness check — NIST AI 600-1 / OWASP LLM09 (hallucination detection)
+        var groundedness = groundednessCheckerService.evaluate(request.getPrompt(), finalResponse);
+        if (groundedness.flagged()) {
+            log.warn("GROUNDEDNESS FLAG for user '{}': score={} verdict={}",
+                    username, groundedness.score(), groundedness.verdict());
+        }
+
+        // ⑦ Token counting — OWASP LLM10 (unbounded consumption)
+        var tokenCount = tokenCounterService.count(request.getPrompt(), finalResponse);
+        if (tokenCount.excessiveUsage()) {
+            log.warn("EXCESSIVE TOKEN USAGE for user '{}': total={} tokens", username, tokenCount.totalTokens());
+        }
 
         long durationMs = System.currentTimeMillis() - startTime;
 
-        // ⑤ Async Audit Log
+        // ⑧ Async Audit Log — immutable, append-only (SOC 2 PI1 / HIPAA AU)
         auditLogService.logRequest(new AuditLogService.AuditLogEntry(
                 username, request.getPrompt(), finalResponse,
                 ollamaClient.getModel(), piiDetected, false,
                 reactSteps > 0 ? reactSteps : null,
-                200, durationMs, httpRequest.getRemoteAddr()
+                200, durationMs, httpRequest.getRemoteAddr(),
+                null, guardrailsResult.totalLatencyMs(),
+                computeRequestHash(request.getPrompt()),
+                tokenCount.totalTokens(), tokenCount.excessiveUsage(),
+                groundedness.score(), groundedness.verdict()
         ));
 
-        log.info("Request processed for '{}': pii={}, steps={}, ms={}",
-                username, piiDetected, reactSteps, durationMs);
+        log.info("Request processed for '{}': pii={}, tokens={}, groundedness={}, ms={}",
+                username, piiDetected, tokenCount.totalTokens(), groundedness.verdict(), durationMs);
 
         long remaining = rateLimiterService.getRemainingTokens(username);
 
-        // ⑥ Return response
+        // ⑨ Return response with full security headers
         AskResponse response = new AskResponse(
                 finalResponse, piiDetected, piiDetected, reactSteps, durationMs,
-                ollamaClient.getModel()
+                ollamaClient.getModel(), tokenCount.totalTokens(), groundedness.score(),
+                groundedness.verdict()
         );
 
         return ResponseEntity.ok()
                 .header("X-Rate-Limit-Remaining", String.valueOf(remaining))
                 .header("X-Rate-Limit-Capacity", String.valueOf(rateLimiterService.getCapacity()))
                 .header("X-PII-Redacted", String.valueOf(piiDetected))
+                .header("X-Output-Sanitized", String.valueOf(outputSanitized))
                 .header("X-Duration-Ms", String.valueOf(durationMs))
+                .header("X-Tokens-Used", String.valueOf(tokenCount.totalTokens()))
+                .header("X-Groundedness-Score", String.format("%.2f", groundedness.score()))
+                .header("X-Groundedness-Verdict", groundedness.verdict())
                 .body(response);
     }
 
@@ -158,8 +205,32 @@ public class AskController {
             "user", principal.getName(),
             "ollamaHealthy", ollamaHealthy,
             "model", ollamaClient.getModel(),
-            "rateLimitRemaining", rateLimiterService.getRemainingTokens(principal.getName())
+            "rateLimitRemaining", rateLimiterService.getRemainingTokens(principal.getName()),
+            "guardrailsHealthy", guardrailsOrchestrator.isHealthy(),
+            "groundednessEnabled", true
         ));
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Private helpers
+    // ─────────────────────────────────────────────────────────────────────────
+
+    /**
+     * Compute SHA-256 hash of the prompt for tamper-evident audit records.
+     * The hash allows forensic verification that a logged prompt was not altered.
+     */
+    private String computeRequestHash(String prompt) {
+        if (prompt == null) return null;
+        try {
+            var digest = java.security.MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(prompt.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            StringBuilder sb = new StringBuilder();
+            for (byte b : hash) sb.append(String.format("%02x", b));
+            return sb.toString();
+        } catch (java.security.NoSuchAlgorithmException e) {
+            log.warn("SHA-256 not available for request hash: {}", e.getMessage());
+            return null;
+        }
     }
 
 }

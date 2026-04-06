@@ -19,7 +19,7 @@ class JwtUtilTest {
 
     @BeforeEach
     void setUp() {
-        jwtUtil = new JwtUtil();
+        jwtUtil = new JwtUtil(null); // null = in-memory blacklist (no Redis in tests)
         ReflectionTestUtils.setField(jwtUtil, "secret", VALID_SECRET);
         ReflectionTestUtils.setField(jwtUtil, "expirationMs", 3600000L);
     }
@@ -103,7 +103,7 @@ class JwtUtilTest {
         @Test
         @DisplayName("Token signed with different secret should fail")
         void wrongSecretShouldFail() {
-            JwtUtil otherJwt = new JwtUtil();
+            JwtUtil otherJwt = new JwtUtil(null);
             ReflectionTestUtils.setField(otherJwt, "secret",
                     "completely-different-secret-key-32-chars-long");
             ReflectionTestUtils.setField(otherJwt, "expirationMs", 3600000L);

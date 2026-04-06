@@ -37,7 +37,16 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- Spring Boot -->
-        <spring-boot.version>3.4.3</spring-boot.version>
+        <!-- Upgraded 3.4.3 → 3.4.6: includes Spring Security 6.4.6 which fixes CVE-2025-41232 -->
+        <spring-boot.version>3.4.6</spring-boot.version>
+
+        <!-- Spring Security explicit override — fixes CVE-2025-41232 (CRITICAL) -->
+        <!-- CVE-2025-41232: Spring Security ≤ 6.4.5 — fixed in 6.4.6            -->
+        <!-- Ref: https://spring.io/security/cve-2025-41232                       -->
+        <spring-security.version>6.4.6</spring-security.version>
+
+        <!-- Jackson override — fixes CVE in jackson-core async parser (Dependabot #30) -->
+        <jackson-bom.version>2.18.3</jackson-bom.version>
 
         <!-- Library Versions -->
         <jjwt.version>0.12.6</jjwt.version>
@@ -120,6 +129,13 @@
                 <groupId>com.bucket4j</groupId>
                 <artifactId>bucket4j-core</artifactId>
                 <version>${bucket4j.version}</version>
+            </dependency>
+
+            <!-- Redis — distributed JWT blacklist + rate limiting (prod profile) -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-data-redis</artifactId>
+                <version>${spring-boot.version}</version>
             </dependency>
 
             <!-- Resilience4j Circuit Breaker -->

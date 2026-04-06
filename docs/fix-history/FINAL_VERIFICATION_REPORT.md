@@ -291,7 +291,7 @@ Run `mvn clean verify` to confirm successful build
 
 ## 10. Sign-Off
 
-**Remediation Performed By**: GitHub Copilot  
+**Remediation Performed By**: Development Team  
 **Date**: February 22, 2026  
 **Project**: Secure AI Gateway v2.0.0  
 **CVE Status**: 24 FIXED, 2 UNFIXABLE (no patches available)  

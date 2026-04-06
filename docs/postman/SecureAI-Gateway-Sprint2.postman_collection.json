@@ -1,0 +1,589 @@
+{
+	"info": {
+		"_postman_id": "b2c3d4e5-f6a7-8901-bcde-f23456789012",
+		"name": "SecureAI Gateway - Sprint 2",
+		"description": "Sprint 2 collection for the Secure AI Gateway project covering DevSecOps verification, infrastructure health, security headers, and advanced security testing.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Infrastructure Health",
+			"item": [
+				{
+					"name": "PostgreSQL Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/actuator/health",
+							"host": ["{{base_url}}"],
+							"path": ["actuator", "health"]
+						},
+						"description": "Check PostgreSQL health via Spring Boot Actuator (db component)"
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Health endpoint returns 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Database is UP', function () {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.components && jsonData.components.db) {",
+									"        pm.expect(jsonData.components.db.status).to.eql('UP');",
+									"    } else {",
+									"        pm.expect(jsonData.status).to.eql('UP');",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "Ollama Health",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:11434/api/tags",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "11434",
+							"path": ["api", "tags"]
+						},
+						"description": "Check Ollama LLM service health and available models"
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Ollama is running', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Models list returned', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('models');",
+									"    pm.expect(jsonData.models).to.be.an('array');",
+									"    console.log('Available models: ' + jsonData.models.map(m => m.name).join(', '));",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "NeMo Guardrails Health",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{nemo_url}}/v1/health",
+							"host": ["{{nemo_url}}"],
+							"path": ["v1", "health"]
+						},
+						"description": "Check NeMo Guardrails service health"
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('NeMo Guardrails is healthy', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "Presidio Health",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{presidio_url}}/health",
+							"host": ["{{presidio_url}}"],
+							"path": ["health"]
+						},
+						"description": "Check Microsoft Presidio PII detection service health"
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Presidio is healthy', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "Jenkins Health",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{jenkins_url}}/api/json",
+							"host": ["{{jenkins_url}}"],
+							"path": ["api", "json"]
+						},
+						"description": "Check Jenkins CI/CD service health"
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Jenkins is running', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Jenkins API returns valid JSON', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('object');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "SonarQube Health",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{sonarqube_url}}/api/system/status",
+							"host": ["{{sonarqube_url}}"],
+							"path": ["api", "system", "status"]
+						},
+						"description": "Check SonarQube code quality service health"
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('SonarQube is running', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('SonarQube status is UP', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.status).to.eql('UP');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "Prometheus Health",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{prometheus_url}}/-/healthy",
+							"host": ["{{prometheus_url}}"],
+							"path": ["-", "healthy"]
+						},
+						"description": "Check Prometheus monitoring service health"
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Prometheus is healthy', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response confirms healthy', function () {",
+									"    pm.expect(pm.response.text()).to.include('Healthy');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "Grafana Health",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{grafana_url}}/api/health",
+							"host": ["{{grafana_url}}"],
+							"path": ["api", "health"]
+						},
+						"description": "Check Grafana dashboard service health"
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Grafana is healthy', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Grafana database is ok', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.database).to.eql('ok');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				}
+			],
+			"description": "Health checks for all infrastructure components including databases, LLM services, CI/CD, and monitoring"
+		},
+		{
+			"name": "Security Headers",
+			"item": [
+				{
+					"name": "Check CORS",
+					"request": {
+						"method": "OPTIONS",
+						"header": [
+							{
+								"key": "Origin",
+								"value": "http://localhost:3000"
+							},
+							{
+								"key": "Access-Control-Request-Method",
+								"value": "POST"
+							},
+							{
+								"key": "Access-Control-Request-Headers",
+								"value": "Content-Type, Authorization"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/ask",
+							"host": ["{{base_url}}"],
+							"path": ["api", "ask"]
+						},
+						"description": "Test CORS preflight request handling"
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('CORS preflight returns success', function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 204]);",
+									"});",
+									"",
+									"pm.test('CORS headers present', function () {",
+									"    pm.expect(",
+									"        pm.response.headers.has('Access-Control-Allow-Origin') ||",
+									"        pm.response.headers.has('access-control-allow-origin')",
+									"    ).to.be.true;",
+									"});",
+									"",
+									"pm.test('CORS allows required methods', function () {",
+									"    var allowMethods = pm.response.headers.get('Access-Control-Allow-Methods') ||",
+									"                      pm.response.headers.get('access-control-allow-methods') || '';",
+									"    pm.expect(allowMethods.toLowerCase()).to.include('post');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "Check CSP Header",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/auth/health",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "health"]
+						},
+						"description": "Inspect Content-Security-Policy header"
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response returns 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Content-Security-Policy header present', function () {",
+									"    pm.expect(",
+									"        pm.response.headers.has('Content-Security-Policy') ||",
+									"        pm.response.headers.has('content-security-policy')",
+									"    ).to.be.true;",
+									"});",
+									"",
+									"// Log CSP value for review",
+									"var csp = pm.response.headers.get('Content-Security-Policy') ||",
+									"          pm.response.headers.get('content-security-policy');",
+									"if (csp) {",
+									"    console.log('CSP: ' + csp);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "Check HSTS",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/auth/health",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "health"]
+						},
+						"description": "Inspect Strict-Transport-Security header"
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response returns 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Strict-Transport-Security header present', function () {",
+									"    pm.expect(",
+									"        pm.response.headers.has('Strict-Transport-Security') ||",
+									"        pm.response.headers.has('strict-transport-security')",
+									"    ).to.be.true;",
+									"});",
+									"",
+									"// Log HSTS value for review",
+									"var hsts = pm.response.headers.get('Strict-Transport-Security') ||",
+									"           pm.response.headers.get('strict-transport-security');",
+									"if (hsts) {",
+									"    console.log('HSTS: ' + hsts);",
+									"    pm.test('HSTS includes max-age', function () {",
+									"        pm.expect(hsts).to.include('max-age');",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "SQL Injection Test",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"admin' OR '1'='1' --\",\n  \"password\": \"anything\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "login"]
+						},
+						"description": "Test SQL injection resistance on login endpoint"
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('SQL injection attempt fails', function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([400, 401, 403]);",
+									"});",
+									"",
+									"pm.test('No database error exposed', function () {",
+									"    var body = pm.response.text().toLowerCase();",
+									"    pm.expect(body).to.not.include('sql');",
+									"    pm.expect(body).to.not.include('syntax');",
+									"    pm.expect(body).to.not.include('postgresql');",
+									"    pm.expect(body).to.not.include('stacktrace');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "XSS Test",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"prompt\": \"<script>alert('xss')</script>What is AI?\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/ask",
+							"host": ["{{base_url}}"],
+							"path": ["api", "ask"]
+						},
+						"description": "Test XSS payload handling in API requests"
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response received', function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 400]);",
+									"});",
+									"",
+									"pm.test('XSS payload not reflected raw', function () {",
+									"    var body = pm.response.text();",
+									"    pm.expect(body).to.not.include(\"<script>alert('xss')</script>\");",
+									"});",
+									"",
+									"pm.test('X-Content-Type-Options header present', function () {",
+									"    pm.expect(",
+									"        pm.response.headers.has('X-Content-Type-Options') ||",
+									"        pm.response.headers.has('x-content-type-options')",
+									"    ).to.be.true;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				}
+			],
+			"description": "Security header verification and attack vector testing including CORS, CSP, HSTS, SQL injection, and XSS"
+		},
+		{
+			"name": "DevSecOps Verification",
+			"item": [
+				{
+					"name": "SonarQube Quality Gate",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{sonarqube_url}}/api/qualitygates/project_status?projectKey=secure-ai-gateway",
+							"host": ["{{sonarqube_url}}"],
+							"path": ["api", "qualitygates", "project_status"],
+							"query": [
+								{
+									"key": "projectKey",
+									"value": "secure-ai-gateway"
+								}
+							]
+						},
+						"description": "Check SonarQube quality gate status for the project"
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('SonarQube API accessible', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Quality gate status returned', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('projectStatus');",
+									"    console.log('Quality Gate Status: ' + jsonData.projectStatus.status);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "Jenkins Last Build",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{jenkins_url}}/job/secure-ai-gateway/lastBuild/api/json",
+							"host": ["{{jenkins_url}}"],
+							"path": ["job", "secure-ai-gateway", "lastBuild", "api", "json"]
+						},
+						"description": "Check the status of the last Jenkins build"
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Jenkins API accessible', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Build info returned', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('result');",
+									"    console.log('Last Build Result: ' + jsonData.result);",
+									"    console.log('Build Number: ' + jsonData.number);",
+									"    console.log('Duration: ' + jsonData.duration + 'ms');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				}
+			],
+			"description": "DevSecOps pipeline verification including SonarQube quality gates and Jenkins build status"
+		}
+	]
+}

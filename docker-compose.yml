@@ -30,6 +30,7 @@ networks:
 volumes:
   secureai_postgres_data:
   secureai_ollama_data:
+  secureai_redis_data:
 
 services:
 
@@ -48,15 +49,20 @@ services:
       DB_PORT: 5432
       DB_NAME: ${DB_NAME:-secureai}
       DB_USERNAME: ${DB_USERNAME:-secureai_user}
-      DB_PASSWORD: ${DB_PASSWORD:-SecureAIGw@Db2026!}
-      OLLAMA_BASE_URL: http://secureai-ollama:11434
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD must be set in .env}
+      OLLAMA_BASE_URL: http://host.docker.internal:11434
       OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.1:8b}
-      JWT_SECRET: ${JWT_SECRET:-L7mvWP+sGS9utYDXFlL8GJ4G4esF/pnnG9cpKwDCoj09lcPXKUmdrb+f/1oSwXSa}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set in .env}
       NEMO_GUARDRAILS_URL: http://secureai-nemo-guardrails:8001
       PRESIDIO_URL: http://secureai-presidio:5002
       LLAMAGUARD_MODEL: ${LLAMAGUARD_MODEL:-llamaguard3:1b}
+      REDIS_ENABLED: "true"
+      SPRING_DATA_REDIS_HOST: secureai-redis
+      SPRING_DATA_REDIS_PORT: 6379
     depends_on:
       postgres:
+        condition: service_healthy
+      redis:
         condition: service_healthy
       ollama:
         condition: service_started
@@ -85,7 +91,7 @@ services:
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-secureai}
       POSTGRES_USER: ${POSTGRES_USER:-secureai_user}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-SecureAIGw@Db2026!}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in .env}
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
       - secureai_postgres_data:/var/lib/postgresql/data
@@ -105,6 +111,11 @@ services:
     container_name: secureai-ollama
     ports:
       - "11434:11434"
+    environment:
+      OLLAMA_KEEP_ALIVE: "-1"
+      OLLAMA_NUM_PARALLEL: "3"
+      OLLAMA_MAX_LOADED_MODELS: "3"
+      OLLAMA_FLASH_ATTENTION: "1"
     volumes:
       - secureai_ollama_data:/root/.ollama
     networks:
@@ -129,7 +140,7 @@ services:
     ports:
       - "8001:8001"
     environment:
-      OLLAMA_BASE_URL: http://secureai-ollama:11434
+      OLLAMA_BASE_URL: http://host.docker.internal:11434
       GUARDRAILS_MODEL: gemma2:2b
     volumes:
       - ./nemo-guardrails/config:/app/config
@@ -139,11 +150,33 @@ services:
       ollama:
         condition: service_started
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8001/v1/health"]
+      # /v1/rails/configs returns 200 with [{"id":"config"}] — correct NeMo API endpoint
+      # /v1/health returns 404 (not implemented in nemoguardrails 0.10.x)
+      test: ["CMD", "curl", "-sf", "http://localhost:8001/v1/rails/configs"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 45s
+    restart: unless-stopped
+
+  # ─── Redis (host port 6380) ────────────────────────────────────
+  # Distributed JWT blacklist + rate limiter state (prod profile)
+  # Port 6380 to avoid conflict with any local Redis on 6379
+  redis:
+    image: redis:7.2-alpine
+    container_name: secureai-redis
+    ports:
+      - "6380:6379"
+    command: redis-server --save 60 1 --loglevel warning --maxmemory 128mb --maxmemory-policy allkeys-lru
+    volumes:
+      - secureai_redis_data:/data
+    networks:
+      - secure-ai-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     restart: unless-stopped
 
   # ─── Microsoft Presidio PII Analyzer (host port 5002) ──────────

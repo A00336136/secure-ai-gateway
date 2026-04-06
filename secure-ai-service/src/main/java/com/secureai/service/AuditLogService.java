@@ -32,7 +32,10 @@ public class AuditLogService {
     }
 
     /**
-     * Parameter object for {@link #logRequest(AuditLogEntry)} to reduce method parameter count.
+     * Extended parameter object for {@link #logRequest(AuditLogEntry)}.
+     *
+     * SOC 2 PI1: captures full request lifecycle including guardrail decisions,
+     * token consumption, groundedness score, and a tamper-evident request hash.
      */
     public record AuditLogEntry(
             String username,
@@ -44,12 +47,35 @@ public class AuditLogService {
             Integer reactSteps,
             int statusCode,
             long durationMs,
-            String ipAddress
-    ) {}
+            String ipAddress,
+            // Security fields
+            String blockedBy,
+            Long guardrailLatencyMs,
+            String requestHash,
+            // Token consumption (OWASP LLM10)
+            Integer tokensUsed,
+            boolean excessiveTokenUsage,
+            // Groundedness (NIST AI 600-1 / OWASP LLM09)
+            Double groundednessScore,
+            String groundednessVerdict
+    ) {
+        /** Backward-compatible constructor for rate-limit / blocked-request entries. */
+        public AuditLogEntry(String username, String prompt, String redactedResponse,
+                             String model, boolean piiDetected, boolean rateLimited,
+                             Integer reactSteps, int statusCode, long durationMs,
+                             String ipAddress) {
+            this(username, prompt, redactedResponse, model, piiDetected, rateLimited,
+                 reactSteps, statusCode, durationMs, ipAddress,
+                 null, null, null, null, false, null, null);
+        }
+    }
 
     /**
-     * Asynchronously persist an audit entry.
+     * Asynchronously persist an audit entry — immutable, append-only.
      * Does NOT block the HTTP response — fire and forget.
+     *
+     * All security-relevant fields are stored with updatable=false at the
+     * JPA layer to prevent post-hoc modification (SOC 2 PI1 / HIPAA AU).
      */
     @Async
     public void logRequest(AuditLogEntry entry) {
@@ -65,10 +91,22 @@ public class AuditLogService {
                     .statusCode(entry.statusCode())
                     .durationMs(entry.durationMs())
                     .ipAddress(entry.ipAddress())
+                    // Security fields
+                    .blockedBy(entry.blockedBy())
+                    .guardrailLatencyMs(entry.guardrailLatencyMs())
+                    .requestHash(entry.requestHash())
+                    // Token consumption
+                    .tokensUsed(entry.tokensUsed())
+                    .excessiveTokenUsage(entry.excessiveTokenUsage())
+                    // Groundedness
+                    .groundednessScore(entry.groundednessScore())
+                    .groundednessVerdict(entry.groundednessVerdict())
                     .build();
 
             auditLogRepository.save(auditLog);
-            log.debug("Audit log saved for user '{}'", entry.username());
+            log.debug("Audit log saved for user '{}' — tokens={} groundedness={} blocked={}",
+                    entry.username(), entry.tokensUsed(),
+                    entry.groundednessVerdict(), entry.blockedBy() != null);
         } catch (Exception e) {
             log.error("Failed to save audit log for user '{}': {}", entry.username(),
                     e.getMessage(), e);
@@ -87,19 +125,26 @@ public class AuditLogService {
         return auditLogRepository.findByPiiDetectedTrueOrderByCreatedAtDesc();
     }
 
+    public List<AuditLog> getBlockedRequests() {
+        return auditLogRepository.findByBlockedByNotNullOrderByCreatedAtDesc();
+    }
+
     public Map<String, Object> getDashboardStats() {
         LocalDateTime last24h = LocalDateTime.now().minusHours(24);
         LocalDateTime last1h  = LocalDateTime.now().minusHours(1);
 
         Double avgResponseTime = auditLogRepository.avgResponseTimeSince(last24h);
+        Double avgGroundedness = auditLogRepository.avgGroundednessScoreSince(last24h);
 
         return Map.of(
-            "totalRequests",      auditLogRepository.count(),
-            "requestsLast24h",    auditLogRepository.countRequestsSince(last24h),
-            "requestsLastHour",   auditLogRepository.countRequestsSince(last1h),
-            "piiDetections",      auditLogRepository.countByPiiDetectedTrue(),
-            "rateLimitedCount",   auditLogRepository.countByRateLimitedTrue(),
-            "avgResponseTimeMs",  avgResponseTime != null ? avgResponseTime : 0.0
+            "totalRequests",         auditLogRepository.count(),
+            "requestsLast24h",       auditLogRepository.countRequestsSince(last24h),
+            "requestsLastHour",      auditLogRepository.countRequestsSince(last1h),
+            "piiDetections",         auditLogRepository.countByPiiDetectedTrue(),
+            "rateLimitedCount",      auditLogRepository.countByRateLimitedTrue(),
+            "blockedByGuardrails",   auditLogRepository.countByBlockedByNotNull(),
+            "avgResponseTimeMs",     avgResponseTime != null ? avgResponseTime : 0.0,
+            "avgGroundednessScore",  avgGroundedness != null ? avgGroundedness : 0.0
         );
     }
 

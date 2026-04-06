@@ -1,0 +1,1448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SecureAI Gateway - Architecture Diagrams</title>
+<style>
+:root {
+  --bg-primary: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-tertiary: #21262d;
+  --border: #30363d;
+  --text-primary: #e6edf3;
+  --text-secondary: #8b949e;
+  --text-muted: #6e7681;
+  --accent-blue: #58a6ff;
+  --accent-green: #3fb950;
+  --accent-purple: #bc8cff;
+  --accent-orange: #d29922;
+  --accent-red: #f85149;
+  --accent-teal: #39d2c0;
+  --accent-pink: #f778ba;
+  --shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.light-mode {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f6f8fa;
+  --bg-tertiary: #e1e4e8;
+  --border: #d0d7de;
+  --text-primary: #1f2328;
+  --text-secondary: #656d76;
+  --text-muted: #8b949e;
+  --accent-blue: #0969da;
+  --accent-green: #1a7f37;
+  --accent-purple: #8250df;
+  --accent-orange: #9a6700;
+  --accent-red: #cf222e;
+  --accent-teal: #1b7c83;
+  --accent-pink: #bf3989;
+  --shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+.container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+
+h1 {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+.subtitle {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  margin-bottom: 2rem;
+}
+
+.controls {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.controls button {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+
+.controls button:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
+.controls button.active { background: var(--accent-blue); color: #fff; border-color: var(--accent-blue); }
+
+.diagram-section {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: 2.5rem;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  page-break-inside: avoid;
+}
+
+.diagram-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.diagram-header h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.diagram-header .badge {
+  font-size: 0.75rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+
+.diagram-body { padding: 2rem; overflow-x: auto; }
+
+.diagram-caption {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--border);
+  background: var(--bg-tertiary);
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.export-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.export-btn {
+  padding: 0.35rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: all 0.2s;
+}
+
+.export-btn:hover { color: var(--accent-blue); border-color: var(--accent-blue); }
+
+.copied {
+  color: var(--accent-green) !important;
+  border-color: var(--accent-green) !important;
+}
+
+/* ---- C4 Context Diagram ---- */
+.c4-context { display: flex; justify-content: center; align-items: center; min-height: 600px; }
+.c4-context svg { width: 100%; max-width: 1100px; height: auto; }
+
+/* ---- C4 Container Diagram ---- */
+.c4-container { display: flex; justify-content: center; min-height: 700px; }
+.c4-container svg { width: 100%; max-width: 1200px; height: auto; }
+
+/* ---- Sequence Diagram ---- */
+.sequence-diagram { display: flex; justify-content: center; min-height: 650px; }
+.sequence-diagram svg { width: 100%; max-width: 1100px; height: auto; }
+
+/* ---- CI/CD Pipeline ---- */
+.pipeline-diagram { display: flex; justify-content: center; min-height: 300px; }
+.pipeline-diagram svg { width: 100%; max-width: 1300px; height: auto; }
+
+/* ---- Defence in Depth ---- */
+.defence-diagram { display: flex; justify-content: center; min-height: 500px; }
+.defence-diagram svg { width: 100%; max-width: 1000px; height: auto; }
+
+/* Print styles */
+@media print {
+  body { background: #fff !important; color: #000 !important; }
+  .controls, .export-buttons { display: none !important; }
+  .diagram-section { border: 1px solid #ccc !important; box-shadow: none !important; background: #fff !important; }
+  .diagram-header { background: #f5f5f5 !important; border-bottom: 1px solid #ccc !important; }
+  .diagram-header h2 { color: #000 !important; }
+  .diagram-caption { background: #f5f5f5 !important; color: #333 !important; border-top: 1px solid #ccc !important; }
+  svg text { fill: #000 !important; }
+  svg rect, svg path { stroke: #333 !important; }
+}
+
+/* Toast notification */
+.toast {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  padding: 0.75rem 1.25rem;
+  background: var(--accent-green);
+  color: #fff;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.3s;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.toast.show { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>SecureAI Gateway - Architecture Diagrams</h1>
+  <p class="subtitle">Publication-quality diagrams for the research paper. All rendered in pure HTML/CSS/SVG.</p>
+
+  <div class="controls">
+    <button class="active" onclick="toggleTheme(this)">Toggle Light/Dark</button>
+    <button onclick="window.print()">Print / Export PDF</button>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- DIAGRAM 1: C4 Context -->
+  <!-- ============================================================ -->
+  <div class="diagram-section">
+    <div class="diagram-header">
+      <div>
+        <h2>1. C4 Context Diagram</h2>
+        <span class="badge">Level 1 - System Context</span>
+      </div>
+      <div class="export-buttons">
+        <button class="export-btn" onclick="copyMermaid('c4context')">Copy as Mermaid</button>
+        <button class="export-btn" onclick="copyPlantUML('c4context')">Copy as PlantUML</button>
+      </div>
+    </div>
+    <div class="diagram-body">
+      <div class="c4-context">
+        <svg viewBox="0 0 1100 620" xmlns="http://www.w3.org/2000/svg">
+          <!-- Actors -->
+          <!-- End User -->
+          <g transform="translate(100,50)">
+            <circle cx="40" cy="20" r="18" fill="none" stroke="var(--accent-blue)" stroke-width="2"/>
+            <line x1="40" y1="38" x2="40" y2="70" stroke="var(--accent-blue)" stroke-width="2"/>
+            <line x1="15" y1="52" x2="65" y2="52" stroke="var(--accent-blue)" stroke-width="2"/>
+            <line x1="40" y1="70" x2="20" y2="95" stroke="var(--accent-blue)" stroke-width="2"/>
+            <line x1="40" y1="70" x2="60" y2="95" stroke="var(--accent-blue)" stroke-width="2"/>
+            <text x="40" y="115" text-anchor="middle" fill="var(--text-primary)" font-size="13" font-weight="600">End User</text>
+            <text x="40" y="132" text-anchor="middle" fill="var(--text-secondary)" font-size="10">Sends prompts via</text>
+            <text x="40" y="145" text-anchor="middle" fill="var(--text-secondary)" font-size="10">REST API / Web UI</text>
+          </g>
+
+          <!-- Admin User -->
+          <g transform="translate(100,400)">
+            <circle cx="40" cy="20" r="18" fill="none" stroke="var(--accent-purple)" stroke-width="2"/>
+            <line x1="40" y1="38" x2="40" y2="70" stroke="var(--accent-purple)" stroke-width="2"/>
+            <line x1="15" y1="52" x2="65" y2="52" stroke="var(--accent-purple)" stroke-width="2"/>
+            <line x1="40" y1="70" x2="20" y2="95" stroke="var(--accent-purple)" stroke-width="2"/>
+            <line x1="40" y1="70" x2="60" y2="95" stroke="var(--accent-purple)" stroke-width="2"/>
+            <text x="40" y="115" text-anchor="middle" fill="var(--text-primary)" font-size="13" font-weight="600">Admin User</text>
+            <text x="40" y="132" text-anchor="middle" fill="var(--text-secondary)" font-size="10">Monitors via</text>
+            <text x="40" y="145" text-anchor="middle" fill="var(--text-secondary)" font-size="10">Grafana/Jenkins</text>
+          </g>
+
+          <!-- CI/CD Pipeline -->
+          <g transform="translate(100,230)">
+            <rect x="0" y="0" width="120" height="70" rx="8" fill="var(--bg-tertiary)" stroke="var(--accent-orange)" stroke-width="2" stroke-dasharray="6,3"/>
+            <text x="60" y="30" text-anchor="middle" fill="var(--accent-orange)" font-size="13" font-weight="600">CI/CD</text>
+            <text x="60" y="48" text-anchor="middle" fill="var(--text-secondary)" font-size="10">Jenkins Pipeline</text>
+            <text x="60" y="62" text-anchor="middle" fill="var(--text-secondary)" font-size="10">15 Stages</text>
+          </g>
+
+          <!-- Central System -->
+          <g transform="translate(350,180)">
+            <rect x="0" y="0" width="320" height="180" rx="12" fill="var(--accent-blue)" fill-opacity="0.1" stroke="var(--accent-blue)" stroke-width="3"/>
+            <text x="160" y="40" text-anchor="middle" fill="var(--accent-blue)" font-size="18" font-weight="700">SecureAI Gateway</text>
+            <text x="160" y="65" text-anchor="middle" fill="var(--text-secondary)" font-size="11">[Software System]</text>
+            <line x1="40" y1="80" x2="280" y2="80" stroke="var(--border)" stroke-width="1"/>
+            <text x="160" y="100" text-anchor="middle" fill="var(--text-secondary)" font-size="11">Spring Boot 3.x application with</text>
+            <text x="160" y="118" text-anchor="middle" fill="var(--text-secondary)" font-size="11">3-layer guardrails, JWT auth,</text>
+            <text x="160" y="136" text-anchor="middle" fill="var(--text-secondary)" font-size="11">rate limiting, and DevSecOps</text>
+            <text x="160" y="154" text-anchor="middle" fill="var(--text-secondary)" font-size="11">CI/CD pipeline integration</text>
+          </g>
+
+          <!-- External Systems -->
+          <!-- Ollama LLM -->
+          <g transform="translate(800,60)">
+            <rect x="0" y="0" width="200" height="90" rx="8" fill="var(--bg-tertiary)" stroke="var(--accent-green)" stroke-width="2"/>
+            <text x="100" y="28" text-anchor="middle" fill="var(--accent-green)" font-size="13" font-weight="600">Ollama LLM</text>
+            <text x="100" y="45" text-anchor="middle" fill="var(--text-muted)" font-size="10">[External System]</text>
+            <text x="100" y="65" text-anchor="middle" fill="var(--text-secondary)" font-size="10">Local inference engine</text>
+            <text x="100" y="80" text-anchor="middle" fill="var(--text-secondary)" font-size="10">Llama 3.2 / LlamaGuard</text>
+          </g>
+
+          <!-- PostgreSQL -->
+          <g transform="translate(800,180)">
+            <rect x="0" y="0" width="200" height="80" rx="8" fill="var(--bg-tertiary)" stroke="var(--accent-teal)" stroke-width="2"/>
+            <text x="100" y="25" text-anchor="middle" fill="var(--accent-teal)" font-size="13" font-weight="600">PostgreSQL</text>
+            <text x="100" y="42" text-anchor="middle" fill="var(--text-muted)" font-size="10">[Database]</text>
+            <text x="100" y="62" text-anchor="middle" fill="var(--text-secondary)" font-size="10">User accounts, audit logs</text>
+          </g>
+
+          <!-- Docker Hub -->
+          <g transform="translate(800,290)">
+            <rect x="0" y="0" width="200" height="80" rx="8" fill="var(--bg-tertiary)" stroke="var(--accent-orange)" stroke-width="2"/>
+            <text x="100" y="25" text-anchor="middle" fill="var(--accent-orange)" font-size="13" font-weight="600">Docker Hub</text>
+            <text x="100" y="42" text-anchor="middle" fill="var(--text-muted)" font-size="10">[External Service]</text>
+            <text x="100" y="62" text-anchor="middle" fill="var(--text-secondary)" font-size="10">Container registry</text>
+          </g>
+
+          <!-- GitHub -->
+          <g transform="translate(800,400)">
+            <rect x="0" y="0" width="200" height="80" rx="8" fill="var(--bg-tertiary)" stroke="var(--accent-purple)" stroke-width="2"/>
+            <text x="100" y="25" text-anchor="middle" fill="var(--accent-purple)" font-size="13" font-weight="600">GitHub</text>
+            <text x="100" y="42" text-anchor="middle" fill="var(--text-muted)" font-size="10">[External Service]</text>
+            <text x="100" y="62" text-anchor="middle" fill="var(--text-secondary)" font-size="10">Source code repository</text>
+          </g>
+
+          <!-- Arrows -->
+          <!-- End User -> Gateway -->
+          <line x1="200" y1="120" x2="350" y2="240" stroke="var(--accent-blue)" stroke-width="1.5" marker-end="url(#arrow-blue)"/>
+          <text x="255" y="165" fill="var(--text-secondary)" font-size="9" transform="rotate(-20,255,165)">REST API / HTTPS</text>
+
+          <!-- Admin -> Gateway -->
+          <line x1="200" y1="440" x2="350" y2="320" stroke="var(--accent-purple)" stroke-width="1.5" marker-end="url(#arrow-purple)"/>
+          <text x="255" y="400" fill="var(--text-secondary)" font-size="9" transform="rotate(20,255,400)">Monitoring</text>
+
+          <!-- CI/CD -> Gateway -->
+          <line x1="220" y1="265" x2="350" y2="265" stroke="var(--accent-orange)" stroke-width="1.5" marker-end="url(#arrow-orange)"/>
+          <text x="285" y="255" fill="var(--text-secondary)" font-size="9">Deploy</text>
+
+          <!-- Gateway -> Ollama -->
+          <line x1="670" y1="230" x2="800" y2="110" stroke="var(--accent-green)" stroke-width="1.5" marker-end="url(#arrow-green)"/>
+          <text x="725" y="155" fill="var(--text-secondary)" font-size="9" transform="rotate(-30,725,155)">Inference / Guard</text>
+
+          <!-- Gateway -> PostgreSQL -->
+          <line x1="670" y1="270" x2="800" y2="220" stroke="var(--accent-teal)" stroke-width="1.5" marker-end="url(#arrow-teal)"/>
+          <text x="735" y="235" fill="var(--text-secondary)" font-size="9">JDBC</text>
+
+          <!-- Gateway -> Docker Hub -->
+          <line x1="670" y1="310" x2="800" y2="330" stroke="var(--accent-orange)" stroke-width="1.5" marker-end="url(#arrow-orange)"/>
+          <text x="735" y="310" fill="var(--text-secondary)" font-size="9">Push/Pull</text>
+
+          <!-- Gateway -> GitHub -->
+          <line x1="670" y1="340" x2="800" y2="430" stroke="var(--accent-purple)" stroke-width="1.5" marker-end="url(#arrow-purple)"/>
+          <text x="720" y="390" fill="var(--text-secondary)" font-size="9" transform="rotate(25,720,390)">Webhook</text>
+
+          <!-- Arrow markers -->
+          <defs>
+            <marker id="arrow-blue" markerWidth="10" markerHeight="8" refX="10" refY="4" orient="auto">
+              <path d="M0,0 L10,4 L0,8" fill="none" stroke="var(--accent-blue)" stroke-width="1.5"/>
+            </marker>
+            <marker id="arrow-green" markerWidth="10" markerHeight="8" refX="10" refY="4" orient="auto">
+              <path d="M0,0 L10,4 L0,8" fill="none" stroke="var(--accent-green)" stroke-width="1.5"/>
+            </marker>
+            <marker id="arrow-purple" markerWidth="10" markerHeight="8" refX="10" refY="4" orient="auto">
+              <path d="M0,0 L10,4 L0,8" fill="none" stroke="var(--accent-purple)" stroke-width="1.5"/>
+            </marker>
+            <marker id="arrow-orange" markerWidth="10" markerHeight="8" refX="10" refY="4" orient="auto">
+              <path d="M0,0 L10,4 L0,8" fill="none" stroke="var(--accent-orange)" stroke-width="1.5"/>
+            </marker>
+            <marker id="arrow-teal" markerWidth="10" markerHeight="8" refX="10" refY="4" orient="auto">
+              <path d="M0,0 L10,4 L0,8" fill="none" stroke="var(--accent-teal)" stroke-width="1.5"/>
+            </marker>
+            <marker id="arrow-red" markerWidth="10" markerHeight="8" refX="10" refY="4" orient="auto">
+              <path d="M0,0 L10,4 L0,8" fill="none" stroke="var(--accent-red)" stroke-width="1.5"/>
+            </marker>
+            <marker id="arrow-gray" markerWidth="10" markerHeight="8" refX="10" refY="4" orient="auto">
+              <path d="M0,0 L10,4 L0,8" fill="none" stroke="var(--text-secondary)" stroke-width="1.5"/>
+            </marker>
+          </defs>
+        </svg>
+      </div>
+    </div>
+    <div class="diagram-caption">
+      <strong>Figure 1.</strong> C4 Context Diagram showing the SecureAI Gateway system boundary, external actors (End User, Admin, CI/CD Pipeline), and external dependencies (Ollama LLM, PostgreSQL, Docker Hub, GitHub). The gateway mediates all interactions between users and the language model through authenticated, rate-limited, and guardrail-protected endpoints.
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- DIAGRAM 2: C4 Container -->
+  <!-- ============================================================ -->
+  <div class="diagram-section">
+    <div class="diagram-header">
+      <div>
+        <h2>2. C4 Container Diagram</h2>
+        <span class="badge">Level 2 - Container View (11 Docker Containers)</span>
+      </div>
+      <div class="export-buttons">
+        <button class="export-btn" onclick="copyMermaid('c4container')">Copy as Mermaid</button>
+        <button class="export-btn" onclick="copyPlantUML('c4container')">Copy as PlantUML</button>
+      </div>
+    </div>
+    <div class="diagram-body">
+      <div class="c4-container">
+        <svg viewBox="0 0 1200 780" xmlns="http://www.w3.org/2000/svg">
+          <!-- Legend -->
+          <g transform="translate(20,10)">
+            <rect x="0" y="0" width="14" height="14" rx="2" fill="var(--accent-blue)" fill-opacity="0.2" stroke="var(--accent-blue)" stroke-width="1.5"/>
+            <text x="20" y="12" fill="var(--text-secondary)" font-size="10">Application Layer</text>
+            <rect x="160" y="0" width="14" height="14" rx="2" fill="var(--accent-red)" fill-opacity="0.2" stroke="var(--accent-red)" stroke-width="1.5"/>
+            <text x="180" y="12" fill="var(--text-secondary)" font-size="10">Guardrails Layer</text>
+            <rect x="320" y="0" width="14" height="14" rx="2" fill="var(--accent-orange)" fill-opacity="0.2" stroke="var(--accent-orange)" stroke-width="1.5"/>
+            <text x="340" y="12" fill="var(--text-secondary)" font-size="10">Infrastructure Layer</text>
+          </g>
+
+          <!-- ---- APPLICATION LAYER ---- -->
+          <rect x="30" y="40" width="500" height="320" rx="10" fill="none" stroke="var(--accent-blue)" stroke-width="1" stroke-dasharray="8,4" opacity="0.4"/>
+          <text x="50" y="62" fill="var(--accent-blue)" font-size="11" font-weight="600" opacity="0.7">APPLICATION LAYER</text>
+
+          <!-- secure-ai-gateway -->
+          <g transform="translate(60,80)">
+            <rect x="0" y="0" width="200" height="100" rx="8" fill="var(--accent-blue)" fill-opacity="0.1" stroke="var(--accent-blue)" stroke-width="2"/>
+            <text x="100" y="25" text-anchor="middle" fill="var(--accent-blue)" font-size="13" font-weight="700">secure-ai-gateway</text>
+            <text x="100" y="42" text-anchor="middle" fill="var(--text-muted)" font-size="10">[Spring Boot 3.x]</text>
+            <text x="100" y="62" text-anchor="middle" fill="var(--text-secondary)" font-size="10">JWT Auth, Rate Limiting</text>
+            <text x="100" y="77" text-anchor="middle" fill="var(--text-secondary)" font-size="10">Guardrails Orchestration</text>
+            <rect x="130" y="85" width="60" height="14" rx="4" fill="var(--accent-blue)" fill-opacity="0.3"/>
+            <text x="160" y="95" text-anchor="middle" fill="var(--accent-blue)" font-size="9" font-weight="600">:8100</text>
+          </g>
+
+          <!-- PostgreSQL -->
+          <g transform="translate(300,80)">
+            <rect x="0" y="0" width="200" height="100" rx="8" fill="var(--accent-teal)" fill-opacity="0.1" stroke="var(--accent-teal)" stroke-width="2"/>
+            <text x="100" y="25" text-anchor="middle" fill="var(--accent-teal)" font-size="13" font-weight="700">PostgreSQL</text>
+            <text x="100" y="42" text-anchor="middle" fill="var(--text-muted)" font-size="10">[Database]</text>
+            <text x="100" y="62" text-anchor="middle" fill="var(--text-secondary)" font-size="10">User accounts, audit logs</text>
+            <text x="100" y="77" text-anchor="middle" fill="var(--text-secondary)" font-size="10">conversation history</text>
+            <rect x="130" y="85" width="60" height="14" rx="4" fill="var(--accent-teal)" fill-opacity="0.3"/>
+            <text x="160" y="95" text-anchor="middle" fill="var(--accent-teal)" font-size="9" font-weight="600">:5434</text>
+          </g>
+
+          <!-- Ollama -->
+          <g transform="translate(60,220)">
+            <rect x="0" y="0" width="200" height="100" rx="8" fill="var(--accent-green)" fill-opacity="0.1" stroke="var(--accent-green)" stroke-width="2"/>
+            <text x="100" y="25" text-anchor="middle" fill="var(--accent-green)" font-size="13" font-weight="700">Ollama</text>
+            <text x="100" y="42" text-anchor="middle" fill="var(--text-muted)" font-size="10">[LLM Runtime]</text>
+            <text x="100" y="62" text-anchor="middle" fill="var(--text-secondary)" font-size="10">Llama 3.2 inference</text>
+            <text x="100" y="77" text-anchor="middle" fill="var(--text-secondary)" font-size="10">LlamaGuard classification</text>
+            <rect x="125" y="85" width="70" height="14" rx="4" fill="var(--accent-green)" fill-opacity="0.3"/>
+            <text x="160" y="95" text-anchor="middle" fill="var(--accent-green)" font-size="9" font-weight="600">:11434</text>
+          </g>
+
+          <!-- ---- GUARDRAILS LAYER ---- -->
+          <rect x="570" y="40" width="280" height="320" rx="10" fill="none" stroke="var(--accent-red)" stroke-width="1" stroke-dasharray="8,4" opacity="0.4"/>
+          <text x="590" y="62" fill="var(--accent-red)" font-size="11" font-weight="600" opacity="0.7">GUARDRAILS LAYER</text>
+
+          <!-- NeMo Guardrails -->
+          <g transform="translate(590,80)">
+            <rect x="0" y="0" width="240" height="100" rx="8" fill="var(--accent-red)" fill-opacity="0.1" stroke="var(--accent-red)" stroke-width="2"/>
+            <text x="120" y="25" text-anchor="middle" fill="var(--accent-red)" font-size="13" font-weight="700">NeMo Guardrails</text>
+            <text x="120" y="42" text-anchor="middle" fill="var(--text-muted)" font-size="10">[NVIDIA - Python]</text>
+            <text x="120" y="62" text-anchor="middle" fill="var(--text-secondary)" font-size="10">Policy-based filtering</text>
+            <text x="120" y="77" text-anchor="middle" fill="var(--text-secondary)" font-size="10">Colang DSL rules</text>
+            <rect x="170" y="85" width="60" height="14" rx="4" fill="var(--accent-red)" fill-opacity="0.3"/>
+            <text x="200" y="95" text-anchor="middle" fill="var(--accent-red)" font-size="9" font-weight="600">:8001</text>
+          </g>
+
+          <!-- Presidio -->
+          <g transform="translate(590,220)">
+            <rect x="0" y="0" width="240" height="100" rx="8" fill="var(--accent-pink)" fill-opacity="0.1" stroke="var(--accent-pink)" stroke-width="2"/>
+            <text x="120" y="25" text-anchor="middle" fill="var(--accent-pink)" font-size="13" font-weight="700">Presidio Analyzer</text>
+            <text x="120" y="42" text-anchor="middle" fill="var(--text-muted)" font-size="10">[Microsoft - Python]</text>
+            <text x="120" y="62" text-anchor="middle" fill="var(--text-secondary)" font-size="10">PII detection &amp; anonymization</text>
+            <text x="120" y="77" text-anchor="middle" fill="var(--text-secondary)" font-size="10">50+ entity types</text>
+            <rect x="170" y="85" width="60" height="14" rx="4" fill="var(--accent-pink)" fill-opacity="0.3"/>
+            <text x="200" y="95" text-anchor="middle" fill="var(--accent-pink)" font-size="9" font-weight="600">:5002</text>
+          </g>
+
+          <!-- ---- INFRASTRUCTURE LAYER ---- -->
+          <rect x="30" y="400" width="820" height="360" rx="10" fill="none" stroke="var(--accent-orange)" stroke-width="1" stroke-dasharray="8,4" opacity="0.4"/>
+          <text x="50" y="422" fill="var(--accent-orange)" font-size="11" font-weight="600" opacity="0.7">INFRASTRUCTURE LAYER</text>
+
+          <!-- Jenkins -->
+          <g transform="translate(50,440)">
+            <rect x="0" y="0" width="170" height="85" rx="8" fill="var(--accent-orange)" fill-opacity="0.1" stroke="var(--accent-orange)" stroke-width="2"/>
+            <text x="85" y="22" text-anchor="middle" fill="var(--accent-orange)" font-size="12" font-weight="700">Jenkins</text>
+            <text x="85" y="38" text-anchor="middle" fill="var(--text-muted)" font-size="10">[CI/CD Server]</text>
+            <text x="85" y="55" text-anchor="middle" fill="var(--text-secondary)" font-size="10">15-stage pipeline</text>
+            <rect x="100" y="65" width="60" height="14" rx="4" fill="var(--accent-orange)" fill-opacity="0.3"/>
+            <text x="130" y="75" text-anchor="middle" fill="var(--accent-orange)" font-size="9" font-weight="600">:9095</text>
+          </g>
+
+          <!-- SonarQube -->
+          <g transform="translate(250,440)">
+            <rect x="0" y="0" width="170" height="85" rx="8" fill="var(--accent-orange)" fill-opacity="0.1" stroke="var(--accent-orange)" stroke-width="2"/>
+            <text x="85" y="22" text-anchor="middle" fill="var(--accent-orange)" font-size="12" font-weight="700">SonarQube</text>
+            <text x="85" y="38" text-anchor="middle" fill="var(--text-muted)" font-size="10">[Code Quality]</text>
+            <text x="85" y="55" text-anchor="middle" fill="var(--text-secondary)" font-size="10">Static analysis</text>
+            <rect x="100" y="65" width="60" height="14" rx="4" fill="var(--accent-orange)" fill-opacity="0.3"/>
+            <text x="130" y="75" text-anchor="middle" fill="var(--accent-orange)" font-size="9" font-weight="600">:9001</text>
+          </g>
+
+          <!-- SonarDB -->
+          <g transform="translate(450,440)">
+            <rect x="0" y="0" width="170" height="85" rx="8" fill="var(--accent-orange)" fill-opacity="0.1" stroke="var(--accent-orange)" stroke-width="2"/>
+            <text x="85" y="22" text-anchor="middle" fill="var(--accent-orange)" font-size="12" font-weight="700">SonarDB</text>
+            <text x="85" y="38" text-anchor="middle" fill="var(--text-muted)" font-size="10">[PostgreSQL]</text>
+            <text x="85" y="55" text-anchor="middle" fill="var(--text-secondary)" font-size="10">SonarQube data</text>
+            <rect x="100" y="65" width="60" height="14" rx="4" fill="var(--accent-orange)" fill-opacity="0.3"/>
+            <text x="130" y="75" text-anchor="middle" fill="var(--accent-orange)" font-size="9" font-weight="600">:5433</text>
+          </g>
+
+          <!-- Prometheus -->
+          <g transform="translate(50,560)">
+            <rect x="0" y="0" width="170" height="85" rx="8" fill="var(--accent-orange)" fill-opacity="0.1" stroke="var(--accent-orange)" stroke-width="2"/>
+            <text x="85" y="22" text-anchor="middle" fill="var(--accent-orange)" font-size="12" font-weight="700">Prometheus</text>
+            <text x="85" y="38" text-anchor="middle" fill="var(--text-muted)" font-size="10">[Metrics]</text>
+            <text x="85" y="55" text-anchor="middle" fill="var(--text-secondary)" font-size="10">Time-series metrics</text>
+            <rect x="100" y="65" width="60" height="14" rx="4" fill="var(--accent-orange)" fill-opacity="0.3"/>
+            <text x="130" y="75" text-anchor="middle" fill="var(--accent-orange)" font-size="9" font-weight="600">:9092</text>
+          </g>
+
+          <!-- Grafana -->
+          <g transform="translate(250,560)">
+            <rect x="0" y="0" width="170" height="85" rx="8" fill="var(--accent-orange)" fill-opacity="0.1" stroke="var(--accent-orange)" stroke-width="2"/>
+            <text x="85" y="22" text-anchor="middle" fill="var(--accent-orange)" font-size="12" font-weight="700">Grafana</text>
+            <text x="85" y="38" text-anchor="middle" fill="var(--text-muted)" font-size="10">[Visualization]</text>
+            <text x="85" y="55" text-anchor="middle" fill="var(--text-secondary)" font-size="10">Dashboards</text>
+            <rect x="100" y="65" width="60" height="14" rx="4" fill="var(--accent-orange)" fill-opacity="0.3"/>
+            <text x="130" y="75" text-anchor="middle" fill="var(--accent-orange)" font-size="9" font-weight="600">:3001</text>
+          </g>
+
+          <!-- ngrok -->
+          <g transform="translate(450,560)">
+            <rect x="0" y="0" width="170" height="85" rx="8" fill="var(--accent-orange)" fill-opacity="0.1" stroke="var(--accent-orange)" stroke-width="2"/>
+            <text x="85" y="22" text-anchor="middle" fill="var(--accent-orange)" font-size="12" font-weight="700">ngrok</text>
+            <text x="85" y="38" text-anchor="middle" fill="var(--text-muted)" font-size="10">[Tunnel]</text>
+            <text x="85" y="55" text-anchor="middle" fill="var(--text-secondary)" font-size="10">HTTPS tunneling</text>
+            <rect x="100" y="65" width="60" height="14" rx="4" fill="var(--accent-orange)" fill-opacity="0.3"/>
+            <text x="130" y="75" text-anchor="middle" fill="var(--accent-orange)" font-size="9" font-weight="600">:4041</text>
+          </g>
+
+          <!-- Connection lines -->
+          <!-- Gateway -> PostgreSQL -->
+          <line x1="260" y1="145" x2="300" y2="140" stroke="var(--text-secondary)" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow-gray)"/>
+          <!-- Gateway -> Ollama -->
+          <line x1="160" y1="180" x2="160" y2="220" stroke="var(--text-secondary)" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow-gray)"/>
+          <!-- Gateway -> NeMo -->
+          <line x1="260" y1="125" x2="590" y2="125" stroke="var(--accent-red)" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow-red)"/>
+          <text x="420" y="118" fill="var(--text-muted)" font-size="9">HTTP :8001</text>
+          <!-- Gateway -> Presidio -->
+          <line x1="260" y1="160" x2="560" y2="270" stroke="var(--accent-pink)" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <text x="390" y="230" fill="var(--text-muted)" font-size="9">HTTP :5002</text>
+          <!-- SonarQube -> SonarDB -->
+          <line x1="420" y1="480" x2="450" y2="480" stroke="var(--text-secondary)" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow-gray)"/>
+          <!-- Prometheus -> Gateway -->
+          <line x1="135" y1="560" x2="155" y2="180" stroke="var(--text-secondary)" stroke-width="1" stroke-dasharray="4,3"/>
+          <text x="110" y="380" fill="var(--text-muted)" font-size="9" transform="rotate(-80,110,380)">scrape /actuator</text>
+          <!-- Grafana -> Prometheus -->
+          <line x1="250" y1="600" x2="220" y2="600" stroke="var(--text-secondary)" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow-gray)"/>
+        </svg>
+      </div>
+    </div>
+    <div class="diagram-caption">
+      <strong>Figure 2.</strong> C4 Container Diagram showing all 11 Docker containers organized into three layers: Application (gateway, database, LLM), Guardrails (NeMo, Presidio), and Infrastructure (Jenkins, SonarQube, SonarDB, Prometheus, Grafana, ngrok). Port mappings and inter-service communication paths are annotated.
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- DIAGRAM 3: Sequence Diagram -->
+  <!-- ============================================================ -->
+  <div class="diagram-section">
+    <div class="diagram-header">
+      <div>
+        <h2>3. Sequence Diagram - POST /api/ask Request Flow</h2>
+        <span class="badge">Runtime Behaviour</span>
+      </div>
+      <div class="export-buttons">
+        <button class="export-btn" onclick="copyMermaid('sequence')">Copy as Mermaid</button>
+        <button class="export-btn" onclick="copyPlantUML('sequence')">Copy as PlantUML</button>
+      </div>
+    </div>
+    <div class="diagram-body">
+      <div class="sequence-diagram">
+        <svg viewBox="0 0 1100 720" xmlns="http://www.w3.org/2000/svg">
+          <!-- Participant boxes -->
+          <g>
+            <!-- Client -->
+            <rect x="30" y="10" width="100" height="36" rx="6" fill="var(--accent-blue)" fill-opacity="0.15" stroke="var(--accent-blue)" stroke-width="2"/>
+            <text x="80" y="33" text-anchor="middle" fill="var(--accent-blue)" font-size="12" font-weight="600">Client</text>
+            <line x1="80" y1="46" x2="80" y2="700" stroke="var(--text-muted)" stroke-width="1" stroke-dasharray="4,4"/>
+
+            <!-- JwtFilter -->
+            <rect x="160" y="10" width="100" height="36" rx="6" fill="var(--accent-purple)" fill-opacity="0.15" stroke="var(--accent-purple)" stroke-width="2"/>
+            <text x="210" y="33" text-anchor="middle" fill="var(--accent-purple)" font-size="12" font-weight="600">JwtFilter</text>
+            <line x1="210" y1="46" x2="210" y2="700" stroke="var(--text-muted)" stroke-width="1" stroke-dasharray="4,4"/>
+
+            <!-- RateLimiter -->
+            <rect x="290" y="10" width="110" height="36" rx="6" fill="var(--accent-purple)" fill-opacity="0.15" stroke="var(--accent-purple)" stroke-width="2"/>
+            <text x="345" y="33" text-anchor="middle" fill="var(--accent-purple)" font-size="12" font-weight="600">RateLimiter</text>
+            <line x1="345" y1="46" x2="345" y2="700" stroke="var(--text-muted)" stroke-width="1" stroke-dasharray="4,4"/>
+
+            <!-- AskController -->
+            <rect x="430" y="10" width="120" height="36" rx="6" fill="var(--accent-blue)" fill-opacity="0.15" stroke="var(--accent-blue)" stroke-width="2"/>
+            <text x="490" y="33" text-anchor="middle" fill="var(--accent-blue)" font-size="12" font-weight="600">AskController</text>
+            <line x1="490" y1="46" x2="490" y2="700" stroke="var(--text-muted)" stroke-width="1" stroke-dasharray="4,4"/>
+
+            <!-- GuardrailsOrchestrator -->
+            <rect x="570" y="10" width="130" height="36" rx="6" fill="var(--accent-red)" fill-opacity="0.15" stroke="var(--accent-red)" stroke-width="2"/>
+            <text x="635" y="28" text-anchor="middle" fill="var(--accent-red)" font-size="11" font-weight="600">Guardrails</text>
+            <text x="635" y="42" text-anchor="middle" fill="var(--accent-red)" font-size="11" font-weight="600">Orchestrator</text>
+            <line x1="635" y1="46" x2="635" y2="700" stroke="var(--text-muted)" stroke-width="1" stroke-dasharray="4,4"/>
+
+            <!-- NeMo -->
+            <rect x="730" y="10" width="80" height="36" rx="6" fill="var(--accent-red)" fill-opacity="0.15" stroke="var(--accent-red)" stroke-width="2"/>
+            <text x="770" y="33" text-anchor="middle" fill="var(--accent-red)" font-size="11" font-weight="600">NeMo</text>
+            <line x1="770" y1="46" x2="770" y2="700" stroke="var(--text-muted)" stroke-width="1" stroke-dasharray="4,4"/>
+
+            <!-- LlamaGuard -->
+            <rect x="830" y="10" width="100" height="36" rx="6" fill="var(--accent-red)" fill-opacity="0.15" stroke="var(--accent-red)" stroke-width="2"/>
+            <text x="880" y="33" text-anchor="middle" fill="var(--accent-red)" font-size="11" font-weight="600">LlamaGuard</text>
+            <line x1="880" y1="46" x2="880" y2="700" stroke="var(--text-muted)" stroke-width="1" stroke-dasharray="4,4"/>
+
+            <!-- Presidio -->
+            <rect x="950" y="10" width="90" height="36" rx="6" fill="var(--accent-pink)" fill-opacity="0.15" stroke="var(--accent-pink)" stroke-width="2"/>
+            <text x="995" y="33" text-anchor="middle" fill="var(--accent-pink)" font-size="11" font-weight="600">Presidio</text>
+            <line x1="995" y1="46" x2="995" y2="700" stroke="var(--text-muted)" stroke-width="1" stroke-dasharray="4,4"/>
+
+            <!-- OllamaClient (reuse lifeline at far right is too wide, place below) -->
+          </g>
+
+          <!-- Step 1: Client -> JwtFilter -->
+          <line x1="80" y1="80" x2="200" y2="80" stroke="var(--accent-blue)" stroke-width="1.5" marker-end="url(#arrow-blue)"/>
+          <text x="140" y="73" text-anchor="middle" fill="var(--text-primary)" font-size="10">POST /api/ask</text>
+          <text x="140" y="95" text-anchor="middle" fill="var(--text-muted)" font-size="9">{Authorization: Bearer &lt;JWT&gt;}</text>
+
+          <!-- Step 2: JwtFilter validates -->
+          <rect x="195" y="105" width="30" height="30" fill="var(--accent-purple)" fill-opacity="0.15" stroke="var(--accent-purple)" stroke-width="1"/>
+          <text x="260" y="123" fill="var(--text-secondary)" font-size="9">Validate JWT token</text>
+
+          <!-- Step 3: JwtFilter -> RateLimiter -->
+          <line x1="210" y1="150" x2="335" y2="150" stroke="var(--accent-purple)" stroke-width="1.5" marker-end="url(#arrow-purple)"/>
+          <text x="270" y="143" text-anchor="middle" fill="var(--text-primary)" font-size="10">checkRate(userId)</text>
+
+          <!-- Step 4: RateLimiter check -->
+          <rect x="330" y="160" width="30" height="25" fill="var(--accent-purple)" fill-opacity="0.15" stroke="var(--accent-purple)" stroke-width="1"/>
+          <text x="395" y="177" fill="var(--text-secondary)" font-size="9">Bucket4j check (10 req/min)</text>
+
+          <!-- Step 5: -> AskController -->
+          <line x1="345" y1="200" x2="480" y2="200" stroke="var(--accent-blue)" stroke-width="1.5" marker-end="url(#arrow-blue)"/>
+          <text x="410" y="193" text-anchor="middle" fill="var(--text-primary)" font-size="10">handleAsk(prompt)</text>
+
+          <!-- Step 6: -> GuardrailsOrchestrator -->
+          <line x1="490" y1="230" x2="625" y2="230" stroke="var(--accent-red)" stroke-width="1.5" marker-end="url(#arrow-red)"/>
+          <text x="555" y="223" text-anchor="middle" fill="var(--text-primary)" font-size="10">validateInput(prompt)</text>
+
+          <!-- Parallel fork box -->
+          <rect x="620" y="250" width="400" height="170" rx="6" fill="var(--accent-red)" fill-opacity="0.05" stroke="var(--accent-red)" stroke-width="1.5" stroke-dasharray="6,3"/>
+          <text x="635" y="268" fill="var(--accent-red)" font-size="10" font-weight="600">par</text>
+          <text x="670" y="268" fill="var(--text-secondary)" font-size="9">[Mono.zip() - parallel execution]</text>
+
+          <!-- Fork: -> NeMo -->
+          <line x1="635" y1="290" x2="760" y2="290" stroke="var(--accent-red)" stroke-width="1.5" marker-end="url(#arrow-red)"/>
+          <text x="695" y="283" text-anchor="middle" fill="var(--text-primary)" font-size="9">Layer 1: policy check</text>
+          <line x1="760" y1="310" x2="645" y2="310" stroke="var(--accent-red)" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow-red)"/>
+          <text x="700" y="325" text-anchor="middle" fill="var(--accent-green)" font-size="9">PASS</text>
+
+          <!-- Fork: -> LlamaGuard -->
+          <line x1="635" y1="345" x2="870" y2="345" stroke="var(--accent-red)" stroke-width="1.5" marker-end="url(#arrow-red)"/>
+          <text x="750" y="338" text-anchor="middle" fill="var(--text-primary)" font-size="9">Layer 2: ML classify</text>
+          <line x1="870" y1="365" x2="645" y2="365" stroke="var(--accent-red)" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow-red)"/>
+          <text x="755" y="380" text-anchor="middle" fill="var(--accent-green)" font-size="9">SAFE (S1-S12)</text>
+
+          <!-- Fork: -> Presidio -->
+          <line x1="635" y1="395" x2="985" y2="395" stroke="var(--accent-pink)" stroke-width="1.5" marker-end="url(#arrow-red)"/>
+          <text x="810" y="388" text-anchor="middle" fill="var(--text-primary)" font-size="9">Layer 3: PII scan</text>
+          <line x1="985" y1="410" x2="645" y2="410" stroke="var(--accent-pink)" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow-red)"/>
+          <text x="815" y="425" text-anchor="middle" fill="var(--accent-green)" font-size="9">NO_PII_DETECTED</text>
+
+          <!-- Timing annotation for guardrails -->
+          <rect x="1025" y="280" width="65" height="22" rx="4" fill="var(--accent-orange)" fill-opacity="0.2" stroke="var(--accent-orange)" stroke-width="1"/>
+          <text x="1057" y="295" text-anchor="middle" fill="var(--accent-orange)" font-size="9" font-weight="600">~90ms</text>
+
+          <!-- All pass -> Ollama call -->
+          <text x="635" y="455" fill="var(--text-primary)" font-size="10" font-weight="600">All 3 layers PASS</text>
+
+          <!-- GuardrailsOrchestrator -> Ollama (reuse Ollama lifeline as NeMo column for space) -->
+          <line x1="635" y1="475" x2="770" y2="475" stroke="var(--accent-green)" stroke-width="1.5" marker-end="url(#arrow-green)"/>
+          <text x="700" y="468" text-anchor="middle" fill="var(--text-primary)" font-size="10">OllamaClient.chat()</text>
+
+          <!-- Ollama processing -->
+          <rect x="755" y="485" width="30" height="60" fill="var(--accent-green)" fill-opacity="0.15" stroke="var(--accent-green)" stroke-width="1"/>
+          <text x="810" y="510" fill="var(--text-secondary)" font-size="9">Llama 3.2</text>
+          <text x="810" y="525" fill="var(--text-secondary)" font-size="9">inference</text>
+
+          <!-- Timing for Ollama -->
+          <rect x="840" y="498" width="65" height="22" rx="4" fill="var(--accent-orange)" fill-opacity="0.2" stroke="var(--accent-orange)" stroke-width="1"/>
+          <text x="872" y="513" text-anchor="middle" fill="var(--accent-orange)" font-size="9" font-weight="600">~1.5s</text>
+
+          <!-- Ollama response -->
+          <line x1="755" y1="560" x2="645" y2="560" stroke="var(--accent-green)" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow-green)"/>
+          <text x="700" y="575" text-anchor="middle" fill="var(--text-secondary)" font-size="9">LLM response</text>
+
+          <!-- Return chain -->
+          <line x1="635" y1="595" x2="500" y2="595" stroke="var(--accent-blue)" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow-blue)"/>
+          <text x="565" y="610" text-anchor="middle" fill="var(--text-secondary)" font-size="9">GuardrailResult</text>
+
+          <line x1="490" y1="630" x2="90" y2="630" stroke="var(--accent-blue)" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow-blue)"/>
+          <text x="290" y="623" text-anchor="middle" fill="var(--text-primary)" font-size="10">200 OK {response, guardrailMetrics}</text>
+
+          <!-- Total time -->
+          <rect x="30" y="655" width="130" height="25" rx="4" fill="var(--accent-orange)" fill-opacity="0.15" stroke="var(--accent-orange)" stroke-width="1"/>
+          <text x="95" y="672" text-anchor="middle" fill="var(--accent-orange)" font-size="10" font-weight="600">Total: ~1.6s E2E</text>
+        </svg>
+      </div>
+    </div>
+    <div class="diagram-caption">
+      <strong>Figure 3.</strong> Sequence diagram for the POST /api/ask request flow. After JWT authentication and rate limiting, the GuardrailsOrchestrator executes three safety layers in parallel using Project Reactor's Mono.zip(): NeMo policy rules (~30ms), LlamaGuard ML classification (~60ms), and Presidio PII detection (~40ms). Combined guardrail latency is approximately 90ms. Upon passing all three layers, the prompt is forwarded to Ollama for Llama 3.2 inference (~1.5s), yielding a total end-to-end latency of approximately 1.6 seconds.
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- DIAGRAM 4: CI/CD Pipeline -->
+  <!-- ============================================================ -->
+  <div class="diagram-section">
+    <div class="diagram-header">
+      <div>
+        <h2>4. CI/CD Pipeline Diagram</h2>
+        <span class="badge">15 Stages - Jenkins Declarative Pipeline</span>
+      </div>
+      <div class="export-buttons">
+        <button class="export-btn" onclick="copyMermaid('pipeline')">Copy as Mermaid</button>
+        <button class="export-btn" onclick="copyPlantUML('pipeline')">Copy as PlantUML</button>
+      </div>
+    </div>
+    <div class="diagram-body">
+      <div class="pipeline-diagram">
+        <svg viewBox="0 0 1300 380" xmlns="http://www.w3.org/2000/svg">
+          <!-- Row 1: Stages 1-8 -->
+          <!-- Stage 1: Checkout -->
+          <g transform="translate(20,30)">
+            <rect x="0" y="0" width="130" height="60" rx="8" fill="var(--accent-blue)" fill-opacity="0.15" stroke="var(--accent-blue)" stroke-width="2"/>
+            <text x="65" y="22" text-anchor="middle" fill="var(--accent-blue)" font-size="11" font-weight="600">1. Checkout</text>
+            <text x="65" y="40" text-anchor="middle" fill="var(--text-secondary)" font-size="9">Git clone</text>
+            <text x="65" y="53" text-anchor="middle" fill="var(--text-muted)" font-size="8">~5s</text>
+          </g>
+          <line x1="150" y1="60" x2="170" y2="60" stroke="var(--text-secondary)" stroke-width="1.5" marker-end="url(#arrow-gray)"/>
+
+          <!-- Stage 2: Install -->
+          <g transform="translate(170,30)">
+            <rect x="0" y="0" width="130" height="60" rx="8" fill="var(--accent-blue)" fill-opacity="0.15" stroke="var(--accent-blue)" stroke-width="2"/>
+            <text x="65" y="22" text-anchor="middle" fill="var(--accent-blue)" font-size="11" font-weight="600">2. Install</text>
+            <text x="65" y="40" text-anchor="middle" fill="var(--text-secondary)" font-size="9">Maven dependencies</text>
+            <text x="65" y="53" text-anchor="middle" fill="var(--text-muted)" font-size="8">~30s</text>
+          </g>
+          <line x1="300" y1="60" x2="320" y2="60" stroke="var(--text-secondary)" stroke-width="1.5" marker-end="url(#arrow-gray)"/>
+
+          <!-- Stage 3: Unit Tests + JaCoCo -->
+          <g transform="translate(320,30)">
+            <rect x="0" y="0" width="140" height="60" rx="8" fill="var(--accent-green)" fill-opacity="0.15" stroke="var(--accent-green)" stroke-width="2"/>
+            <text x="70" y="22" text-anchor="middle" fill="var(--accent-green)" font-size="11" font-weight="600">3. Unit Tests</text>
+            <text x="70" y="40" text-anchor="middle" fill="var(--text-secondary)" font-size="9">JUnit 5 + JaCoCo</text>
+            <text x="70" y="53" text-anchor="middle" fill="var(--text-muted)" font-size="8">~45s | 80% coverage</text>
+          </g>
+          <line x1="460" y1="60" x2="480" y2="60" stroke="var(--text-secondary)" stroke-width="1.5" marker-end="url(#arrow-gray)"/>
+
+          <!-- Stage 4: SpotBugs -->
+          <g transform="translate(480,30)">
+            <rect x="0" y="0" width="130" height="60" rx="8" fill="var(--accent-green)" fill-opacity="0.15" stroke="var(--accent-green)" stroke-width="2"/>
+            <text x="65" y="22" text-anchor="middle" fill="var(--accent-green)" font-size="11" font-weight="600">4. SpotBugs</text>
+            <text x="65" y="40" text-anchor="middle" fill="var(--text-secondary)" font-size="9">Static bug detection</text>
+            <text x="65" y="53" text-anchor="middle" fill="var(--text-muted)" font-size="8">~20s</text>
+          </g>
+          <line x1="610" y1="60" x2="630" y2="60" stroke="var(--text-secondary)" stroke-width="1.5" marker-end="url(#arrow-gray)"/>
+
+          <!-- Stage 5: SonarQube -->
+          <g transform="translate(630,30)">
+            <rect x="0" y="0" width="150" height="60" rx="8" fill="var(--accent-purple)" fill-opacity="0.15" stroke="var(--accent-purple)" stroke-width="2"/>
+            <text x="75" y="22" text-anchor="middle" fill="var(--accent-purple)" font-size="11" font-weight="600">5. SonarQube</text>
+            <text x="75" y="40" text-anchor="middle" fill="var(--text-secondary)" font-size="9">Analysis + Quality Gate</text>
+            <text x="75" y="53" text-anchor="middle" fill="var(--text-muted)" font-size="8">~60s | Gate: PASS</text>
+          </g>
+          <line x1="780" y1="60" x2="800" y2="60" stroke="var(--text-secondary)" stroke-width="1.5" marker-end="url(#arrow-gray)"/>
+
+          <!-- Stage 6: Build FAT JAR -->
+          <g transform="translate(800,30)">
+            <rect x="0" y="0" width="140" height="60" rx="8" fill="var(--accent-blue)" fill-opacity="0.15" stroke="var(--accent-blue)" stroke-width="2"/>
+            <text x="70" y="22" text-anchor="middle" fill="var(--accent-blue)" font-size="11" font-weight="600">6. Build FAT JAR</text>
+            <text x="70" y="40" text-anchor="middle" fill="var(--text-secondary)" font-size="9">Maven package</text>
+            <text x="70" y="53" text-anchor="middle" fill="var(--text-muted)" font-size="8">~30s</text>
+          </g>
+          <line x1="940" y1="60" x2="960" y2="60" stroke="var(--text-secondary)" stroke-width="1.5" marker-end="url(#arrow-gray)"/>
+
+          <!-- Stage 7: Docker Build -->
+          <g transform="translate(960,30)">
+            <rect x="0" y="0" width="140" height="60" rx="8" fill="var(--accent-orange)" fill-opacity="0.15" stroke="var(--accent-orange)" stroke-width="2"/>
+            <text x="70" y="22" text-anchor="middle" fill="var(--accent-orange)" font-size="11" font-weight="600">7. Docker Build</text>
+            <text x="70" y="40" text-anchor="middle" fill="var(--text-secondary)" font-size="9">Multi-stage build</text>
+            <text x="70" y="53" text-anchor="middle" fill="var(--text-muted)" font-size="8">~40s</text>
+          </g>
+          <line x1="1100" y1="60" x2="1120" y2="60" stroke="var(--text-secondary)" stroke-width="1.5" marker-end="url(#arrow-gray)"/>
+
+          <!-- Stage 8: Trivy -->
+          <g transform="translate(1120,30)">
+            <rect x="0" y="0" width="130" height="60" rx="8" fill="var(--accent-red)" fill-opacity="0.15" stroke="var(--accent-red)" stroke-width="2"/>
+            <text x="65" y="22" text-anchor="middle" fill="var(--accent-red)" font-size="11" font-weight="600">8. Trivy Scan</text>
+            <text x="65" y="40" text-anchor="middle" fill="var(--text-secondary)" font-size="9">CVE vulnerability</text>
+            <text x="65" y="53" text-anchor="middle" fill="var(--text-muted)" font-size="8">~25s | 0 CRITICAL</text>
+          </g>
+
+          <!-- Arrow down to row 2 -->
+          <path d="M1185,90 L1185,120 L85,120 L85,150" fill="none" stroke="var(--text-secondary)" stroke-width="1.5" marker-end="url(#arrow-gray)"/>
+
+          <!-- Row 2: Stages 9-15 -->
+          <!-- Stage 9: Docker Push -->
+          <g transform="translate(20,150)">
+            <rect x="0" y="0" width="130" height="60" rx="8" fill="var(--accent-orange)" fill-opacity="0.15" stroke="var(--accent-orange)" stroke-width="2"/>
+            <text x="65" y="22" text-anchor="middle" fill="var(--accent-orange)" font-size="11" font-weight="600">9. Docker Push</text>
+            <text x="65" y="40" text-anchor="middle" fill="var(--text-secondary)" font-size="9">Push to registry</text>
+            <text x="65" y="53" text-anchor="middle" fill="var(--text-muted)" font-size="8">~15s</text>
+          </g>
+          <line x1="150" y1="180" x2="170" y2="180" stroke="var(--text-secondary)" stroke-width="1.5" marker-end="url(#arrow-gray)"/>
+
+          <!-- Stage 10: Deploy -->
+          <g transform="translate(170,150)">
+            <rect x="0" y="0" width="140" height="60" rx="8" fill="var(--accent-orange)" fill-opacity="0.15" stroke="var(--accent-orange)" stroke-width="2"/>
+            <text x="70" y="22" text-anchor="middle" fill="var(--accent-orange)" font-size="11" font-weight="600">10. Deploy</text>
+            <text x="70" y="40" text-anchor="middle" fill="var(--text-secondary)" font-size="9">docker-compose up</text>
+            <text x="70" y="53" text-anchor="middle" fill="var(--text-muted)" font-size="8">~20s</text>
+          </g>
+          <line x1="310" y1="180" x2="330" y2="180" stroke="var(--text-secondary)" stroke-width="1.5" marker-end="url(#arrow-gray)"/>
+
+          <!-- Stage 11: Karate -->
+          <g transform="translate(330,150)">
+            <rect x="0" y="0" width="140" height="60" rx="8" fill="var(--accent-green)" fill-opacity="0.15" stroke="var(--accent-green)" stroke-width="2"/>
+            <text x="70" y="22" text-anchor="middle" fill="var(--accent-green)" font-size="11" font-weight="600">11. Karate E2E</text>
+            <text x="70" y="40" text-anchor="middle" fill="var(--text-secondary)" font-size="9">API integration tests</text>
+            <text x="70" y="53" text-anchor="middle" fill="var(--text-muted)" font-size="8">~90s | 30+ scenarios</text>
+          </g>
+          <line x1="470" y1="180" x2="490" y2="180" stroke="var(--text-secondary)" stroke-width="1.5" marker-end="url(#arrow-gray)"/>
+
+          <!-- Stage 12: OWASP -->
+          <g transform="translate(490,150)">
+            <rect x="0" y="0" width="150" height="60" rx="8" fill="var(--accent-red)" fill-opacity="0.15" stroke="var(--accent-red)" stroke-width="2"/>
+            <text x="75" y="22" text-anchor="middle" fill="var(--accent-red)" font-size="11" font-weight="600">12. OWASP ZAP</text>
+            <text x="75" y="40" text-anchor="middle" fill="var(--text-secondary)" font-size="9">DAST security scan</text>
+            <text x="75" y="53" text-anchor="middle" fill="var(--text-muted)" font-size="8">~120s</text>
+          </g>
+          <line x1="640" y1="180" x2="660" y2="180" stroke="var(--text-secondary)" stroke-width="1.5" marker-end="url(#arrow-gray)"/>
+
+          <!-- Stage 13: Health Check -->
+          <g transform="translate(660,150)">
+            <rect x="0" y="0" width="140" height="60" rx="8" fill="var(--accent-green)" fill-opacity="0.15" stroke="var(--accent-green)" stroke-width="2"/>
+            <text x="70" y="22" text-anchor="middle" fill="var(--accent-green)" font-size="11" font-weight="600">13. Health Check</text>
+            <text x="70" y="40" text-anchor="middle" fill="var(--text-secondary)" font-size="9">/actuator/health</text>
+            <text x="70" y="53" text-anchor="middle" fill="var(--text-muted)" font-size="8">~5s</text>
+          </g>
+          <line x1="800" y1="180" x2="820" y2="180" stroke="var(--text-secondary)" stroke-width="1.5" marker-end="url(#arrow-gray)"/>
+
+          <!-- Stage 14: Notify -->
+          <g transform="translate(820,150)">
+            <rect x="0" y="0" width="130" height="60" rx="8" fill="var(--accent-teal)" fill-opacity="0.15" stroke="var(--accent-teal)" stroke-width="2"/>
+            <text x="65" y="22" text-anchor="middle" fill="var(--accent-teal)" font-size="11" font-weight="600">14. Notify</text>
+            <text x="65" y="40" text-anchor="middle" fill="var(--text-secondary)" font-size="9">Slack / Email</text>
+            <text x="65" y="53" text-anchor="middle" fill="var(--text-muted)" font-size="8">~2s</text>
+          </g>
+          <line x1="950" y1="180" x2="970" y2="180" stroke="var(--text-secondary)" stroke-width="1.5" marker-end="url(#arrow-gray)"/>
+
+          <!-- Stage 15: Archive -->
+          <g transform="translate(970,150)">
+            <rect x="0" y="0" width="140" height="60" rx="8" fill="var(--accent-teal)" fill-opacity="0.15" stroke="var(--accent-teal)" stroke-width="2"/>
+            <text x="70" y="22" text-anchor="middle" fill="var(--accent-teal)" font-size="11" font-weight="600">15. Archive</text>
+            <text x="70" y="40" text-anchor="middle" fill="var(--text-secondary)" font-size="9">JUnit + Coverage</text>
+            <text x="70" y="53" text-anchor="middle" fill="var(--text-muted)" font-size="8">~5s</text>
+          </g>
+
+          <!-- Phase labels -->
+          <rect x="20" y="250" width="1230" height="110" rx="8" fill="var(--bg-tertiary)" stroke="var(--border)" stroke-width="1"/>
+          <text x="640" y="275" text-anchor="middle" fill="var(--text-primary)" font-size="13" font-weight="600">Pipeline Phase Summary</text>
+
+          <rect x="40" y="290" width="180" height="28" rx="6" fill="var(--accent-blue)" fill-opacity="0.15" stroke="var(--accent-blue)" stroke-width="1"/>
+          <text x="130" y="309" text-anchor="middle" fill="var(--accent-blue)" font-size="10" font-weight="600">BUILD (Stages 1-2, 6)</text>
+
+          <rect x="240" y="290" width="200" height="28" rx="6" fill="var(--accent-green)" fill-opacity="0.15" stroke="var(--accent-green)" stroke-width="1"/>
+          <text x="340" y="309" text-anchor="middle" fill="var(--accent-green)" font-size="10" font-weight="600">TEST (Stages 3-4, 11, 13)</text>
+
+          <rect x="460" y="290" width="200" height="28" rx="6" fill="var(--accent-purple)" fill-opacity="0.15" stroke="var(--accent-purple)" stroke-width="1"/>
+          <text x="560" y="309" text-anchor="middle" fill="var(--accent-purple)" font-size="10" font-weight="600">QUALITY (Stage 5)</text>
+
+          <rect x="680" y="290" width="200" height="28" rx="6" fill="var(--accent-red)" fill-opacity="0.15" stroke="var(--accent-red)" stroke-width="1"/>
+          <text x="780" y="309" text-anchor="middle" fill="var(--accent-red)" font-size="10" font-weight="600">SECURITY (Stages 8, 12)</text>
+
+          <rect x="900" y="290" width="180" height="28" rx="6" fill="var(--accent-orange)" fill-opacity="0.15" stroke="var(--accent-orange)" stroke-width="1"/>
+          <text x="990" y="309" text-anchor="middle" fill="var(--accent-orange)" font-size="10" font-weight="600">DEPLOY (Stages 7, 9-10)</text>
+
+          <text x="640" y="345" text-anchor="middle" fill="var(--text-secondary)" font-size="11">Total pipeline duration: ~8-10 minutes | Fail-fast on quality gate or security violations</text>
+        </svg>
+      </div>
+    </div>
+    <div class="diagram-caption">
+      <strong>Figure 4.</strong> CI/CD pipeline with 15 stages implemented as a Jenkins Declarative Pipeline. The pipeline enforces a fail-fast strategy: quality gate failures (SonarQube) and critical vulnerability detections (Trivy, OWASP ZAP) halt the pipeline immediately. Total execution time is approximately 8-10 minutes for a complete build-test-security-deploy cycle.
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- DIAGRAM 5: Defence-in-Depth -->
+  <!-- ============================================================ -->
+  <div class="diagram-section">
+    <div class="diagram-header">
+      <div>
+        <h2>5. 3-Layer Defence-in-Depth Diagram</h2>
+        <span class="badge">Guardrails Architecture</span>
+      </div>
+      <div class="export-buttons">
+        <button class="export-btn" onclick="copyMermaid('defence')">Copy as Mermaid</button>
+        <button class="export-btn" onclick="copyPlantUML('defence')">Copy as PlantUML</button>
+      </div>
+    </div>
+    <div class="diagram-body">
+      <div class="defence-diagram">
+        <svg viewBox="0 0 1000 580" xmlns="http://www.w3.org/2000/svg">
+          <!-- Input -->
+          <g transform="translate(40,250)">
+            <rect x="0" y="0" width="120" height="50" rx="8" fill="var(--accent-blue)" fill-opacity="0.15" stroke="var(--accent-blue)" stroke-width="2"/>
+            <text x="60" y="22" text-anchor="middle" fill="var(--accent-blue)" font-size="12" font-weight="600">User Prompt</text>
+            <text x="60" y="38" text-anchor="middle" fill="var(--text-secondary)" font-size="9">POST /api/ask</text>
+          </g>
+
+          <!-- Arrow to orchestrator -->
+          <line x1="160" y1="275" x2="200" y2="275" stroke="var(--text-secondary)" stroke-width="2" marker-end="url(#arrow-gray)"/>
+
+          <!-- GuardrailsOrchestrator -->
+          <g transform="translate(200,230)">
+            <rect x="0" y="0" width="150" height="90" rx="10" fill="var(--accent-purple)" fill-opacity="0.1" stroke="var(--accent-purple)" stroke-width="2"/>
+            <text x="75" y="25" text-anchor="middle" fill="var(--accent-purple)" font-size="11" font-weight="700">Guardrails</text>
+            <text x="75" y="42" text-anchor="middle" fill="var(--accent-purple)" font-size="11" font-weight="700">Orchestrator</text>
+            <line x1="15" y1="52" x2="135" y2="52" stroke="var(--border)" stroke-width="1"/>
+            <text x="75" y="68" text-anchor="middle" fill="var(--text-secondary)" font-size="9">Mono.zip(L1, L2, L3)</text>
+            <text x="75" y="82" text-anchor="middle" fill="var(--text-secondary)" font-size="9">Parallel execution</text>
+          </g>
+
+          <!-- Fork arrows -->
+          <line x1="350" y1="255" x2="430" y2="120" stroke="var(--accent-red)" stroke-width="2" marker-end="url(#arrow-red)"/>
+          <line x1="350" y1="275" x2="430" y2="275" stroke="var(--accent-orange)" stroke-width="2" marker-end="url(#arrow-orange)"/>
+          <line x1="350" y1="295" x2="430" y2="430" stroke="var(--accent-pink)" stroke-width="2" marker-end="url(#arrow-red)"/>
+
+          <!-- "par" label -->
+          <text x="380" y="200" fill="var(--text-muted)" font-size="10" font-style="italic">parallel</text>
+
+          <!-- Layer 1: NeMo -->
+          <g transform="translate(430,50)">
+            <rect x="0" y="0" width="340" height="140" rx="10" fill="var(--accent-red)" fill-opacity="0.08" stroke="var(--accent-red)" stroke-width="2"/>
+            <rect x="0" y="0" width="340" height="32" rx="10" fill="var(--accent-red)" fill-opacity="0.15"/>
+            <rect x="0" y="18" width="340" height="14" fill="var(--accent-red)" fill-opacity="0.15"/>
+            <text x="170" y="22" text-anchor="middle" fill="var(--accent-red)" font-size="13" font-weight="700">Layer 1: NeMo Guardrails</text>
+            <text x="15" y="52" fill="var(--text-secondary)" font-size="10" font-weight="600">Provider:</text>
+            <text x="85" y="52" fill="var(--text-primary)" font-size="10">NVIDIA</text>
+            <text x="15" y="72" fill="var(--text-secondary)" font-size="10" font-weight="600">Method:</text>
+            <text x="80" y="72" fill="var(--text-primary)" font-size="10">Policy-based rules (Colang DSL)</text>
+            <text x="15" y="92" fill="var(--text-secondary)" font-size="10" font-weight="600">Checks:</text>
+            <text x="80" y="92" fill="var(--text-primary)" font-size="10">Jailbreak, topic rails, content safety</text>
+            <text x="15" y="112" fill="var(--text-secondary)" font-size="10" font-weight="600">Latency:</text>
+            <text x="80" y="112" fill="var(--accent-green)" font-size="10">~30ms</text>
+            <text x="15" y="132" fill="var(--text-secondary)" font-size="10" font-weight="600">Port:</text>
+            <text x="80" y="132" fill="var(--text-primary)" font-size="10">:8001</text>
+          </g>
+
+          <!-- Layer 2: LlamaGuard -->
+          <g transform="translate(430,210)">
+            <rect x="0" y="0" width="340" height="140" rx="10" fill="var(--accent-orange)" fill-opacity="0.08" stroke="var(--accent-orange)" stroke-width="2"/>
+            <rect x="0" y="0" width="340" height="32" rx="10" fill="var(--accent-orange)" fill-opacity="0.15"/>
+            <rect x="0" y="18" width="340" height="14" fill="var(--accent-orange)" fill-opacity="0.15"/>
+            <text x="170" y="22" text-anchor="middle" fill="var(--accent-orange)" font-size="13" font-weight="700">Layer 2: LlamaGuard</text>
+            <text x="15" y="52" fill="var(--text-secondary)" font-size="10" font-weight="600">Provider:</text>
+            <text x="85" y="52" fill="var(--text-primary)" font-size="10">Meta AI</text>
+            <text x="15" y="72" fill="var(--text-secondary)" font-size="10" font-weight="600">Method:</text>
+            <text x="80" y="72" fill="var(--text-primary)" font-size="10">ML classification model</text>
+            <text x="15" y="92" fill="var(--text-secondary)" font-size="10" font-weight="600">Checks:</text>
+            <text x="80" y="92" fill="var(--text-primary)" font-size="10">S1-S12 safety taxonomy categories</text>
+            <text x="15" y="112" fill="var(--text-secondary)" font-size="10" font-weight="600">Latency:</text>
+            <text x="80" y="112" fill="var(--accent-green)" font-size="10">~60ms</text>
+            <text x="15" y="132" fill="var(--text-secondary)" font-size="10" font-weight="600">Via:</text>
+            <text x="80" y="132" fill="var(--text-primary)" font-size="10">Ollama :11434 (local inference)</text>
+          </g>
+
+          <!-- Layer 3: Presidio -->
+          <g transform="translate(430,370)">
+            <rect x="0" y="0" width="340" height="140" rx="10" fill="var(--accent-pink)" fill-opacity="0.08" stroke="var(--accent-pink)" stroke-width="2"/>
+            <rect x="0" y="0" width="340" height="32" rx="10" fill="var(--accent-pink)" fill-opacity="0.15"/>
+            <rect x="0" y="18" width="340" height="14" fill="var(--accent-pink)" fill-opacity="0.15"/>
+            <text x="170" y="22" text-anchor="middle" fill="var(--accent-pink)" font-size="13" font-weight="700">Layer 3: Presidio Analyzer</text>
+            <text x="15" y="52" fill="var(--text-secondary)" font-size="10" font-weight="600">Provider:</text>
+            <text x="85" y="52" fill="var(--text-primary)" font-size="10">Microsoft</text>
+            <text x="15" y="72" fill="var(--text-secondary)" font-size="10" font-weight="600">Method:</text>
+            <text x="80" y="72" fill="var(--text-primary)" font-size="10">NER + regex PII detection</text>
+            <text x="15" y="92" fill="var(--text-secondary)" font-size="10" font-weight="600">Checks:</text>
+            <text x="80" y="92" fill="var(--text-primary)" font-size="10">50+ entity types (SSN, CC, email, etc.)</text>
+            <text x="15" y="112" fill="var(--text-secondary)" font-size="10" font-weight="600">Latency:</text>
+            <text x="80" y="112" fill="var(--accent-green)" font-size="10">~40ms</text>
+            <text x="15" y="132" fill="var(--text-secondary)" font-size="10" font-weight="600">Port:</text>
+            <text x="80" y="132" fill="var(--text-primary)" font-size="10">:5002</text>
+          </g>
+
+          <!-- Join arrows -->
+          <line x1="770" y1="120" x2="830" y2="255" stroke="var(--accent-red)" stroke-width="2" marker-end="url(#arrow-green)"/>
+          <line x1="770" y1="280" x2="830" y2="275" stroke="var(--accent-orange)" stroke-width="2" marker-end="url(#arrow-green)"/>
+          <line x1="770" y1="440" x2="830" y2="295" stroke="var(--accent-pink)" stroke-width="2" marker-end="url(#arrow-green)"/>
+
+          <!-- Result gate -->
+          <g transform="translate(830,240)">
+            <rect x="0" y="0" width="120" height="70" rx="10" fill="var(--accent-green)" fill-opacity="0.1" stroke="var(--accent-green)" stroke-width="2"/>
+            <text x="60" y="22" text-anchor="middle" fill="var(--accent-green)" font-size="11" font-weight="700">ALL PASS?</text>
+            <line x1="10" y1="32" x2="110" y2="32" stroke="var(--border)" stroke-width="1"/>
+            <text x="60" y="50" text-anchor="middle" fill="var(--text-secondary)" font-size="9">3/3 must pass</text>
+            <text x="60" y="64" text-anchor="middle" fill="var(--text-secondary)" font-size="9">to proceed</text>
+          </g>
+
+          <!-- Timing box -->
+          <g transform="translate(810,170)">
+            <rect x="0" y="0" width="155" height="22" rx="4" fill="var(--accent-orange)" fill-opacity="0.2" stroke="var(--accent-orange)" stroke-width="1"/>
+            <text x="77" y="15" text-anchor="middle" fill="var(--accent-orange)" font-size="10" font-weight="600">Total: ~90ms (parallel)</text>
+          </g>
+
+          <!-- Pass: -> LLM -->
+          <line x1="950" y1="260" x2="970" y2="260" stroke="var(--accent-green)" stroke-width="2"/>
+          <text x="960" y="250" fill="var(--accent-green)" font-size="9" font-weight="600">PASS</text>
+
+          <!-- Fail: -> Block -->
+          <line x1="890" y1="310" x2="890" y2="340" stroke="var(--accent-red)" stroke-width="2" marker-end="url(#arrow-red)"/>
+          <rect x="840" y="340" width="100" height="30" rx="6" fill="var(--accent-red)" fill-opacity="0.15" stroke="var(--accent-red)" stroke-width="1.5"/>
+          <text x="890" y="360" text-anchor="middle" fill="var(--accent-red)" font-size="10" font-weight="600">403 BLOCK</text>
+          <text x="890" y="330" fill="var(--accent-red)" font-size="9" font-weight="600">FAIL</text>
+        </svg>
+      </div>
+    </div>
+    <div class="diagram-caption">
+      <strong>Figure 5.</strong> Three-layer defence-in-depth architecture for LLM input validation. Layer 1 (NeMo Guardrails) applies policy-based rules using Colang DSL for jailbreak and topic safety. Layer 2 (LlamaGuard) performs ML-based classification against Meta's S1-S12 safety taxonomy. Layer 3 (Presidio) detects PII across 50+ entity types. All three layers execute in parallel via Project Reactor's Mono.zip(), achieving a combined latency of approximately 90ms. All layers must pass for the prompt to reach the LLM.
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// Theme toggle
+function toggleTheme(btn) {
+  document.body.classList.toggle('light-mode');
+  btn.textContent = document.body.classList.contains('light-mode') ? 'Switch to Dark' : 'Toggle Light/Dark';
+}
+
+// Toast
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// Copy helper
+function copyToClipboard(text, btnEl) {
+  navigator.clipboard.writeText(text).then(() => {
+    if (btnEl) {
+      btnEl.classList.add('copied');
+      const orig = btnEl.textContent;
+      btnEl.textContent = 'Copied!';
+      setTimeout(() => { btnEl.classList.remove('copied'); btnEl.textContent = orig; }, 1500);
+    }
+    showToast('Copied to clipboard!');
+  });
+}
+
+// ---- Mermaid definitions ----
+const mermaidDefs = {
+  c4context: `C4Context
+    title SecureAI Gateway - System Context Diagram
+
+    Person(endUser, "End User", "Sends prompts via REST API / Web UI")
+    Person(admin, "Admin User", "Monitors via Grafana/Jenkins")
+
+    System_Boundary(boundary, "SecureAI Gateway") {
+        System(gateway, "SecureAI Gateway", "Spring Boot 3.x with 3-layer guardrails, JWT auth, rate limiting")
+    }
+
+    System_Ext(ollama, "Ollama LLM", "Local inference - Llama 3.2 / LlamaGuard")
+    SystemDb_Ext(postgres, "PostgreSQL", "User accounts, audit logs")
+    System_Ext(dockerhub, "Docker Hub", "Container registry")
+    System_Ext(github, "GitHub", "Source code repository")
+    System_Ext(cicd, "CI/CD Pipeline", "Jenkins - 15 Stages")
+
+    Rel(endUser, gateway, "REST API / HTTPS")
+    Rel(admin, gateway, "Monitoring")
+    Rel(cicd, gateway, "Deploy")
+    Rel(gateway, ollama, "Inference / Guard")
+    Rel(gateway, postgres, "JDBC")
+    Rel(gateway, dockerhub, "Push/Pull")
+    Rel(gateway, github, "Webhook")`,
+
+  c4container: `C4Container
+    title SecureAI Gateway - Container Diagram
+
+    Container_Boundary(app, "Application Layer") {
+        Container(gw, "secure-ai-gateway", "Spring Boot 3.x", "JWT Auth, Rate Limiting, Guardrails Orchestration :8100")
+        ContainerDb(pg, "PostgreSQL", "Database", "User accounts, audit logs :5434")
+        Container(ollama, "Ollama", "LLM Runtime", "Llama 3.2 inference, LlamaGuard :11434")
+    }
+
+    Container_Boundary(guard, "Guardrails Layer") {
+        Container(nemo, "NeMo Guardrails", "NVIDIA Python", "Policy-based filtering, Colang DSL :8001")
+        Container(presidio, "Presidio Analyzer", "Microsoft Python", "PII detection 50+ entity types :5002")
+    }
+
+    Container_Boundary(infra, "Infrastructure Layer") {
+        Container(jenkins, "Jenkins", "CI/CD Server", "15-stage pipeline :9095")
+        Container(sonar, "SonarQube", "Code Quality", "Static analysis :9001")
+        ContainerDb(sonardb, "SonarDB", "PostgreSQL", "SonarQube data :5433")
+        Container(prom, "Prometheus", "Metrics", "Time-series metrics :9092")
+        Container(grafana, "Grafana", "Visualization", "Dashboards :3001")
+        Container(ngrok, "ngrok", "Tunnel", "HTTPS tunneling :4041")
+    }
+
+    Rel(gw, pg, "JDBC")
+    Rel(gw, ollama, "HTTP")
+    Rel(gw, nemo, "HTTP :8001")
+    Rel(gw, presidio, "HTTP :5002")
+    Rel(prom, gw, "scrape /actuator")
+    Rel(grafana, prom, "query")
+    Rel(sonar, sonardb, "JDBC")`,
+
+  sequence: `sequenceDiagram
+    participant C as Client
+    participant JF as JwtFilter
+    participant RL as RateLimiter
+    participant AC as AskController
+    participant GO as GuardrailsOrchestrator
+    participant NM as NeMo
+    participant LG as LlamaGuard
+    participant PR as Presidio
+    participant OL as OllamaClient
+
+    C->>JF: POST /api/ask {Authorization: Bearer <JWT>}
+    JF->>JF: Validate JWT token
+    JF->>RL: checkRate(userId)
+    RL->>RL: Bucket4j check (10 req/min)
+    RL->>AC: handleAsk(prompt)
+    AC->>GO: validateInput(prompt)
+
+    par Mono.zip() - parallel execution (~90ms)
+        GO->>NM: Layer 1: policy check
+        NM-->>GO: PASS
+    and
+        GO->>LG: Layer 2: ML classify
+        LG-->>GO: SAFE (S1-S12)
+    and
+        GO->>PR: Layer 3: PII scan
+        PR-->>GO: NO_PII_DETECTED
+    end
+
+    Note over GO: All 3 layers PASS
+    GO->>OL: OllamaClient.chat()
+    Note over OL: Llama 3.2 inference (~1.5s)
+    OL-->>GO: LLM response
+    GO-->>AC: GuardrailResult
+    AC-->>C: 200 OK {response, guardrailMetrics}
+    Note over C,OL: Total E2E: ~1.6s`,
+
+  pipeline: `graph LR
+    A[1. Checkout<br/>Git clone] --> B[2. Install<br/>Maven deps]
+    B --> C[3. Unit Tests<br/>JUnit5 + JaCoCo]
+    C --> D[4. SpotBugs<br/>Static bugs]
+    D --> E[5. SonarQube<br/>Quality Gate]
+    E --> F[6. Build FAT JAR<br/>Maven package]
+    F --> G[7. Docker Build<br/>Multi-stage]
+    G --> H[8. Trivy Scan<br/>CVE check]
+    H --> I[9. Docker Push<br/>Registry]
+    I --> J[10. Deploy<br/>docker-compose]
+    J --> K[11. Karate E2E<br/>API tests]
+    K --> L[12. OWASP ZAP<br/>DAST scan]
+    L --> M[13. Health Check<br/>/actuator/health]
+    M --> N[14. Notify<br/>Slack/Email]
+    N --> O[15. Archive<br/>Reports]
+
+    style A fill:#1f6feb20,stroke:#58a6ff
+    style B fill:#1f6feb20,stroke:#58a6ff
+    style C fill:#23863520,stroke:#3fb950
+    style D fill:#23863520,stroke:#3fb950
+    style E fill:#8b5cf620,stroke:#bc8cff
+    style F fill:#1f6feb20,stroke:#58a6ff
+    style G fill:#d2992220,stroke:#d29922
+    style H fill:#f8514920,stroke:#f85149
+    style I fill:#d2992220,stroke:#d29922
+    style J fill:#d2992220,stroke:#d29922
+    style K fill:#23863520,stroke:#3fb950
+    style L fill:#f8514920,stroke:#f85149
+    style M fill:#23863520,stroke:#3fb950
+    style N fill:#39d2c020,stroke:#39d2c0
+    style O fill:#39d2c020,stroke:#39d2c0`,
+
+  defence: `graph LR
+    A[User Prompt<br/>POST /api/ask] --> B[GuardrailsOrchestrator<br/>Mono.zip L1 L2 L3]
+
+    B --> C[Layer 1: NeMo Guardrails<br/>NVIDIA - Colang DSL<br/>Jailbreak + Topic + Content<br/>~30ms :8001]
+    B --> D[Layer 2: LlamaGuard<br/>Meta AI - ML Classification<br/>S1-S12 Taxonomy<br/>~60ms via Ollama]
+    B --> E[Layer 3: Presidio<br/>Microsoft - NER + Regex<br/>50+ PII Entity Types<br/>~40ms :5002]
+
+    C --> F{ALL PASS?<br/>3/3 required}
+    D --> F
+    E --> F
+
+    F -->|PASS| G[Ollama LLM<br/>Llama 3.2]
+    F -->|FAIL| H[403 BLOCK]
+
+    style C fill:#f8514920,stroke:#f85149
+    style D fill:#d2992220,stroke:#d29922
+    style E fill:#f778ba20,stroke:#f778ba
+    style F fill:#3fb95020,stroke:#3fb950
+    style H fill:#f8514940,stroke:#f85149`
+};
+
+// ---- PlantUML definitions ----
+const plantUMLDefs = {
+  c4context: `@startuml C4_Context
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+title SecureAI Gateway - System Context Diagram
+
+Person(endUser, "End User", "Sends prompts via REST API / Web UI")
+Person(admin, "Admin User", "Monitors via Grafana/Jenkins")
+
+System_Boundary(boundary, "SecureAI Gateway") {
+    System(gateway, "SecureAI Gateway", "Spring Boot 3.x with 3-layer guardrails, JWT auth, rate limiting, and DevSecOps CI/CD pipeline")
+}
+
+System_Ext(ollama, "Ollama LLM", "Local inference engine - Llama 3.2 / LlamaGuard")
+SystemDb_Ext(postgres, "PostgreSQL", "User accounts, audit logs, conversation history")
+System_Ext(dockerhub, "Docker Hub", "Container image registry")
+System_Ext(github, "GitHub", "Source code repository")
+System_Ext(cicd, "CI/CD Pipeline", "Jenkins Declarative Pipeline - 15 Stages")
+
+Rel(endUser, gateway, "REST API", "HTTPS")
+Rel(admin, gateway, "Monitoring", "HTTPS")
+Rel(cicd, gateway, "Deploy", "Docker Compose")
+Rel(gateway, ollama, "Inference / Guard", "HTTP")
+Rel(gateway, postgres, "Read/Write", "JDBC")
+Rel(gateway, dockerhub, "Push/Pull", "HTTPS")
+Rel(gateway, github, "Webhook", "HTTPS")
+@enduml`,
+
+  c4container: `@startuml C4_Container
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+title SecureAI Gateway - Container Diagram (11 Docker Containers)
+
+System_Boundary(app, "Application Layer") {
+    Container(gw, "secure-ai-gateway", "Spring Boot 3.x / Java 21", "JWT Auth, Rate Limiting, Guardrails Orchestration :8100")
+    ContainerDb(pg, "PostgreSQL", "PostgreSQL 16", "User accounts, audit logs, conversation history :5434")
+    Container(ollama, "Ollama", "Go / CUDA", "Llama 3.2 inference, LlamaGuard classification :11434")
+}
+
+System_Boundary(guard, "Guardrails Layer") {
+    Container(nemo, "NeMo Guardrails", "Python / NVIDIA", "Policy-based filtering via Colang DSL rules :8001")
+    Container(presidio, "Presidio Analyzer", "Python / Microsoft", "PII detection and anonymization - 50+ entity types :5002")
+}
+
+System_Boundary(infra, "Infrastructure Layer") {
+    Container(jenkins, "Jenkins", "Java", "15-stage declarative CI/CD pipeline :9095")
+    Container(sonar, "SonarQube", "Java", "Static code analysis and quality gate :9001")
+    ContainerDb(sonardb, "SonarDB", "PostgreSQL", "SonarQube persistence :5433")
+    Container(prom, "Prometheus", "Go", "Time-series metrics collection :9092")
+    Container(grafana, "Grafana", "Go", "Metrics visualization dashboards :3001")
+    Container(ngrok, "ngrok", "Go", "HTTPS tunnel for external access :4041")
+}
+
+Rel(gw, pg, "JDBC", "TCP :5434")
+Rel(gw, ollama, "HTTP", "TCP :11434")
+Rel(gw, nemo, "HTTP", "TCP :8001")
+Rel(gw, presidio, "HTTP", "TCP :5002")
+Rel(prom, gw, "Scrape", "/actuator/prometheus")
+Rel(grafana, prom, "Query", "PromQL")
+Rel(sonar, sonardb, "JDBC", "TCP :5433")
+@enduml`,
+
+  sequence: `@startuml Sequence_POST_api_ask
+title POST /api/ask - Request Flow
+
+skinparam sequenceMessageAlign center
+
+actor Client as C
+participant "JwtFilter" as JF
+participant "RateLimiter" as RL
+participant "AskController" as AC
+participant "GuardrailsOrchestrator" as GO
+participant "NeMo\\n:8001" as NM
+participant "LlamaGuard\\nvia Ollama" as LG
+participant "Presidio\\n:5002" as PR
+participant "OllamaClient\\n:11434" as OL
+
+C -> JF : POST /api/ask\\n{Authorization: Bearer <JWT>}
+activate JF
+JF -> JF : Validate JWT token
+JF -> RL : checkRate(userId)
+activate RL
+RL -> RL : Bucket4j check (10 req/min)
+RL -> AC : handleAsk(prompt)
+deactivate RL
+activate AC
+AC -> GO : validateInput(prompt)
+activate GO
+
+par Mono.zip() - parallel execution (~90ms total)
+    GO -> NM : Layer 1: policy check
+    activate NM
+    NM --> GO : PASS (~30ms)
+    deactivate NM
+else
+    GO -> LG : Layer 2: ML classify
+    activate LG
+    LG --> GO : SAFE S1-S12 (~60ms)
+    deactivate LG
+else
+    GO -> PR : Layer 3: PII scan
+    activate PR
+    PR --> GO : NO_PII_DETECTED (~40ms)
+    deactivate PR
+end
+
+note over GO : All 3 layers PASS
+
+GO -> OL : OllamaClient.chat(prompt)
+activate OL
+note over OL : Llama 3.2 inference\\n(~1.5s)
+OL --> GO : LLM response
+deactivate OL
+
+GO --> AC : GuardrailResult
+deactivate GO
+AC --> C : 200 OK {response, guardrailMetrics}
+deactivate AC
+deactivate JF
+
+note over C, OL : Total end-to-end latency: ~1.6s
+@enduml`,
+
+  pipeline: `@startuml CI_CD_Pipeline
+title SecureAI Gateway - Jenkins CI/CD Pipeline (15 Stages)
+
+skinparam activity {
+    BackgroundColor #21262d
+    BorderColor #30363d
+    FontColor #e6edf3
+}
+
+|Build|
+start
+:#1 Checkout\\nGit clone ~5s;
+:#2 Install\\nMaven dependencies ~30s;
+
+|Test|
+:#3 Unit Tests\\nJUnit 5 + JaCoCo ~45s\\n80% coverage threshold;
+:#4 SpotBugs\\nStatic bug detection ~20s;
+
+|Quality|
+:#5 SonarQube\\nAnalysis + Quality Gate ~60s;
+if (Quality Gate?) then (PASS)
+else (FAIL)
+    stop
+endif
+
+|Build|
+:#6 Build FAT JAR\\nMaven package ~30s;
+
+|Deploy|
+:#7 Docker Build\\nMulti-stage build ~40s;
+
+|Security|
+:#8 Trivy Scan\\nCVE vulnerability check ~25s\\n0 CRITICAL threshold;
+if (Vulnerabilities?) then (NONE)
+else (CRITICAL)
+    stop
+endif
+
+|Deploy|
+:#9 Docker Push\\nPush to registry ~15s;
+:#10 Deploy\\ndocker-compose up ~20s;
+
+|Test|
+:#11 Karate E2E\\nAPI integration tests ~90s\\n30+ scenarios;
+
+|Security|
+:#12 OWASP ZAP\\nDAST security scan ~120s;
+
+|Test|
+:#13 Health Check\\n/actuator/health ~5s;
+
+|Notify|
+:#14 Notify\\nSlack / Email ~2s;
+:#15 Archive\\nJUnit + Coverage reports ~5s;
+stop
+
+note right
+    Total pipeline: ~8-10 minutes
+    Fail-fast on quality gate
+    or security violations
+end note
+@enduml`,
+
+  defence: `@startuml Defence_in_Depth
+title 3-Layer Defence-in-Depth - Guardrails Architecture
+
+skinparam rectangle {
+    roundCorner 15
+}
+
+rectangle "User Prompt\\nPOST /api/ask" as input #58a6ff
+
+rectangle "**GuardrailsOrchestrator**\\nMono.zip(L1, L2, L3)\\nParallel Execution" as orch #bc8cff
+
+rectangle "**Layer 1: NeMo Guardrails**\\n---\\nProvider: NVIDIA\\nMethod: Policy rules (Colang DSL)\\nChecks: Jailbreak, topic, content safety\\nLatency: ~30ms | Port: :8001" as L1 #f85149
+
+rectangle "**Layer 2: LlamaGuard**\\n---\\nProvider: Meta AI\\nMethod: ML classification model\\nChecks: S1-S12 safety taxonomy\\nLatency: ~60ms | Via: Ollama :11434" as L2 #d29922
+
+rectangle "**Layer 3: Presidio Analyzer**\\n---\\nProvider: Microsoft\\nMethod: NER + Regex PII detection\\nChecks: 50+ entity types (SSN, CC, email...)\\nLatency: ~40ms | Port: :5002" as L3 #f778ba
+
+diamond "ALL PASS?\\n3/3 required" as gate #3fb950
+
+rectangle "Ollama LLM\\nLlama 3.2 Inference" as llm #3fb950
+rectangle "**403 BLOCK**" as block #f85149
+
+input --> orch
+orch --> L1
+orch --> L2
+orch --> L3
+L1 --> gate
+L2 --> gate
+L3 --> gate
+gate --> llm : PASS
+gate --> block : FAIL
+
+note right of gate
+    Combined parallel latency: ~90ms
+    (max of three layers)
+end note
+@enduml`
+};
+
+function copyMermaid(id) {
+  const btn = event.target;
+  copyToClipboard(mermaidDefs[id], btn);
+}
+
+function copyPlantUML(id) {
+  const btn = event.target;
+  copyToClipboard(plantUMLDefs[id], btn);
+}
+</script>
+
+</body>
+</html>

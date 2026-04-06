@@ -1,0 +1,55 @@
+==============================================================
+  Secure AI Gateway — Deployment Summary
+==============================================================
+
+Release:   {{ .Release.Name }}
+Namespace: {{ include "secure-ai-gateway.namespace" . }}
+Version:   {{ .Chart.AppVersion }}
+
+Containers deployed:
+  - secure-ai-gateway  (port {{ .Values.gateway.containerPort }})
+{{- if .Values.nemo.enabled }}
+  - nemo-guardrails    (port {{ .Values.nemo.containerPort }})
+{{- end }}
+{{- if .Values.presidio.enabled }}
+  - presidio-analyzer  (port {{ .Values.presidio.containerPort }})
+{{- end }}
+{{- if .Values.ollama.enabled }}
+  - ollama             (port {{ .Values.ollama.containerPort }})
+{{- end }}
+
+{{- if .Values.ingress.enabled }}
+
+Ingress:
+  Host: {{ .Values.ingress.host }}
+  URL:  http{{ if .Values.ingress.tls }}s{{ end }}://{{ .Values.ingress.host }}
+{{- end }}
+
+To verify the deployment:
+
+  kubectl get pods -n {{ include "secure-ai-gateway.namespace" . }} -l "{{ include "secure-ai-gateway.selectorLabels" . | replace "\n" "," }}"
+
+To check the service:
+
+  kubectl get svc -n {{ include "secure-ai-gateway.namespace" . }} {{ include "secure-ai-gateway.fullname" . }}
+
+To port-forward locally:
+
+  kubectl port-forward -n {{ include "secure-ai-gateway.namespace" . }} svc/{{ include "secure-ai-gateway.fullname" . }} 8080:{{ .Values.service.port }}
+
+{{- if .Values.autoscaling.enabled }}
+
+Autoscaling:
+  Min replicas: {{ .Values.autoscaling.minReplicas }}
+  Max replicas: {{ .Values.autoscaling.maxReplicas }}
+  CPU target:   {{ .Values.autoscaling.targetCPUUtilizationPercentage }}%
+  Memory target: {{ .Values.autoscaling.targetMemoryUtilizationPercentage }}%
+{{- end }}
+
+{{- if .Values.monitoring.prometheus.enabled }}
+
+Monitoring:
+  Prometheus scrape enabled at {{ .Values.monitoring.prometheus.path }}
+{{- end }}
+
+==============================================================

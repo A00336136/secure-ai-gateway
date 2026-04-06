@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SecureAI Gateway - IEEE References</title>
+<style>
+:root {
+  --bg-primary: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-tertiary: #21262d;
+  --border: #30363d;
+  --text-primary: #e6edf3;
+  --text-secondary: #8b949e;
+  --text-muted: #6e7681;
+  --accent-blue: #58a6ff;
+  --accent-green: #3fb950;
+  --accent-purple: #bc8cff;
+  --accent-orange: #d29922;
+  --accent-red: #f85149;
+  --accent-teal: #39d2c0;
+  --shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.light-mode {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f6f8fa;
+  --bg-tertiary: #e1e4e8;
+  --border: #d0d7de;
+  --text-primary: #1f2328;
+  --text-secondary: #656d76;
+  --text-muted: #8b949e;
+  --accent-blue: #0969da;
+  --accent-green: #1a7f37;
+  --accent-purple: #8250df;
+  --accent-orange: #9a6700;
+  --accent-red: #cf222e;
+  --accent-teal: #1b7c83;
+  --shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+.container { max-width: 1000px; margin: 0 auto; padding: 2rem; }
+
+h1 { font-size: 2rem; font-weight: 600; margin-bottom: 0.25rem; }
+.subtitle { color: var(--text-secondary); font-size: 1rem; margin-bottom: 0.5rem; }
+.format-badge {
+  display: inline-block;
+  background: var(--accent-blue);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  margin-bottom: 1.5rem;
+}
+
+.controls {
+  display: flex; gap: 0.75rem; margin-bottom: 2rem; flex-wrap: wrap;
+}
+
+.controls button {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+
+.controls button:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
+
+.copy-all-btn {
+  background: var(--accent-blue) !important;
+  color: #fff !important;
+  border-color: var(--accent-blue) !important;
+}
+
+.copy-all-btn:hover { opacity: 0.85; }
+
+.section {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.section-header {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.section-header h2 { font-size: 1.2rem; font-weight: 600; }
+
+.badge {
+  font-size: 0.75rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+
+.section-body { padding: 1.5rem; }
+
+.ref-entry {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 0.75rem;
+  position: relative;
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.ref-entry:last-child { margin-bottom: 0; }
+
+.ref-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  height: 2rem;
+  background: var(--accent-blue);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 6px;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.ref-num.guardrails { background: var(--accent-red); }
+.ref-num.security { background: var(--accent-orange); }
+.ref-num.tooling { background: var(--accent-teal); }
+.ref-num.foundation { background: var(--accent-purple); }
+.ref-num.compliance { background: var(--accent-green); }
+
+.ref-text {
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+  flex: 1;
+}
+
+.ref-text .title { font-style: italic; }
+.ref-text a { color: var(--accent-blue); text-decoration: none; word-break: break-all; }
+.ref-text a:hover { text-decoration: underline; }
+
+.copy-btn {
+  padding: 0.2rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 0.65rem;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.copy-btn:hover { color: var(--accent-blue); border-color: var(--accent-blue); }
+.copy-btn.copied { color: var(--accent-green); border-color: var(--accent-green); }
+
+/* Full reference block for copy-all */
+.full-refs {
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  font-family: 'Times New Roman', 'Georgia', serif;
+  font-size: 0.95rem;
+  line-height: 1.8;
+  color: var(--text-primary);
+  white-space: pre-wrap;
+  word-break: break-word;
+  position: relative;
+}
+
+.how-to-cite {
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+  color: #fff;
+  border-radius: 12px;
+  padding: 2rem;
+  margin-top: 2rem;
+}
+
+.how-to-cite h2 { color: #fff; margin-bottom: 1rem; }
+.how-to-cite .cite-block {
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 6px;
+  padding: 1rem;
+  font-family: 'Times New Roman', 'Georgia', serif;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: #fff;
+  white-space: pre-wrap;
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.toc { margin-bottom: 2rem; }
+.toc a { color: var(--accent-blue); text-decoration: none; }
+.toc a:hover { text-decoration: underline; }
+.toc ul { list-style: none; padding-left: 0; }
+.toc li { padding: 0.3rem 0; font-size: 0.9rem; }
+.toc li::before { content: "\00A7 "; color: var(--text-muted); }
+
+.toast {
+  position: fixed; bottom: 2rem; right: 2rem;
+  padding: 0.75rem 1.25rem;
+  background: var(--accent-green); color: #fff;
+  border-radius: 8px; font-size: 0.85rem;
+  opacity: 0; transform: translateY(10px);
+  transition: all 0.3s; z-index: 1000; pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+
+.note {
+  background: var(--bg-tertiary);
+  border-left: 3px solid var(--accent-blue);
+  padding: 0.75rem 1rem;
+  border-radius: 0 6px 6px 0;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+}
+
+@media print {
+  body { background: #fff !important; color: #000 !important; }
+  .controls, .copy-btn, .toast { display: none !important; }
+  .section { border: 1px solid #ccc !important; box-shadow: none !important; background: #fff !important; }
+  .ref-entry { background: #f5f5f5 !important; border: 1px solid #ccc !important; }
+  .full-refs { background: #fff !important; border: 1px solid #ccc !important; color: #000 !important; }
+  .how-to-cite { background: #f0f0f0 !important; color: #000 !important; }
+  .how-to-cite .cite-block { background: #fff !important; color: #000 !important; border-color: #ccc !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>SecureAI Gateway - References</h1>
+  <p class="subtitle">Complete bibliography formatted per IEEE citation standards.</p>
+  <span class="format-badge">IEEE FORMAT</span>
+
+  <div class="controls">
+    <button onclick="document.body.classList.toggle('light-mode')">Toggle Light/Dark</button>
+    <button onclick="window.print()">Print / Export PDF</button>
+    <button class="copy-all-btn" onclick="copyAll()">Copy All IEEE References</button>
+  </div>
+
+  <div class="note">
+    All references follow the <strong>IEEE Reference Style</strong> as specified in the
+    <em>IEEE Editorial Style Manual</em>. Numbered in citation order. Use [<em>n</em>] in-text markers.
+  </div>
+
+  <nav class="toc">
+    <ul>
+      <li><a href="#core-ai">Core AI Safety &amp; Guardrails [1]-[3]</a></li>
+      <li><a href="#foundation">Foundation Models &amp; PII Protection [4]-[8]</a></li>
+      <li><a href="#security">Security &amp; Prompt Injection [9]-[10]</a></li>
+      <li><a href="#compliance">Compliance &amp; Standards [11]-[13]</a></li>
+      <li><a href="#tooling">Frameworks &amp; Tooling [14]-[20]</a></li>
+      <li><a href="#full">Complete Reference List (Copy-Ready)</a></li>
+      <li><a href="#howto">How to Cite This Project</a></li>
+    </ul>
+  </nav>
+
+  <!-- ================================ -->
+  <!-- CORE AI SAFETY & GUARDRAILS      -->
+  <!-- ================================ -->
+  <div class="section" id="core-ai">
+    <div class="section-header">
+      <h2>Core AI Safety &amp; Guardrails</h2>
+      <span class="badge">[1] - [3]</span>
+    </div>
+    <div class="section-body">
+
+      <div class="ref-entry" id="ref1">
+        <span class="ref-num guardrails">1</span>
+        <div class="ref-text">S. Yao, J. Zhao, D. Yu, N. Du, I. Shafran, K. Narasimhan, and Y. Cao, &ldquo;ReAct: Synergizing reasoning and acting in language models,&rdquo; in <span class="title">Proc. Int. Conf. Learn. Represent. (ICLR)</span>, 2023. [Online]. Available: <a href="https://arxiv.org/abs/2210.03629">https://arxiv.org/abs/2210.03629</a></div>
+        <button class="copy-btn" onclick="copyRef(1, this)">Copy</button>
+      </div>
+
+      <div class="ref-entry" id="ref2">
+        <span class="ref-num guardrails">2</span>
+        <div class="ref-text">H. Inan <em>et al.</em>, &ldquo;Llama Guard: LLM-based input-output safeguard for human-AI conversations,&rdquo; <span class="title">arXiv preprint arXiv:2312.06674</span>, 2023. [Online]. Available: <a href="https://arxiv.org/abs/2312.06674">https://arxiv.org/abs/2312.06674</a></div>
+        <button class="copy-btn" onclick="copyRef(2, this)">Copy</button>
+      </div>
+
+      <div class="ref-entry" id="ref3">
+        <span class="ref-num guardrails">3</span>
+        <div class="ref-text">T. Rebedea, R. Dinu, M. N. Sreedhar, C. Parisien, and J. Cohen, &ldquo;NeMo Guardrails: A toolkit for controllable and safe LLM applications with programmable rails,&rdquo; in <span class="title">Proc. Conf. Empirical Methods Nat. Lang. Process. (EMNLP): System Demonstrations</span>. Association for Computational Linguistics, 2023. [Online]. Available: <a href="https://arxiv.org/abs/2310.10501">https://arxiv.org/abs/2310.10501</a></div>
+        <button class="copy-btn" onclick="copyRef(3, this)">Copy</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================================ -->
+  <!-- FOUNDATION MODELS & PII          -->
+  <!-- ================================ -->
+  <div class="section" id="foundation">
+    <div class="section-header">
+      <h2>Foundation Models &amp; PII Protection</h2>
+      <span class="badge">[4] - [8]</span>
+    </div>
+    <div class="section-body">
+
+      <div class="ref-entry" id="ref4">
+        <span class="ref-num foundation">4</span>
+        <div class="ref-text">Microsoft, &ldquo;Presidio &mdash; Data protection and anonymization SDK,&rdquo; GitHub, 2019. [Online]. Available: <a href="https://github.com/microsoft/presidio">https://github.com/microsoft/presidio</a></div>
+        <button class="copy-btn" onclick="copyRef(4, this)">Copy</button>
+      </div>
+
+      <div class="ref-entry" id="ref5">
+        <span class="ref-num foundation">5</span>
+        <div class="ref-text">OWASP Foundation, &ldquo;OWASP Top 10 for Large Language Model Applications v1.1,&rdquo; 2023. [Online]. Available: <a href="https://owasp.org/www-project-top-10-for-large-language-model-applications/">https://owasp.org/www-project-top-10-for-large-language-model-applications/</a></div>
+        <button class="copy-btn" onclick="copyRef(5, this)">Copy</button>
+      </div>
+
+      <div class="ref-entry" id="ref6">
+        <span class="ref-num foundation">6</span>
+        <div class="ref-text">H. Touvron <em>et al.</em>, &ldquo;Llama 2: Open foundation and fine-tuned chat models,&rdquo; <span class="title">arXiv preprint arXiv:2307.09288</span>, 2023. [Online]. Available: <a href="https://arxiv.org/abs/2307.09288">https://arxiv.org/abs/2307.09288</a></div>
+        <button class="copy-btn" onclick="copyRef(6, this)">Copy</button>
+      </div>
+
+      <div class="ref-entry" id="ref7">
+        <span class="ref-num foundation">7</span>
+        <div class="ref-text">A. Vaswani, N. Shazeer, N. Parmar, J. Uszkoreit, L. Jones, A. N. Gomez, L. Kaiser, and I. Polosukhin, &ldquo;Attention is all you need,&rdquo; in <span class="title">Proc. Adv. Neural Inf. Process. Syst. (NeurIPS)</span>, vol. 30, 2017. [Online]. Available: <a href="https://arxiv.org/abs/1706.03762">https://arxiv.org/abs/1706.03762</a></div>
+        <button class="copy-btn" onclick="copyRef(7, this)">Copy</button>
+      </div>
+
+      <div class="ref-entry" id="ref8">
+        <span class="ref-num foundation">8</span>
+        <div class="ref-text">T. Brown <em>et al.</em>, &ldquo;Language models are few-shot learners,&rdquo; in <span class="title">Proc. Adv. Neural Inf. Process. Syst. (NeurIPS)</span>, vol. 33, pp. 1877&ndash;1901, 2020. [Online]. Available: <a href="https://arxiv.org/abs/2005.14165">https://arxiv.org/abs/2005.14165</a></div>
+        <button class="copy-btn" onclick="copyRef(8, this)">Copy</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================================ -->
+  <!-- SECURITY & PROMPT INJECTION      -->
+  <!-- ================================ -->
+  <div class="section" id="security">
+    <div class="section-header">
+      <h2>Security &amp; Prompt Injection</h2>
+      <span class="badge">[9] - [10]</span>
+    </div>
+    <div class="section-body">
+
+      <div class="ref-entry" id="ref9">
+        <span class="ref-num security">9</span>
+        <div class="ref-text">K. Greshake, S. Abdelnabi, S. Mishra, C. Endres, T. Holz, and M. Fritz, &ldquo;Not what you&rsquo;ve signed up for: Compromising real-world LLM-integrated applications with indirect prompt injection,&rdquo; in <span class="title">Proc. 16th ACM Workshop Artif. Intell. Secur. (AISec)</span>, 2023. [Online]. Available: <a href="https://arxiv.org/abs/2302.12173">https://arxiv.org/abs/2302.12173</a></div>
+        <button class="copy-btn" onclick="copyRef(9, this)">Copy</button>
+      </div>
+
+      <div class="ref-entry" id="ref10">
+        <span class="ref-num security">10</span>
+        <div class="ref-text">F. Perez and I. Ribeiro, &ldquo;Ignore this title and HackAPrompt: Evaluating prompt injection in large language models,&rdquo; <span class="title">arXiv preprint arXiv:2302.09382</span>, 2023. [Online]. Available: <a href="https://arxiv.org/abs/2302.09382">https://arxiv.org/abs/2302.09382</a></div>
+        <button class="copy-btn" onclick="copyRef(10, this)">Copy</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================================ -->
+  <!-- COMPLIANCE & STANDARDS           -->
+  <!-- ================================ -->
+  <div class="section" id="compliance">
+    <div class="section-header">
+      <h2>Compliance &amp; Standards</h2>
+      <span class="badge">[11] - [13]</span>
+    </div>
+    <div class="section-body">
+
+      <div class="ref-entry" id="ref11">
+        <span class="ref-num compliance">11</span>
+        <div class="ref-text">National Institute of Standards and Technology, &ldquo;Secure Software Development Framework (SSDF) Version 1.1: Recommendations for mitigating the risk of software vulnerabilities,&rdquo; NIST Special Publication 800-218, Feb. 2022. [Online]. Available: <a href="https://doi.org/10.6028/NIST.SP.800-218">https://doi.org/10.6028/NIST.SP.800-218</a></div>
+        <button class="copy-btn" onclick="copyRef(11, this)">Copy</button>
+      </div>
+
+      <div class="ref-entry" id="ref12">
+        <span class="ref-num compliance">12</span>
+        <div class="ref-text">International Organization for Standardization, &ldquo;ISO/IEC 27001:2022 &mdash; Information security, cybersecurity and privacy protection &mdash; Information security management systems &mdash; Requirements,&rdquo; 3rd ed., Oct. 2022. [Online]. Available: <a href="https://www.iso.org/standard/27001">https://www.iso.org/standard/27001</a></div>
+        <button class="copy-btn" onclick="copyRef(12, this)">Copy</button>
+      </div>
+
+      <div class="ref-entry" id="ref13">
+        <span class="ref-num compliance">13</span>
+        <div class="ref-text">European Parliament and Council of the European Union, &ldquo;Regulation (EU) 2016/679 of the European Parliament and of the Council (General Data Protection Regulation),&rdquo; <span class="title">Official Journal of the European Union</span>, L 119, pp. 1&ndash;88, 2016. [Online]. Available: <a href="https://eur-lex.europa.eu/eli/reg/2016/679/oj">https://eur-lex.europa.eu/eli/reg/2016/679/oj</a></div>
+        <button class="copy-btn" onclick="copyRef(13, this)">Copy</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================================ -->
+  <!-- FRAMEWORKS & TOOLING             -->
+  <!-- ================================ -->
+  <div class="section" id="tooling">
+    <div class="section-header">
+      <h2>Frameworks &amp; Tooling</h2>
+      <span class="badge">[14] - [20]</span>
+    </div>
+    <div class="section-body">
+
+      <div class="ref-entry" id="ref14">
+        <span class="ref-num tooling">14</span>
+        <div class="ref-text">VMware (Broadcom), &ldquo;Spring Boot 3.x reference documentation,&rdquo; 2023. [Online]. Available: <a href="https://docs.spring.io/spring-boot/docs/current/reference/html/">https://docs.spring.io/spring-boot/docs/current/reference/html/</a></div>
+        <button class="copy-btn" onclick="copyRef(14, this)">Copy</button>
+      </div>
+
+      <div class="ref-entry" id="ref15">
+        <span class="ref-num tooling">15</span>
+        <div class="ref-text">VMware (Broadcom), &ldquo;Spring Security reference documentation,&rdquo; 2023. [Online]. Available: <a href="https://docs.spring.io/spring-security/reference/">https://docs.spring.io/spring-security/reference/</a></div>
+        <button class="copy-btn" onclick="copyRef(15, this)">Copy</button>
+      </div>
+
+      <div class="ref-entry" id="ref16">
+        <span class="ref-num tooling">16</span>
+        <div class="ref-text">Docker, Inc., &ldquo;Docker documentation,&rdquo; 2023. [Online]. Available: <a href="https://docs.docker.com/">https://docs.docker.com/</a></div>
+        <button class="copy-btn" onclick="copyRef(16, this)">Copy</button>
+      </div>
+
+      <div class="ref-entry" id="ref17">
+        <span class="ref-num tooling">17</span>
+        <div class="ref-text">Cloud Native Computing Foundation, &ldquo;Kubernetes documentation,&rdquo; 2023. [Online]. Available: <a href="https://kubernetes.io/docs/">https://kubernetes.io/docs/</a></div>
+        <button class="copy-btn" onclick="copyRef(17, this)">Copy</button>
+      </div>
+
+      <div class="ref-entry" id="ref18">
+        <span class="ref-num tooling">18</span>
+        <div class="ref-text">EclEmma Team, &ldquo;JaCoCo &mdash; Java code coverage library,&rdquo; Eclipse Foundation, 2023. [Online]. Available: <a href="https://www.jacoco.org/jacoco/">https://www.jacoco.org/jacoco/</a></div>
+        <button class="copy-btn" onclick="copyRef(18, this)">Copy</button>
+      </div>
+
+      <div class="ref-entry" id="ref19">
+        <span class="ref-num tooling">19</span>
+        <div class="ref-text">SonarSource SA, &ldquo;SonarQube &mdash; Continuous inspection of code quality and security,&rdquo; 2023. [Online]. Available: <a href="https://www.sonarsource.com/products/sonarqube/">https://www.sonarsource.com/products/sonarqube/</a></div>
+        <button class="copy-btn" onclick="copyRef(19, this)">Copy</button>
+      </div>
+
+      <div class="ref-entry" id="ref20">
+        <span class="ref-num tooling">20</span>
+        <div class="ref-text">SpotBugs Community, &ldquo;SpotBugs &mdash; Find bugs in Java programs,&rdquo; GitHub, 2023. [Online]. Available: <a href="https://spotbugs.github.io/">https://spotbugs.github.io/</a></div>
+        <button class="copy-btn" onclick="copyRef(20, this)">Copy</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================================ -->
+  <!-- COMPLETE REFERENCE LIST          -->
+  <!-- ================================ -->
+  <div class="section" id="full">
+    <div class="section-header">
+      <h2>Complete Reference List (Copy-Ready)</h2>
+      <button class="copy-all-btn" onclick="copyAll()" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; border: none; border-radius: 6px; cursor: pointer;">Copy All</button>
+    </div>
+    <div class="section-body">
+      <div class="full-refs" id="all-ieee-refs">
+[1] S. Yao, J. Zhao, D. Yu, N. Du, I. Shafran, K. Narasimhan, and Y. Cao, "ReAct: Synergizing reasoning and acting in language models," in Proc. Int. Conf. Learn. Represent. (ICLR), 2023. [Online]. Available: https://arxiv.org/abs/2210.03629
+
+[2] H. Inan et al., "Llama Guard: LLM-based input-output safeguard for human-AI conversations," arXiv preprint arXiv:2312.06674, 2023. [Online]. Available: https://arxiv.org/abs/2312.06674
+
+[3] T. Rebedea, R. Dinu, M. N. Sreedhar, C. Parisien, and J. Cohen, "NeMo Guardrails: A toolkit for controllable and safe LLM applications with programmable rails," in Proc. Conf. Empirical Methods Nat. Lang. Process. (EMNLP): System Demonstrations. Association for Computational Linguistics, 2023. [Online]. Available: https://arxiv.org/abs/2310.10501
+
+[4] Microsoft, "Presidio - Data protection and anonymization SDK," GitHub, 2019. [Online]. Available: https://github.com/microsoft/presidio
+
+[5] OWASP Foundation, "OWASP Top 10 for Large Language Model Applications v1.1," 2023. [Online]. Available: https://owasp.org/www-project-top-10-for-large-language-model-applications/
+
+[6] H. Touvron et al., "Llama 2: Open foundation and fine-tuned chat models," arXiv preprint arXiv:2307.09288, 2023. [Online]. Available: https://arxiv.org/abs/2307.09288
+
+[7] A. Vaswani, N. Shazeer, N. Parmar, J. Uszkoreit, L. Jones, A. N. Gomez, L. Kaiser, and I. Polosukhin, "Attention is all you need," in Proc. Adv. Neural Inf. Process. Syst. (NeurIPS), vol. 30, 2017. [Online]. Available: https://arxiv.org/abs/1706.03762
+
+[8] T. Brown et al., "Language models are few-shot learners," in Proc. Adv. Neural Inf. Process. Syst. (NeurIPS), vol. 33, pp. 1877-1901, 2020. [Online]. Available: https://arxiv.org/abs/2005.14165
+
+[9] K. Greshake, S. Abdelnabi, S. Mishra, C. Endres, T. Holz, and M. Fritz, "Not what you've signed up for: Compromising real-world LLM-integrated applications with indirect prompt injection," in Proc. 16th ACM Workshop Artif. Intell. Secur. (AISec), 2023. [Online]. Available: https://arxiv.org/abs/2302.12173
+
+[10] F. Perez and I. Ribeiro, "Ignore this title and HackAPrompt: Evaluating prompt injection in large language models," arXiv preprint arXiv:2302.09382, 2023. [Online]. Available: https://arxiv.org/abs/2302.09382
+
+[11] National Institute of Standards and Technology, "Secure Software Development Framework (SSDF) Version 1.1: Recommendations for mitigating the risk of software vulnerabilities," NIST Special Publication 800-218, Feb. 2022. [Online]. Available: https://doi.org/10.6028/NIST.SP.800-218
+
+[12] International Organization for Standardization, "ISO/IEC 27001:2022 - Information security, cybersecurity and privacy protection - Information security management systems - Requirements," 3rd ed., Oct. 2022. [Online]. Available: https://www.iso.org/standard/27001
+
+[13] European Parliament and Council of the European Union, "Regulation (EU) 2016/679 of the European Parliament and of the Council (General Data Protection Regulation)," Official Journal of the European Union, L 119, pp. 1-88, 2016. [Online]. Available: https://eur-lex.europa.eu/eli/reg/2016/679/oj
+
+[14] VMware (Broadcom), "Spring Boot 3.x reference documentation," 2023. [Online]. Available: https://docs.spring.io/spring-boot/docs/current/reference/html/
+
+[15] VMware (Broadcom), "Spring Security reference documentation," 2023. [Online]. Available: https://docs.spring.io/spring-security/reference/
+
+[16] Docker, Inc., "Docker documentation," 2023. [Online]. Available: https://docs.docker.com/
+
+[17] Cloud Native Computing Foundation, "Kubernetes documentation," 2023. [Online]. Available: https://kubernetes.io/docs/
+
+[18] EclEmma Team, "JaCoCo - Java code coverage library," Eclipse Foundation, 2023. [Online]. Available: https://www.jacoco.org/jacoco/
+
+[19] SonarSource SA, "SonarQube - Continuous inspection of code quality and security," 2023. [Online]. Available: https://www.sonarsource.com/products/sonarqube/
+
+[20] SpotBugs Community, "SpotBugs - Find bugs in Java programs," GitHub, 2023. [Online]. Available: https://spotbugs.github.io/</div>
+      <button class="copy-btn" onclick="copyAll()" style="position: absolute; top: 0.5rem; right: 0.5rem;">Copy All</button>
+    </div>
+  </div>
+
+  <!-- ================================ -->
+  <!-- HOW TO CITE THIS PROJECT         -->
+  <!-- ================================ -->
+  <div class="how-to-cite" id="howto">
+    <h2>How to Cite This Project</h2>
+    <p style="margin-bottom: 1rem; opacity: 0.9;">Use the following IEEE-formatted citation when referencing the SecureAI Gateway project in your paper:</p>
+
+    <div class="cite-block" id="project-cite">A. Shaik, "SecureAI Gateway: A three-layer defence-in-depth framework for securing enterprise LLM applications," M.S. thesis, Atlantic Technological University, Galway, Ireland, 2025. [Online]. Available: https://github.com/A00336136/secure-ai-gateway</div>
+    <button class="copy-btn" onclick="copyCite(this)" style="position: absolute; top: 0.5rem; right: 0.5rem; background: rgba(0,0,0,0.3); border-color: rgba(255,255,255,0.3); color: #fff;">Copy</button>
+
+    <p style="margin-top: 1rem; font-size: 0.85rem; opacity: 0.75;">In-text usage: &ldquo;...as demonstrated by the SecureAI Gateway framework [<em>n</em>].&rdquo;</p>
+  </div>
+
+</div>
+
+<div class="toast" id="toast">Copied to clipboard!</div>
+
+<script>
+// All 20 IEEE references as plain text for copying
+const refs = {
+  1: '[1] S. Yao, J. Zhao, D. Yu, N. Du, I. Shafran, K. Narasimhan, and Y. Cao, "ReAct: Synergizing reasoning and acting in language models," in Proc. Int. Conf. Learn. Represent. (ICLR), 2023. [Online]. Available: https://arxiv.org/abs/2210.03629',
+  2: '[2] H. Inan et al., "Llama Guard: LLM-based input-output safeguard for human-AI conversations," arXiv preprint arXiv:2312.06674, 2023. [Online]. Available: https://arxiv.org/abs/2312.06674',
+  3: '[3] T. Rebedea, R. Dinu, M. N. Sreedhar, C. Parisien, and J. Cohen, "NeMo Guardrails: A toolkit for controllable and safe LLM applications with programmable rails," in Proc. Conf. Empirical Methods Nat. Lang. Process. (EMNLP): System Demonstrations. Association for Computational Linguistics, 2023. [Online]. Available: https://arxiv.org/abs/2310.10501',
+  4: '[4] Microsoft, "Presidio - Data protection and anonymization SDK," GitHub, 2019. [Online]. Available: https://github.com/microsoft/presidio',
+  5: '[5] OWASP Foundation, "OWASP Top 10 for Large Language Model Applications v1.1," 2023. [Online]. Available: https://owasp.org/www-project-top-10-for-large-language-model-applications/',
+  6: '[6] H. Touvron et al., "Llama 2: Open foundation and fine-tuned chat models," arXiv preprint arXiv:2307.09288, 2023. [Online]. Available: https://arxiv.org/abs/2307.09288',
+  7: '[7] A. Vaswani, N. Shazeer, N. Parmar, J. Uszkoreit, L. Jones, A. N. Gomez, L. Kaiser, and I. Polosukhin, "Attention is all you need," in Proc. Adv. Neural Inf. Process. Syst. (NeurIPS), vol. 30, 2017. [Online]. Available: https://arxiv.org/abs/1706.03762',
+  8: '[8] T. Brown et al., "Language models are few-shot learners," in Proc. Adv. Neural Inf. Process. Syst. (NeurIPS), vol. 33, pp. 1877-1901, 2020. [Online]. Available: https://arxiv.org/abs/2005.14165',
+  9: '[9] K. Greshake, S. Abdelnabi, S. Mishra, C. Endres, T. Holz, and M. Fritz, "Not what you\'ve signed up for: Compromising real-world LLM-integrated applications with indirect prompt injection," in Proc. 16th ACM Workshop Artif. Intell. Secur. (AISec), 2023. [Online]. Available: https://arxiv.org/abs/2302.12173',
+  10: '[10] F. Perez and I. Ribeiro, "Ignore this title and HackAPrompt: Evaluating prompt injection in large language models," arXiv preprint arXiv:2302.09382, 2023. [Online]. Available: https://arxiv.org/abs/2302.09382',
+  11: '[11] National Institute of Standards and Technology, "Secure Software Development Framework (SSDF) Version 1.1: Recommendations for mitigating the risk of software vulnerabilities," NIST Special Publication 800-218, Feb. 2022. [Online]. Available: https://doi.org/10.6028/NIST.SP.800-218',
+  12: '[12] International Organization for Standardization, "ISO/IEC 27001:2022 - Information security, cybersecurity and privacy protection - Information security management systems - Requirements," 3rd ed., Oct. 2022. [Online]. Available: https://www.iso.org/standard/27001',
+  13: '[13] European Parliament and Council of the European Union, "Regulation (EU) 2016/679 of the European Parliament and of the Council (General Data Protection Regulation)," Official Journal of the European Union, L 119, pp. 1-88, 2016. [Online]. Available: https://eur-lex.europa.eu/eli/reg/2016/679/oj',
+  14: '[14] VMware (Broadcom), "Spring Boot 3.x reference documentation," 2023. [Online]. Available: https://docs.spring.io/spring-boot/docs/current/reference/html/',
+  15: '[15] VMware (Broadcom), "Spring Security reference documentation," 2023. [Online]. Available: https://docs.spring.io/spring-security/reference/',
+  16: '[16] Docker, Inc., "Docker documentation," 2023. [Online]. Available: https://docs.docker.com/',
+  17: '[17] Cloud Native Computing Foundation, "Kubernetes documentation," 2023. [Online]. Available: https://kubernetes.io/docs/',
+  18: '[18] EclEmma Team, "JaCoCo - Java code coverage library," Eclipse Foundation, 2023. [Online]. Available: https://www.jacoco.org/jacoco/',
+  19: '[19] SonarSource SA, "SonarQube - Continuous inspection of code quality and security," 2023. [Online]. Available: https://www.sonarsource.com/products/sonarqube/',
+  20: '[20] SpotBugs Community, "SpotBugs - Find bugs in Java programs," GitHub, 2023. [Online]. Available: https://spotbugs.github.io/'
+};
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg || 'Copied to clipboard!';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+function copyRef(n, btn) {
+  navigator.clipboard.writeText(refs[n]).then(() => {
+    btn.classList.add('copied');
+    btn.textContent = 'Copied!';
+    showToast('Reference [' + n + '] copied!');
+    setTimeout(() => { btn.classList.remove('copied'); btn.textContent = 'Copy'; }, 2000);
+  });
+}
+
+function copyAll() {
+  const all = Object.values(refs).join('\n\n');
+  navigator.clipboard.writeText(all).then(() => {
+    showToast('All 20 IEEE references copied!');
+  });
+}
+
+function copyCite(btn) {
+  const text = document.getElementById('project-cite').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.classList.add('copied');
+    btn.textContent = 'Copied!';
+    showToast('Project citation copied!');
+    setTimeout(() => { btn.classList.remove('copied'); btn.textContent = 'Copy'; }, 2000);
+  });
+}
+</script>
+
+</body>
+</html>

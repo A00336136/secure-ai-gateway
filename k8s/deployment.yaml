@@ -148,6 +148,13 @@ spec:
             limits:
               memory: "4Gi"
               cpu: "2000m"
+          securityContext:
+            allowPrivilegeEscalation: false
+            # readOnlyRootFilesystem: false — Ollama needs writable /root/.ollama
+            # for model weights and runtime temp files
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop: ["ALL"]
           volumeMounts:
             - name: ollama-data
               mountPath: /root/.ollama

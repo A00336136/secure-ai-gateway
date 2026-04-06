@@ -1,0 +1,14 @@
+apiVersion: v2
+name: secure-ai-gateway
+description: A Helm chart for the Secure AI Gateway — Spring Boot 3.4.6 microservice with NeMo Guardrails, Presidio Analyzer, and Ollama sidecars
+type: application
+version: 1.0.0
+appVersion: "2.0.0"
+keywords:
+  - ai
+  - security
+  - gateway
+  - spring-boot
+  - guardrails
+maintainers:
+  - name: SecureAI Team

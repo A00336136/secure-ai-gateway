@@ -6,11 +6,14 @@ import com.secureai.guardrails.GuardrailsOrchestrator;
 import com.secureai.config.SecurityConfig;
 import com.secureai.model.AskRequest;
 import com.secureai.pii.PiiRedactionService;
+import com.secureai.security.OutputSanitizationService;
 import com.secureai.security.JwtAuthenticationFilter;
 import com.secureai.security.JwtUtil;
 import com.secureai.service.AuditLogService;
+import com.secureai.service.GroundednessCheckerService;
 import com.secureai.service.OllamaClient;
 import com.secureai.service.RateLimiterService;
+import com.secureai.service.TokenCounterService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -45,7 +48,10 @@ class AskControllerTest {
     @MockitoBean AuditLogService auditLogService;
     @MockitoBean RateLimiterService rateLimiterService;
     @MockitoBean PiiRedactionService piiRedactionService;
+    @MockitoBean OutputSanitizationService outputSanitizationService;
     @MockitoBean GuardrailsOrchestrator guardrailsOrchestrator;
+    @MockitoBean GroundednessCheckerService groundednessCheckerService;
+    @MockitoBean TokenCounterService tokenCounterService;
 
     private static final String TEST_TOKEN = "valid.test.token";
     private static final String TEST_USER = "testuser";
@@ -67,6 +73,16 @@ class AskControllerTest {
         when(ollamaClient.isHealthy()).thenReturn(true);
         when(guardrailsOrchestrator.evaluate(anyString()))
                 .thenReturn(new GuardrailsOrchestrator.GuardrailsEvaluation(false, null, List.of(), 10L));
+
+        // Output sanitization: pass-through by default
+        when(outputSanitizationService.sanitize(anyString())).thenAnswer(i -> i.getArgument(0));
+
+        // New services added in enterprise upgrade — return safe defaults
+        when(groundednessCheckerService.evaluate(anyString(), anyString()))
+                .thenReturn(new GroundednessCheckerService.GroundednessResult(
+                        1.0, "GROUNDED", false, "No issues detected", 0L));
+        when(tokenCounterService.count(anyString(), anyString()))
+                .thenReturn(new TokenCounterService.TokenCount(10, 20, 30, false));
     }
 
     @Nested

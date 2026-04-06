@@ -8,10 +8,10 @@ version: '3.9'
 # application stack.
 #
 # Services:
-#   sonarqube   — Code quality analysis (port 9000)
-#   jenkins     — CI/CD pipeline server (port 8090)
-#   prometheus  — Metrics collection (port 9090)
-#   grafana     — Monitoring dashboards (port 3000)
+#   sonarqube   — Code quality analysis (port 9001)
+#   jenkins     — CI/CD pipeline server (port 9095)
+#   prometheus  — Metrics collection (port 9092)
+#   grafana     — Monitoring dashboards (port 3001)
 #
 # Start infra only:  docker-compose -f docker-compose.infra.yml up -d
 # Start with app:    docker-compose -f docker-compose.yml -f docker-compose.infra.yml up -d
@@ -20,7 +20,7 @@ version: '3.9'
 networks:
   secure-ai-net:
     external: true
-    name: secure-ai-gateway_secure-ai-net
+    name: secure-ai-net
 
 volumes:
   sonarqube_data:
@@ -32,7 +32,7 @@ volumes:
 
 services:
 
-  # ─── SonarQube Community (Port 9000) ─────────────────────────────
+  # ─── SonarQube Community (Port 9001) ─────────────────────────────
   # Free & open-source — Quality Gate, JaCoCo coverage, code smells,
   # security hotspots, bug detection, maintainability ratings
   # Default login: admin / admin (change on first login)
@@ -40,7 +40,7 @@ services:
     image: sonarqube:community
     container_name: secure-ai-sonarqube
     ports:
-      - "9000:9000"
+      - "9001:9000"
     environment:
       SONAR_JDBC_URL: ${SONAR_JDBC_URL}
       SONAR_JDBC_USERNAME: ${POSTGRES_USER}
@@ -64,15 +64,22 @@ services:
         hard: 65536
     restart: unless-stopped
 
-  # ─── Jenkins CI/CD (Port 9090) ─────────────────────────────────
+  # ─── Jenkins CI/CD (Port 9095) ─────────────────────────────────
+  # Uses custom image with Docker CLI + Trivy baked in (docker/Dockerfile.jenkins)
+  # This prevents "docker: not found" and "trivy: not found" errors in the pipeline
+  # The jenkins_home volume persists all jobs, credentials, and config across restarts
   jenkins:
-    image: jenkins/jenkins:lts-jdk21
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.jenkins
+    image: secure-ai-jenkins:custom
     container_name: secure-ai-jenkins
     ports:
-      - "9090:8080"
+      - "9095:8080"
       - "50000:50000"
     volumes:
       - jenkins_home:/var/jenkins_home
+      # Mount Docker socket — allows Jenkins to build/push images (Docker-in-Docker)
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - secure-ai-net
@@ -80,12 +87,12 @@ services:
       JAVA_OPTS: "-Djenkins.install.runSetupWizard=false"
     restart: unless-stopped
 
-  # ─── Prometheus (Port 9090) ─────────────────────────────────────
+  # ─── Prometheus (Port 9092) ─────────────────────────────────────
   prometheus:
     image: prom/prometheus:latest
     container_name: secure-ai-prometheus
     ports:
-      - "9090:9090"
+      - "9092:9090"
     volumes:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus
@@ -98,14 +105,14 @@ services:
       - secure-ai-net
     restart: unless-stopped
 
-  # ─── Grafana (Port 3000) ───────────────────────────────────────
+  # ─── Grafana (Port 3001) ───────────────────────────────────────
   grafana:
     image: grafana/grafana:latest
     container_name: secure-ai-grafana
     ports:
-      - "3000:3000"
+      - "3001:3000"
     environment:
-      GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD}
+      GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD:?GF_SECURITY_ADMIN_PASSWORD must be set in .env}
       GF_USERS_ALLOW_SIGN_UP: 'false'
     volumes:
       - grafana_data:/var/lib/grafana
