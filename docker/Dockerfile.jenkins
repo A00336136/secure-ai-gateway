@@ -56,17 +56,14 @@ RUN apt-get update && \
 
 # ─── Install Trivy (Aqua Security) ──────────────────────────────
 # Scanner for container image CVEs (CRITICAL + HIGH)
-RUN apt-get update && \
-    install -m 0755 -d /etc/apt/keyrings && \
-    curl -fsSL https://aquasecurity.github.io/trivy-repo/deb/public.key \
-        -o /etc/apt/keyrings/trivy.asc && \
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/trivy.asc] \
-        https://aquasecurity.github.io/trivy-repo/deb \
-        $(. /etc/os-release && echo "${VERSION_CODENAME}") main" \
-        > /etc/apt/sources.list.d/trivy.list && \
-    apt-get update && \
-    apt-get install -y --no-install-recommends trivy && \
-    rm -rf /var/lib/apt/lists/*
+# Using binary install — the apt repo may not support the latest Debian codename
+RUN TRIVY_VERSION=$(curl -s https://api.github.com/repos/aquasecurity/trivy/releases/latest | \
+        python3 -c "import sys,json; print(json.load(sys.stdin)['tag_name'].lstrip('v'))") && \
+    ARCH=$(dpkg --print-architecture) && \
+    curl -fsSL "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-${ARCH}.deb" \
+        -o /tmp/trivy.deb && \
+    dpkg -i /tmp/trivy.deb && \
+    rm /tmp/trivy.deb
 
 # ─── Docker socket permissions ───────────────────────────────────
 # Ensure jenkins user can access the Docker socket mounted from host

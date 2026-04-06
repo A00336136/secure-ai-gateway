@@ -80,7 +80,12 @@ pipeline {
                 checkout scm
                 script {
                     // Sanitize branch name for Docker tag
-                    def branchTag = env.BRANCH_NAME
+                    // Support both multibranch (BRANCH_NAME) and parameterised (BRANCH) pipelines
+                    def rawBranch = env.BRANCH_NAME ?: env.BRANCH ?: 'unknown'
+                    if (!env.BRANCH_NAME) {
+                        env.BRANCH_NAME = rawBranch
+                    }
+                    def branchTag = rawBranch
                         .replaceAll('[^a-zA-Z0-9._-]', '-')
                         .toLowerCase()
                     env.BRANCH_TAG     = branchTag
