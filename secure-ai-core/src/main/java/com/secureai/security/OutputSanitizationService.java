@@ -78,7 +78,12 @@ public class OutputSanitizationService {
             Pattern.compile("<a\\s+[^>]*href\\s*=\\s*[\"']([^\"']+)[\"'][^>]*>",
                     Pattern.CASE_INSENSITIVE);
 
-    /** Raw HTML script/iframe/object tags — always strip */
+    /** Raw HTML dangerous tags with content: <script>...</script>, <iframe>...</iframe>, etc. */
+    private static final Pattern HTML_DANGEROUS_TAGS_WITH_CONTENT =
+            Pattern.compile("<\\s*(script|iframe|object|embed)\\b[^>]*>[\\s\\S]*?<\\s*/\\s*\\1\\s*>",
+                    Pattern.CASE_INSENSITIVE);
+
+    /** Self-closing or unpaired dangerous tags: <form>, <input>, <meta>, etc. */
     private static final Pattern HTML_DANGEROUS_TAGS =
             Pattern.compile("<\\s*/?(script|iframe|object|embed|form|input|meta|link|base)\\b[^>]*>",
                     Pattern.CASE_INSENSITIVE);
@@ -88,9 +93,9 @@ public class OutputSanitizationService {
             Pattern.compile("data:\\s*[^;,]+;?\\s*(?:base64\\s*,)?",
                     Pattern.CASE_INSENSITIVE);
 
-    /** Event handler attributes in HTML: onload=, onerror=, onclick= */
+    /** Event handler attributes in HTML: onload=, onerror=, onclick= — handles nested quotes */
     private static final Pattern HTML_EVENT_HANDLERS =
-            Pattern.compile("\\bon\\w+\\s*=\\s*[\"'][^\"']*[\"']",
+            Pattern.compile("\\bon\\w+\\s*=\\s*\"[^\"]*\"|\\bon\\w+\\s*=\\s*'[^']*'",
                     Pattern.CASE_INSENSITIVE);
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -194,12 +199,20 @@ public class OutputSanitizationService {
     // ─────────────────────────────────────────────────────────────────────────
 
     private String stripDangerousTags(String text) {
-        Matcher m = HTML_DANGEROUS_TAGS.matcher(text);
+        // First strip paired tags with their content: <script>...</script>
+        String result = text;
+        Matcher mPaired = HTML_DANGEROUS_TAGS_WITH_CONTENT.matcher(result);
+        if (mPaired.find()) {
+            log.warn("Stripped dangerous HTML tag(s) with content from LLM response");
+            result = mPaired.replaceAll("[HTML_BLOCKED]");
+        }
+        // Then strip any remaining unpaired/self-closing dangerous tags
+        Matcher m = HTML_DANGEROUS_TAGS.matcher(result);
         if (m.find()) {
             log.warn("Stripped dangerous HTML tag(s) from LLM response");
-            return m.replaceAll("[HTML_BLOCKED]");
+            result = m.replaceAll("[HTML_BLOCKED]");
         }
-        return text;
+        return result;
     }
 
     private String stripEventHandlers(String text) {
