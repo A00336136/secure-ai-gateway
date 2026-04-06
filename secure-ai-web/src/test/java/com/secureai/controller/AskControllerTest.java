@@ -6,6 +6,7 @@ import com.secureai.guardrails.GuardrailsOrchestrator;
 import com.secureai.config.SecurityConfig;
 import com.secureai.model.AskRequest;
 import com.secureai.pii.PiiRedactionService;
+import com.secureai.security.OutputSanitizationService;
 import com.secureai.security.JwtAuthenticationFilter;
 import com.secureai.security.JwtUtil;
 import com.secureai.service.AuditLogService;
@@ -47,6 +48,7 @@ class AskControllerTest {
     @MockitoBean AuditLogService auditLogService;
     @MockitoBean RateLimiterService rateLimiterService;
     @MockitoBean PiiRedactionService piiRedactionService;
+    @MockitoBean OutputSanitizationService outputSanitizationService;
     @MockitoBean GuardrailsOrchestrator guardrailsOrchestrator;
     @MockitoBean GroundednessCheckerService groundednessCheckerService;
     @MockitoBean TokenCounterService tokenCounterService;
@@ -71,6 +73,9 @@ class AskControllerTest {
         when(ollamaClient.isHealthy()).thenReturn(true);
         when(guardrailsOrchestrator.evaluate(anyString()))
                 .thenReturn(new GuardrailsOrchestrator.GuardrailsEvaluation(false, null, List.of(), 10L));
+
+        // Output sanitization: pass-through by default
+        when(outputSanitizationService.sanitize(anyString())).thenAnswer(i -> i.getArgument(0));
 
         // New services added in enterprise upgrade — return safe defaults
         when(groundednessCheckerService.evaluate(anyString(), anyString()))
