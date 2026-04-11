@@ -25,14 +25,17 @@
         <jjwt.version>0.11.5</jjwt.version>
         <bucket4j.version>8.10.1</bucket4j.version>
         <springdoc.version>2.6.0</springdoc.version>
-        <!-- Tomcat version override: pins the embedded server to a fully patched release.
-             Spring Boot 3.5.9 ships Tomcat 10.1.x but the explicit override below
-             ensures all 6 critical CVEs are closed regardless of what the BOM includes.
-             CVE-2024-50379 / CVE-2024-52316 / CVE-2024-56337 — fixed in 10.1.34+
-             CVE-2025-24813                                    — fixed in 10.1.35+
-             CVE-2025-31651                                    — fixed in 10.1.40+
-             CVE-2025-55754                                    — fixed in 10.1.52  -->
-        <tomcat.version>10.1.52</tomcat.version>
+        <!-- Tomcat version override: pins the embedded server to the latest patched release.
+             Resolves all 8 Dependabot alerts (1 Critical, 4 High, 3 Moderate):
+             #42 Critical — CLIENT_CERT auth bypass
+             #37 High    — Padding Oracle in EncryptInterceptor
+             #41 High    — Cipher preference order not preserved
+             #39 High    — Sensitive info insertion into log file
+             #38 High    — Improper encoding in JsonAccessLogValve
+             #43 Moderate — Improper input validation
+             #36 Moderate — Open redirect vulnerability
+             #40 Moderate — CLIENT_CERT auth (moderate variant)  -->
+        <tomcat.version>10.1.54</tomcat.version>
 
         <!-- SonarQube / SonarCloud -->
         <!-- Override sonar.host.url on the command line for SonarCloud:        -->
