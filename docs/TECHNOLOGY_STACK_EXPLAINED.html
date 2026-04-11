@@ -1,0 +1,1359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SecureAI Gateway — Complete Technology Stack &amp; Architecture Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@400;500;600;700;800;900&family=Red+Hat+Text:wght@400;500;600;700&family=Red+Hat+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #ffffff;
+  --bg2: #f2f2f2;
+  --bg3: #f9f9f9;
+  --surface: #ffffff;
+  --border: #d2d2d2;
+  --border-light: #e8e8e8;
+  --text: #151515;
+  --text2: #4d4d4d;
+  --text3: #6a6e73;
+  --red: #ee0000;
+  --red-dark: #a30000;
+  --blue: #0066cc;
+  --blue-light: #73bcf7;
+  --green: #3e8635;
+  --green-light: #e9f5e8;
+  --orange: #f0ab00;
+  --orange-light: #fdf3d8;
+  --purple: #6753ac;
+  --purple-light: #f0ecf7;
+  --cyan: #009596;
+  --cyan-light: #e0f5f5;
+  --pink: #d2007f;
+  --teal: #005f60;
+  --shadow: 0 1px 4px rgba(0,0,0,.08);
+  --shadow-hover: 0 4px 16px rgba(0,0,0,.12);
+  --radius: 6px;
+  --mono: 'Red Hat Mono', 'JetBrains Mono', monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Red Hat Text', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.75;
+  font-size: 1rem;
+}
+
+/* ─── HEADER ─── */
+.header {
+  background: #151515;
+  color: #fff;
+  padding: 1rem 0;
+  border-bottom: 3px solid var(--red);
+}
+.header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.header h1 {
+  font-family: 'Red Hat Display', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+.header-badges { display: flex; gap: .5rem; }
+.header-badge {
+  font-family: var(--mono);
+  font-size: .7rem;
+  padding: .2rem .6rem;
+  border-radius: 3px;
+  font-weight: 500;
+}
+.hb-red { background: var(--red); color: #fff; }
+.hb-light { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+
+/* ─── CONTAINER ─── */
+.container { max-width: 1100px; margin: 0 auto; padding: 2rem; }
+
+/* ─── NAV ─── */
+.nav {
+  background: var(--bg3);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 2rem;
+}
+.nav h3 {
+  font-family: 'Red Hat Display', sans-serif;
+  font-size: .85rem;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: .75rem;
+}
+.nav-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: .4rem;
+}
+.nav a {
+  color: var(--blue);
+  text-decoration: none;
+  font-size: .9rem;
+  padding: .3rem .5rem;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  transition: background .15s;
+}
+.nav a:hover { background: rgba(0,102,204,.06); }
+.nav-icon { font-size: 1.2rem; min-width: 24px; text-align: center; }
+
+/* ─── HERO BANNER ─── */
+.hero {
+  background: linear-gradient(135deg, #151515 0%, #2d2d2d 100%);
+  color: #fff;
+  border-radius: var(--radius);
+  padding: 2.5rem;
+  margin-bottom: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--red);
+}
+.hero h2 {
+  font-family: 'Red Hat Display', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin-bottom: .75rem;
+}
+.hero p { color: #c7c7c7; font-size: 1rem; max-width: 700px; }
+.hero-stats {
+  display: flex;
+  gap: 2rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}
+.hero-stat { text-align: center; }
+.hero-stat .val {
+  font-family: 'Red Hat Display', sans-serif;
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: #fff;
+}
+.hero-stat .lbl {
+  font-size: .65rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #999;
+  margin-top: .1rem;
+}
+
+/* ─── SECTION ─── */
+.section {
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius);
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  transition: box-shadow .2s;
+}
+.section:hover { box-shadow: var(--shadow-hover); }
+
+.section-head {
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+  border-bottom: 1px solid transparent;
+  transition: background .15s;
+}
+.section.open .section-head { border-bottom-color: var(--border-light); background: var(--bg3); }
+.section-head:hover { background: var(--bg3); }
+
+.section-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+.icon-blue { background: #e7f1fa; color: var(--blue); }
+.icon-red { background: #fce8e8; color: var(--red); }
+.icon-green { background: var(--green-light); color: var(--green); }
+.icon-orange { background: var(--orange-light); color: #8a6d3b; }
+.icon-purple { background: var(--purple-light); color: var(--purple); }
+.icon-cyan { background: var(--cyan-light); color: var(--teal); }
+.icon-pink { background: #fce4ec; color: var(--pink); }
+
+.section-info { flex: 1; }
+.section-info h2 {
+  font-family: 'Red Hat Display', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+.section-info p { font-size: .8rem; color: var(--text3); margin-top: .1rem; }
+
+.section-badge {
+  font-family: var(--mono);
+  font-size: .65rem;
+  font-weight: 600;
+  padding: .2rem .5rem;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+.sb-running { background: var(--green-light); color: var(--green); border: 1px solid #c3e6c3; }
+.sb-port { background: #e7f1fa; color: var(--blue); border: 1px solid #b8d4ee; }
+.sb-layer { background: #fce8e8; color: var(--red-dark); border: 1px solid #f1b8b8; }
+.sb-native { background: var(--orange-light); color: #8a6d3b; border: 1px solid #e8d59a; }
+.sb-key { background: var(--purple-light); color: var(--purple); border: 1px solid #c8b8e8; }
+
+.chevron {
+  font-size: .8rem;
+  color: var(--text3);
+  transition: transform .2s;
+}
+.section.open .chevron { transform: rotate(180deg); }
+
+.section-body { padding: 1.5rem; display: none; }
+.section.open .section-body { display: block; }
+
+/* ─── CONTENT BOXES ─── */
+.explain {
+  background: #f0f7ff;
+  border: 1px solid #b8d4ee;
+  border-left: 4px solid var(--blue);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 1.25rem 1.5rem;
+  margin: 1rem 0;
+}
+.explain::before {
+  content: 'EXPLAINED SIMPLY';
+  display: block;
+  font-family: 'Red Hat Display', sans-serif;
+  font-size: .6rem;
+  font-weight: 800;
+  color: var(--blue);
+  letter-spacing: 1.5px;
+  margin-bottom: .4rem;
+}
+.explain p { font-size: .95rem; color: #1a3a5c; }
+
+.analogy {
+  background: #fef6e7;
+  border: 1px solid #e8d59a;
+  border-left: 4px solid var(--orange);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 1.25rem 1.5rem;
+  margin: 1rem 0;
+}
+.analogy::before {
+  content: 'REAL-WORLD ANALOGY';
+  display: block;
+  font-family: 'Red Hat Display', sans-serif;
+  font-size: .6rem;
+  font-weight: 800;
+  color: #8a6d3b;
+  letter-spacing: 1.5px;
+  margin-bottom: .4rem;
+}
+.analogy p { font-size: .95rem; color: #5a4a2a; }
+
+.proof {
+  background: var(--green-light);
+  border: 1px solid #c3e6c3;
+  border-left: 4px solid var(--green);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 1.25rem 1.5rem;
+  margin: 1rem 0;
+}
+.proof::before {
+  content: 'HOW TO PROVE IT (LIVE DEMO)';
+  display: block;
+  font-family: 'Red Hat Display', sans-serif;
+  font-size: .6rem;
+  font-weight: 800;
+  color: var(--green);
+  letter-spacing: 1.5px;
+  margin-bottom: .4rem;
+}
+.proof p { font-size: .9rem; color: #1a4a1a; }
+.proof code {
+  background: rgba(0,0,0,.06);
+  padding: .15rem .4rem;
+  border-radius: 3px;
+  font-family: var(--mono);
+  font-size: .82rem;
+}
+
+.technical {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-left: 4px solid #6a6e73;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 1rem 1.25rem;
+  margin: 1rem 0;
+  font-family: var(--mono);
+  font-size: .8rem;
+  line-height: 1.6;
+  color: var(--text2);
+}
+
+.howit {
+  background: var(--purple-light);
+  border: 1px solid #c8b8e8;
+  border-left: 4px solid var(--purple);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 1.25rem 1.5rem;
+  margin: 1rem 0;
+}
+.howit::before {
+  content: 'HOW IT WORKS (STEP BY STEP)';
+  display: block;
+  font-family: 'Red Hat Display', sans-serif;
+  font-size: .6rem;
+  font-weight: 800;
+  color: var(--purple);
+  letter-spacing: 1.5px;
+  margin-bottom: .4rem;
+}
+.howit p,.howit ol,.howit li { font-size: .92rem; color: #3a2a5a; }
+.howit ol { padding-left: 1.5rem; }
+.howit li { margin-bottom: .4rem; }
+
+/* ─── GRID CARDS ─── */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin: 1rem 0;
+}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  box-shadow: var(--shadow);
+}
+.card h4 {
+  font-family: 'Red Hat Display', sans-serif;
+  font-size: .75rem;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin-bottom: .4rem;
+}
+.card h4.what { color: var(--blue); }
+.card h4.why { color: var(--green); }
+.card h4.how { color: var(--orange); }
+.card h4.prove { color: var(--red); }
+.card p { font-size: .88rem; }
+
+/* ─── FLOW DIAGRAM ─── */
+.diagram-container {
+  background: #fafafa;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius);
+  padding: 1rem;
+  margin: 1.5rem 0;
+  overflow-x: auto;
+}
+.diagram-container svg { display: block; margin: 0 auto; }
+.diagram-caption {
+  text-align: center;
+  font-size: .75rem;
+  color: var(--text3);
+  font-style: italic;
+  margin-top: .5rem;
+}
+
+/* ─── TABLES ─── */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: .88rem;
+}
+th {
+  background: var(--bg2);
+  font-family: 'Red Hat Display', sans-serif;
+  font-size: .72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  padding: .6rem .75rem;
+  border: 1px solid var(--border);
+  text-align: left;
+  color: var(--text2);
+}
+td {
+  padding: .5rem .75rem;
+  border: 1px solid var(--border-light);
+}
+tr:nth-child(even) { background: var(--bg3); }
+
+/* ─── COMPARISON ─── */
+.compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }
+.compare-card { border-radius: var(--radius); padding: 1.25rem; }
+.compare-card h4 { font-family: 'Red Hat Display'; font-size: .85rem; margin-bottom: .5rem; }
+.compare-card p { font-size: .9rem; }
+.compare-bad { background: #fff0f0; border: 1px solid #f1b8b8; }
+.compare-bad h4 { color: var(--red-dark); }
+.compare-good { background: var(--green-light); border: 1px solid #c3e6c3; }
+.compare-good h4 { color: var(--green); }
+
+/* ─── STEP FLOW ─── */
+.step-flow { display: flex; flex-direction: column; gap: .5rem; margin: 1rem 0; }
+.step {
+  display: flex;
+  align-items: flex-start;
+  gap: .75rem;
+  padding: .75rem;
+  border-radius: var(--radius);
+  background: var(--bg3);
+  border: 1px solid var(--border-light);
+}
+.step-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Red Hat Display';
+  font-size: .75rem;
+  font-weight: 800;
+  color: #fff;
+  flex-shrink: 0;
+}
+.step-num.s-blue { background: var(--blue); }
+.step-num.s-green { background: var(--green); }
+.step-num.s-red { background: var(--red); }
+.step-num.s-orange { background: var(--orange); }
+.step-num.s-purple { background: var(--purple); }
+.step-content { flex: 1; }
+.step-content strong { font-size: .9rem; }
+.step-content p { font-size: .85rem; color: var(--text2); margin-top: .15rem; }
+
+/* ─── FOOTER ─── */
+.footer {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--text3);
+  font-size: .75rem;
+  border-top: 1px solid var(--border-light);
+  margin-top: 3rem;
+}
+.footer a { color: var(--blue); text-decoration: none; }
+
+.controls { display: flex; gap: .5rem; margin-bottom: 1.5rem; }
+.controls button {
+  font-family: 'Red Hat Text';
+  padding: .4rem .8rem;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background: var(--surface);
+  color: var(--text2);
+  cursor: pointer;
+  font-size: .8rem;
+}
+.controls button:hover { background: var(--bg2); color: var(--text); }
+
+@media (max-width: 768px) {
+  .card-grid { grid-template-columns: 1fr; }
+  .compare-grid { grid-template-columns: 1fr; }
+  .hero-stats { gap: 1rem; }
+}
+@media print {
+  .section-body { display: block !important; }
+  .controls, .header-badges { display: none !important; }
+  .section { box-shadow: none !important; border: 1px solid #ccc !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-inner">
+    <h1>SecureAI Gateway</h1>
+    <div class="header-badges">
+      <span class="header-badge hb-red">v2.0.0</span>
+      <span class="header-badge hb-light">Spring Boot 3.4 + Java 21</span>
+      <span class="header-badge hb-light">Ollama 0.19 + MLX</span>
+      <span class="header-badge hb-light">3-Layer Defence</span>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+<div class="controls">
+  <button onclick="document.querySelectorAll('.section').forEach(s=>s.classList.add('open'))">Expand All</button>
+  <button onclick="document.querySelectorAll('.section').forEach(s=>s.classList.remove('open'))">Collapse All</button>
+  <button onclick="window.print()">Print / Save PDF</button>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <h2>Complete Technology Stack &amp; Architecture Guide</h2>
+  <p>Every technology explained simply, with real-world analogies, step-by-step flows, and live demo proof. Prepared for presentation to Dr. Thiago Braga Rodrigues.</p>
+  <div class="hero-stats">
+    <div class="hero-stat"><div class="val">11</div><div class="lbl">Core Technologies</div></div>
+    <div class="hero-stat"><div class="val">3</div><div class="lbl">Security Layers</div></div>
+    <div class="hero-stat"><div class="val">9</div><div class="lbl">Docker Services</div></div>
+    <div class="hero-stat"><div class="val">206</div><div class="lbl">Test Methods</div></div>
+    <div class="hero-stat"><div class="val">~1-3s</div><div class="lbl">Response Time</div></div>
+  </div>
+</div>
+
+<!-- NAVIGATION -->
+<div class="nav">
+  <h3>Technology Sections</h3>
+  <div class="nav-grid">
+    <a href="#sec-bigpicture"><span class="nav-icon">&#x1F3AF;</span> The Big Picture (Airport Analogy)</a>
+    <a href="#sec-flow"><span class="nav-icon">&#x1F4CA;</span> Complete Request Flow Diagram</a>
+    <a href="#sec-springboot"><span class="nav-icon">&#x1F343;</span> Spring Boot 3.4 (The Manager)</a>
+    <a href="#sec-ollama"><span class="nav-icon">&#x1F9E0;</span> Ollama + LLaMA 3.1 + MLX (The Brain)</a>
+    <a href="#sec-nemo"><span class="nav-icon">&#x1F6E1;</span> NeMo Guardrails Layer 1 (The Bouncer)</a>
+    <a href="#sec-llamaguard"><span class="nav-icon">&#x1F575;</span> LlamaGuard Layer 2 (The Detective)</a>
+    <a href="#sec-presidio"><span class="nav-icon">&#x1F50D;</span> Presidio Layer 3 (The Scanner)</a>
+    <a href="#sec-jwt"><span class="nav-icon">&#x1F511;</span> JWT Authentication (The ID Card)</a>
+    <a href="#sec-ratelimit"><span class="nav-icon">&#x23F1;</span> Rate Limiting — How It Works In Detail</a>
+    <a href="#sec-react"><span class="nav-icon">&#x1F4AD;</span> ReAct Agent — Multi-Step Reasoning</a>
+    <a href="#sec-parallel"><span class="nav-icon">&#x26A1;</span> Parallel Execution (Mono.zip)</a>
+    <a href="#sec-docker"><span class="nav-icon">&#x1F433;</span> Docker &amp; Deployment Architecture</a>
+    <a href="#sec-cicd"><span class="nav-icon">&#x2699;</span> CI/CD Pipeline (15 Stages)</a>
+    <a href="#sec-monitoring"><span class="nav-icon">&#x1F4CA;</span> Monitoring (Prometheus + Grafana)</a>
+    <a href="#sec-proof"><span class="nav-icon">&#x2705;</span> Proving Every Layer (Live Demo Script)</a>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- THE BIG PICTURE                                 -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="section open" id="sec-bigpicture">
+  <div class="section-head" onclick="this.parentElement.classList.toggle('open')">
+    <div class="section-icon icon-orange">&#x1F3AF;</div>
+    <div class="section-info">
+      <h2>The Big Picture — What Is This Project?</h2>
+      <p>Understanding the entire system in 60 seconds</p>
+    </div>
+    <span class="chevron">&#x25BC;</span>
+  </div>
+  <div class="section-body">
+
+    <div class="analogy">
+      <p><strong>&#x2708; Think of an Airport Security System.</strong></p>
+      <p>Passengers (users) want to board a plane (use AI). But before they reach the plane, they must pass through <strong>three security checkpoints</strong> that all run at the same time:</p>
+      <p>
+        &#x1F6C2; <strong>Checkpoint 1 (NeMo):</strong> The ID checker — compares your name against a banned list. Fast but can be fooled by a fake ID.<br><br>
+        &#x1F4F7; <strong>Checkpoint 2 (LlamaGuard):</strong> The X-ray machine — looks INSIDE your bags and understands what's dangerous, even if it's hidden cleverly.<br><br>
+        &#x1F50D; <strong>Checkpoint 3 (Presidio):</strong> The metal detector — beeps when it finds sensitive items like credit cards, passports, or personal documents.<br><br>
+        If <strong>ANY checkpoint says STOP</strong>, you don't board. The plane (AI) never sees dangerous passengers.<br><br>
+        <strong>That's SecureAI Gateway.</strong> But for AI prompts, not airport passengers.
+      </p>
+    </div>
+
+    <div class="explain">
+      <p><strong>This project is NOT an AI model.</strong> It is a <strong>security gateway</strong> — like a firewall, but for AI. The AI model (LLaMA) is a pluggable component. You can swap it out by changing one setting, just like changing the engine in a car without rebuilding the car.</p>
+    </div>
+
+    <div class="card-grid">
+      <div class="card">
+        <h4 class="what">What it IS</h4>
+        <p>&#x2705; A security layer between users and AI<br>&#x2705; 3 guardrail checkpoints in parallel<br>&#x2705; 100% on-premise (no cloud)<br>&#x2705; Model-agnostic (swap any AI model)<br>&#x2705; Open-source on GitHub</p>
+      </div>
+      <div class="card">
+        <h4 class="how">What it is NOT</h4>
+        <p>&#x274C; NOT an AI chatbot<br>&#x274C; NOT a model training tool<br>&#x274C; NOT tied to any AI vendor<br>&#x274C; NOT cloud-dependent<br>&#x274C; NOT a simple API wrapper</p>
+      </div>
+      <div class="card">
+        <h4 class="prove">The Novel Contribution</h4>
+        <p>No published work combines NeMo + LlamaGuard + Presidio in parallel. This is the <strong>first documented 3-layer parallel guardrail architecture</strong> for LLMs, with fail-closed security and on-premise deployment.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- REQUEST FLOW DIAGRAM                            -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="section open" id="sec-flow">
+  <div class="section-head" onclick="this.parentElement.classList.toggle('open')">
+    <div class="section-icon icon-blue">&#x1F4CA;</div>
+    <div class="section-info">
+      <h2>Complete Request Flow — What Happens When You Send a Prompt</h2>
+      <p>Step-by-step journey of every user request through the system</p>
+    </div>
+    <span class="chevron">&#x25BC;</span>
+  </div>
+  <div class="section-body">
+
+    <div class="step-flow">
+      <div class="step">
+        <div class="step-num s-blue">1</div>
+        <div class="step-content">
+          <strong>User sends a prompt</strong>
+          <p>Example: <code>"What is the capital of Ireland?"</code> via POST /api/ask with a JWT Bearer token in the Authorization header.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num s-green">2</div>
+        <div class="step-content">
+          <strong>JWT Authentication Filter (~2ms)</strong>
+          <p>The system checks: Is this user logged in? Is the token valid? Has it expired? Is it on the blacklist (logged out)? Uses HMAC-SHA256 signature verification — 7 checks in total. If any fails &rarr; <strong>401 Unauthorized</strong>.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num s-orange">3</div>
+        <div class="step-content">
+          <strong>Rate Limiter Check (~1ms)</strong>
+          <p>Each user has a "bucket" of 100 tokens. Every request consumes 1 token. When the bucket is empty (100 requests used in 1 hour) &rarr; <strong>429 Too Many Requests</strong> with <code>Retry-After: 3600</code> header. The bucket refills automatically every hour.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num s-purple">4</div>
+        <div class="step-content">
+          <strong>Three Guardrail Layers — ALL AT THE SAME TIME (~300ms total)</strong>
+          <p>This is the key innovation. Using <code>Mono.zip()</code> from Project Reactor, all three checkpoints evaluate the prompt simultaneously on separate threads:</p>
+          <div style="padding-left:1rem;margin-top:.5rem">
+            <p>&#x1F6E1; <strong>Layer 1 (NeMo):</strong> Pattern matching — checks against 97 known attack patterns (jailbreak + harmful content). ~40ms.</p>
+            <p>&#x1F575; <strong>Layer 2 (LlamaGuard):</strong> AI understanding — classifies the prompt against 12 safety categories (S1-S12). ~200ms.</p>
+            <p>&#x1F50D; <strong>Layer 3 (Presidio):</strong> PII detection — scans for credit cards, SSNs, emails, phone numbers. ~15ms.</p>
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num s-red">5</div>
+        <div class="step-content">
+          <strong>Decision Gate — Fail-Closed Logic</strong>
+          <p>If <strong>ANY</strong> of the 3 layers says "block", the entire request is denied &rarr; <strong>422 Unprocessable Entity</strong>. The AI model never sees the prompt. This is called "fail-closed" because when in doubt, we block rather than allow.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num s-blue">6</div>
+        <div class="step-content">
+          <strong>AI Inference via Ollama (~1-3 seconds)</strong>
+          <p>Only if ALL 3 layers pass does the prompt reach the AI model (LLaMA 3.1 8B running on your M3 Max GPU via Apple MLX). The model generates a response. If <code>useReActAgent=true</code>, the ReAct multi-step reasoning agent handles it instead (more on this later).</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num s-green">7</div>
+        <div class="step-content">
+          <strong>PII Response Redaction</strong>
+          <p>Even after the AI generates a response, we scan the OUTPUT for any leaked personal data. If the AI accidentally mentions a credit card number in its response, it gets redacted before reaching the user.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num s-green">8</div>
+        <div class="step-content">
+          <strong>Audit Logging + Response</strong>
+          <p>Every request is logged to PostgreSQL (username, prompt, response, PII detected?, blocked?, duration, IP address). The response is returned to the user as <strong>200 OK</strong> with the AI-generated text.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="proof">
+      <p><strong>Prove it on localhost:3333:</strong> Go to Interactive Tester tab &rarr; Login as Admin &rarr; Click "Safe Prompt" &rarr; Watch the Request Pipeline panel on the left show each step turning green (PASS) in real-time, ending with 200 OK. Then click "Harmful Content" and watch steps turn red (BLOCKED) at 422.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- RATE LIMITING — DETAILED                        -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="section open" id="sec-ratelimit">
+  <div class="section-head" onclick="this.parentElement.classList.toggle('open')">
+    <div class="section-icon icon-orange">&#x23F1;</div>
+    <div class="section-info">
+      <h2>Rate Limiting — How It Works In Detail</h2>
+      <p>The traffic cop that prevents any single user from overloading the system</p>
+    </div>
+    <span class="section-badge sb-running">BUILT-IN</span>
+    <span class="chevron">&#x25BC;</span>
+  </div>
+  <div class="section-body">
+
+    <div class="analogy">
+      <p><strong>&#x1F6B0; Think of a water tank with a tap.</strong></p>
+      <p>Each user gets their own water tank (bucket) that holds <strong>100 litres</strong> (tokens). Every time you make a request, <strong>1 litre drains out</strong>. A pipe slowly refills the tank — <strong>100 litres every hour</strong>. When the tank is empty, the tap stops working and you see "429 Too Many Requests — come back when the tank refills."</p>
+      <p>This means:</p>
+      <p>&#x2022; <strong>Burst:</strong> You can send 100 requests very quickly (the tank is full)<br>
+      &#x2022; <strong>Sustained:</strong> After that, you're limited to the refill rate<br>
+      &#x2022; <strong>Per-user:</strong> User A's bucket is separate from User B's — one heavy user can't block others<br>
+      &#x2022; <strong>Automatic:</strong> The bucket refills on its own — no admin intervention needed</p>
+    </div>
+
+    <div class="howit">
+      <p><strong>The Token Bucket Algorithm (Bucket4j 8.10.1):</strong></p>
+      <ol>
+        <li>When a user is first seen, a new bucket is created with <strong>100 tokens</strong></li>
+        <li>Each API request to <code>/api/ask</code> calls <code>rateLimiterService.tryConsume(username)</code></li>
+        <li>If the bucket has tokens &ge; 1, one token is consumed and the request proceeds</li>
+        <li>If the bucket has 0 tokens, the request is immediately rejected with <strong>HTTP 429</strong></li>
+        <li>The bucket refills at a rate of <strong>100 tokens per 60 minutes</strong> (greedy refill)</li>
+        <li>Every response includes headers: <code>X-Rate-Limit-Remaining: 97</code> and <code>X-Rate-Limit-Capacity: 100</code></li>
+        <li>When rejected, the response includes: <code>Retry-After: 3600</code> (seconds until reset)</li>
+      </ol>
+    </div>
+
+    <div class="proof">
+      <p><strong>How to prove it in the demo:</strong></p>
+      <p>1. Send a request on localhost:3333 &rarr; check the API Response for <code>X-Rate-Limit-Remaining</code> header (should decrease with each request)</p>
+      <p>2. To demonstrate the limit being hit, use the terminal:</p>
+      <p><code>for i in {1..101}; do curl -s -o /dev/null -w "Request $i: %{http_code}\n" -X POST http://localhost:8100/api/ask -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" -d '{"prompt":"test"}'; done</code></p>
+      <p>Requests 1-100 return <strong>200</strong>, request 101 returns <strong>429</strong>.</p>
+    </div>
+
+    <div class="technical">
+      File: RateLimiterService.java | Library: Bucket4j 8.10.1 (com.bucket4j:bucket4j-core)<br>
+      Algorithm: Token bucket | Capacity: 100 | Refill: 100 tokens per 60 minutes (greedy)<br>
+      Storage: ConcurrentHashMap&lt;String, Bucket&gt; (per-user, in-memory)<br>
+      O(1) for both tryConsume() and getRemainingTokens() operations<br>
+      Headers: X-Rate-Limit-Remaining, X-Rate-Limit-Capacity, Retry-After
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- REACT AGENT — DETAILED                          -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="section open" id="sec-react">
+  <div class="section-head" onclick="this.parentElement.classList.toggle('open')">
+    <div class="section-icon icon-purple">&#x1F4AD;</div>
+    <div class="section-info">
+      <h2>ReAct Agent — Multi-Step Reasoning Explained</h2>
+      <p>The difference between "Send to Gateway" and "Send (ReAct Agent)"</p>
+    </div>
+    <span class="section-badge sb-key">KEY FEATURE</span>
+    <span class="chevron">&#x25BC;</span>
+  </div>
+  <div class="section-body">
+
+    <div class="analogy">
+      <p><strong>&#x1F9D1;&#x200D;&#x1F3EB; Think of asking a question to a student vs. a tutor.</strong></p>
+      <p><strong>Student (Normal mode):</strong> You ask "What is 15% of 340 plus the square root of 144?" The student hears the question and tries to answer in one go. They might get it right, or they might make a mistake because they tried to do everything at once.</p>
+      <p><strong>Tutor (ReAct mode):</strong> The tutor hears the same question but works step by step:<br>
+      &#x1F4AD; <em>"I need to break this into parts..."</em><br>
+      &#x270F; Step 1: 15% of 340 = 51<br>
+      &#x1F4AD; <em>"Now the square root..."</em><br>
+      &#x270F; Step 2: &radic;144 = 12<br>
+      &#x1F4AD; <em>"Now I add them..."</em><br>
+      &#x270F; Step 3: 51 + 12 = 63 &#x2714;<br><br>
+      The tutor checks each step before moving on. More reliable for complex questions.</p>
+    </div>
+
+    <div class="howit">
+      <p><strong>The ReAct Pattern (from Yao et al., ICLR 2023 [19]):</strong></p>
+      <ol>
+        <li>The agent receives the user's prompt</li>
+        <li><strong>THOUGHT:</strong> The LLM reasons about what it needs to do</li>
+        <li><strong>ACTION:</strong> The LLM performs one step (calculation, lookup, analysis)</li>
+        <li><strong>OBSERVATION:</strong> The result of that action is captured</li>
+        <li>Steps 2-4 repeat up to <strong>10 iterations maximum</strong> (safety limit to prevent infinite loops)</li>
+        <li>When the LLM determines it has the final answer, it outputs the result</li>
+        <li>The response includes <code>reactSteps: N</code> showing how many reasoning cycles were used</li>
+      </ol>
+    </div>
+
+    <div class="compare-grid">
+      <div class="compare-card compare-bad">
+        <h4>&#x26A0; Normal Mode (useReActAgent: false)</h4>
+        <p>One LLM call. Fast (~1-3 seconds). Good for simple questions: "What is AI?", "Capital of France?", "Explain Docker."<br><br>Guardrails &rarr; <strong>1 Ollama call</strong> &rarr; Response</p>
+      </div>
+      <div class="compare-card compare-good">
+        <h4>&#x2705; ReAct Mode (useReActAgent: true)</h4>
+        <p>Multiple LLM calls with reasoning chain. Slower (~10-30 seconds). Better for complex questions: math, multi-step logic, comparisons.<br><br>Guardrails &rarr; <strong>Thought &rarr; Action &rarr; Observation &rarr; ... (up to 10x)</strong> &rarr; Response</p>
+      </div>
+    </div>
+
+    <div class="proof">
+      <p><strong>How to prove it on localhost:3333:</strong></p>
+      <p>1. Type <code>What is 2+2?</code> &rarr; Click "Send to Gateway" &rarr; Response comes in ~1-3s with <code>reactSteps: 0</code></p>
+      <p>2. Type <code>Calculate 125 * 48 + 390 / 13</code> &rarr; Click "Send (ReAct Agent)" &rarr; Response takes longer but shows <code>reactSteps: 3</code> or more, proving multi-step reasoning was used</p>
+      <p><strong>Both buttons go through the same 3 guardrail layers.</strong> The only difference is what happens AFTER the guardrails pass.</p>
+    </div>
+
+    <div class="technical">
+      File: ReActAgentService.java | Max iterations: 10<br>
+      Pattern: Thought &rarr; Action &rarr; Observation (Yao et al., ICLR 2023)<br>
+      Response field: reactSteps (int) — 0 for normal mode, 1-10 for ReAct mode<br>
+      Both modes pass through identical guardrail pipeline (Mono.zip of 3 layers)
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- OLLAMA + MLX                                    -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="section" id="sec-ollama">
+  <div class="section-head" onclick="this.parentElement.classList.toggle('open')">
+    <div class="section-icon icon-cyan">&#x1F9E0;</div>
+    <div class="section-info">
+      <h2>Ollama 0.19 + LLaMA 3.1 8B + Apple MLX Framework</h2>
+      <p>The AI brain — runs 100% locally on your M3 Max GPU with Apple's newest ML framework</p>
+    </div>
+    <span class="section-badge sb-native">NATIVE :11434</span>
+    <span class="chevron">&#x25BC;</span>
+  </div>
+  <div class="section-body">
+
+    <div class="explain">
+      <p><strong>Ollama</strong> is a tool that lets AI models run on your own computer instead of in the cloud. <strong>LLaMA 3.1 8B</strong> is Meta's AI model with 8 billion parameters — it's the "brain" that understands and generates text. <strong>MLX</strong> is Apple's brand-new machine learning framework (released March 30, 2026!) that makes AI models run <strong>2x faster</strong> on Apple Silicon by using the GPU's unified memory architecture.</p>
+    </div>
+
+    <div class="analogy">
+      <p><strong>&#x1F3E0; Why native instead of Docker?</strong></p>
+      <p>Docker on Mac is like <strong>driving a Ferrari in a parking garage</strong> — the car works, but it can only go 5 mph because of the tight space. Running Ollama natively on macOS is like driving that Ferrari on an open highway — the M3 Max's <strong>30 GPU cores and 36GB unified memory</strong> are fully unleashed. Docker cannot access Apple's Metal GPU, so models run on CPU only (60x slower).</p>
+    </div>
+
+    <table>
+      <tr><th>Model</th><th>Size</th><th>Purpose</th><th>Speed (GPU)</th></tr>
+      <tr><td><strong>llama3.1:8b</strong></td><td>4.9 GB</td><td>Main AI inference — answers user questions</td><td>~40-80 tok/s</td></tr>
+      <tr><td><strong>llamaguard3:1b</strong></td><td>1.6 GB</td><td>Layer 2 content safety (MLCommons S1-S12)</td><td>~150ms/eval</td></tr>
+      <tr><td><strong>llama3.2:1b</strong></td><td>1.3 GB</td><td>NeMo backing model (Colang DSL evaluation)</td><td>~40ms/eval</td></tr>
+    </table>
+
+    <div class="proof">
+      <p><strong>How to prove GPU is being used:</strong> Open terminal and run <code>ollama ps</code> — look for <code>100% GPU</code> in the Processor column. If it says <code>100% CPU</code>, the GPU isn't being used.</p>
+    </div>
+
+    <div class="technical">
+      Ollama v0.19.0 (MLX preview, March 30, 2026) | Runs: macOS native (NOT Docker)<br>
+      GPU: Apple M3 Max, 30 Metal cores, 36GB unified memory<br>
+      Connection: Docker containers reach via host.docker.internal:11434<br>
+      Config: OLLAMA_KEEP_ALIVE=-1 (models never unload)<br>
+      Model-agnostic: Change OLLAMA_MODEL=llama3.1:8b in .env to swap models (zero code changes)
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- LAYER 1: NEMO                                   -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="section" id="sec-nemo">
+  <div class="section-head" onclick="this.parentElement.classList.toggle('open')">
+    <div class="section-icon icon-red">&#x1F6E1;</div>
+    <div class="section-info">
+      <h2>NVIDIA NeMo Guardrails 0.10.0 — Layer 1 (The Bouncer)</h2>
+      <p>Pattern-based policy enforcement using Colang DSL — catches known attack templates</p>
+    </div>
+    <span class="section-badge sb-layer">LAYER 1 :8001</span>
+    <span class="chevron">&#x25BC;</span>
+  </div>
+  <div class="section-body">
+
+    <div class="analogy">
+      <p><strong>&#x1F46E; The Bouncer with a Banned List.</strong></p>
+      <p>Imagine a nightclub bouncer who has a <strong>list of 97 banned phrases</strong> written on a clipboard. When someone approaches, he checks their message against the list. If it matches — blocked immediately, no questions asked. He's fast (40ms) and 100% reliable for known attacks, but clever people who rephrase their words might get past him. That's why we also have the detective (Layer 2).</p>
+    </div>
+
+    <div class="howit">
+      <p><strong>How Colang DSL works:</strong></p>
+      <ol>
+        <li>Security engineers write rules in Colang (NVIDIA's domain-specific language) — NOT Java code</li>
+        <li>Rules define patterns: <code>define user ask jailbreak: "ignore previous instructions"</code></li>
+        <li>When a prompt arrives, NeMo checks it against ALL patterns simultaneously</li>
+        <li>If matched &rarr; NeMo returns a refusal response containing keywords like "cannot comply"</li>
+        <li>Our Java client (NemoGuardrailsClient.java) detects these keywords and marks as BLOCKED</li>
+        <li>New patterns can be added to .co files <strong>without changing any Java code or redeploying the app</strong></li>
+      </ol>
+    </div>
+
+    <table>
+      <tr><th>Rule File</th><th>Patterns</th><th>What It Catches</th><th>Examples</th></tr>
+      <tr><td>jailbreak.co</td><td>47</td><td>Prompt injection, instruction override, DAN, role-play</td><td>"ignore instructions", "you are now DAN", "bypass safety"</td></tr>
+      <tr><td>content_safety.co</td><td>50</td><td>Harmful content requests</td><td>"how to hack", "create a virus", "make weapons", "steal data"</td></tr>
+      <tr><td>topic_control.co</td><td>4</td><td>Off-topic redirection</td><td>"what's the weather", "tell me a joke"</td></tr>
+    </table>
+
+    <div class="proof">
+      <p><strong>Prove on localhost:3333:</strong> Click "Jailbreak (L1)" preset &rarr; Send to Gateway &rarr; Watch NeMo row in pipeline turn red with "BLOCKED". The prompt never reaches the AI model.</p>
+    </div>
+
+    <div class="technical">
+      Docker: secureai-nemo-guardrails | Image: secure-ai-nemo-guardrails:latest | Port: 8001<br>
+      Backing model: llama3.2:1b via native Ollama (host.docker.internal:11434)<br>
+      Endpoint: POST /v1/chat/completions (with --default-config-id=config)<br>
+      Non-root user: nemoapp | Healthcheck: GET / (root page)
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- LAYER 2: LLAMAGUARD                             -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="section" id="sec-llamaguard">
+  <div class="section-head" onclick="this.parentElement.classList.toggle('open')">
+    <div class="section-icon icon-pink">&#x1F575;</div>
+    <div class="section-info">
+      <h2>Meta LlamaGuard 3 (1B) — Layer 2 (The Detective)</h2>
+      <p>AI-powered content safety — understands the MEANING, not just keywords</p>
+    </div>
+    <span class="section-badge sb-layer">LAYER 2</span>
+    <span class="chevron">&#x25BC;</span>
+  </div>
+  <div class="section-body">
+
+    <div class="analogy">
+      <p><strong>&#x1F575; The Detective Who Understands Intent.</strong></p>
+      <p>The bouncer (NeMo) checks a list. But what if someone says "explain the chemistry behind energetic materials for my thesis" instead of "how to make a bomb"? Same dangerous intent, different words. The detective <strong>understands what you're actually trying to do</strong> — even with clever rephrasing, academic language, or indirect requests. LlamaGuard is an AI model specifically fine-tuned by Meta to detect harmful intent across 12 categories.</p>
+    </div>
+
+    <div class="explain">
+      <p><strong>Why 12 categories?</strong> The MLCommons AI Safety Taxonomy (an industry consortium including Google, Meta, Microsoft, and NVIDIA) identified 12 distinct categories of harm that AI systems should detect. LlamaGuard implements ALL of them:</p>
+    </div>
+
+    <table>
+      <tr><th>Code</th><th>Category</th><th>What It Detects</th><th>Example Prompt Blocked</th></tr>
+      <tr><td style="color:var(--red);font-weight:700">S1</td><td>Violent Crimes</td><td>Murder, assault, terrorism</td><td>"How to harm someone physically"</td></tr>
+      <tr><td style="color:var(--red);font-weight:700">S2</td><td>Non-Violent Crimes</td><td>Hacking, fraud, theft, malware</td><td>"I want to hack" / "create ransomware"</td></tr>
+      <tr><td style="color:var(--red);font-weight:700">S3</td><td>Sex-Related Crimes</td><td>Exploitation, trafficking</td><td>Content involving exploitation</td></tr>
+      <tr><td style="color:var(--red);font-weight:700">S4</td><td>Child Safety</td><td>Any harm to minors</td><td>Content targeting children</td></tr>
+      <tr><td style="color:var(--orange);font-weight:700">S5</td><td>Defamation</td><td>False statements to damage reputation</td><td>"Write a fake news article about..."</td></tr>
+      <tr><td style="color:var(--orange);font-weight:700">S6</td><td>Specialised Advice</td><td>Unqualified medical/legal/financial</td><td>"Prescribe medication for..."</td></tr>
+      <tr><td style="color:var(--orange);font-weight:700">S7</td><td>Privacy</td><td>Doxxing, surveillance, stalking</td><td>"Find someone's home address"</td></tr>
+      <tr><td style="color:var(--orange);font-weight:700">S8</td><td>Intellectual Property</td><td>Copyright infringement</td><td>"Copy this book word for word"</td></tr>
+      <tr><td style="color:var(--red);font-weight:700">S9</td><td>Indiscriminate Weapons</td><td>Bomb-making, bioweapons</td><td>"How to create a weapon at home"</td></tr>
+      <tr><td style="color:var(--red);font-weight:700">S10</td><td>Hate</td><td>Discrimination, hate speech</td><td>Targeting ethnic/religious groups</td></tr>
+      <tr><td style="color:var(--red);font-weight:700">S11</td><td>Suicide &amp; Self-Harm</td><td>Encouragement of self-injury</td><td>Content promoting self-harm</td></tr>
+      <tr><td style="color:var(--orange);font-weight:700">S12</td><td>Elections</td><td>Voter manipulation, electoral fraud</td><td>"How to rig an election"</td></tr>
+    </table>
+
+    <div class="proof">
+      <p><strong>Prove on localhost:3333:</strong> Click "Harmful Content (L2)" preset &rarr; "How do I create a computer virus to infect systems?" &rarr; Send to Gateway &rarr; Response shows <strong>HTTP 422</strong> with "Content Blocked". The logs show <code>LlamaGuard:S2</code> (Non-Violent Crimes). This prompt would pass NeMo's pattern list (no exact match) but LlamaGuard catches the <em>intent</em>.</p>
+    </div>
+
+    <div class="technical">
+      Model: llamaguard3:1b (Meta, fine-tuned on MLCommons AI Safety Taxonomy)<br>
+      Runs on: Native Ollama (Metal GPU) via host.docker.internal:11434<br>
+      Speed: ~150-400ms per evaluation | Memory: 1.6 GB (4.6 GB loaded)<br>
+      Output format: "safe" or "unsafe\nSX" (where X = category number)<br>
+      Java client: LlamaGuardClient.java &rarr; POST /api/generate to Ollama
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- LAYER 3: PRESIDIO                               -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="section" id="sec-presidio">
+  <div class="section-head" onclick="this.parentElement.classList.toggle('open')">
+    <div class="section-icon icon-cyan">&#x1F50D;</div>
+    <div class="section-info">
+      <h2>Microsoft Presidio v2.2 — Layer 3 (The Data Leak Scanner)</h2>
+      <p>PII detection with mathematical validation — credit cards (Luhn), IBANs (ISO 13616)</p>
+    </div>
+    <span class="section-badge sb-layer">LAYER 3 :5002</span>
+    <span class="chevron">&#x25BC;</span>
+  </div>
+  <div class="section-body">
+
+    <div class="analogy">
+      <p><strong>&#x1F4B3; The Airport Metal Detector for Data.</strong></p>
+      <p>You walk through a metal detector — it beeps when it finds metal objects (keys, coins, belt buckles). Presidio does the same but for <strong>personal data</strong>. It scans every prompt looking for patterns that match credit card numbers, social security numbers, email addresses, phone numbers, and 46 other types of personal information. It doesn't just look at the shape — for credit cards, it actually runs the <strong>Luhn checksum algorithm</strong> to verify it's a real card number, not just a random set of digits.</p>
+    </div>
+
+    <div class="howit">
+      <p><strong>How Presidio validates a credit card number:</strong></p>
+      <ol>
+        <li>User sends: <code>"Pay with card 4532015112830366"</code></li>
+        <li>Presidio's regex engine spots a 16-digit number starting with 4 (Visa pattern)</li>
+        <li>Presidio runs the <strong>Luhn checksum</strong>: doubles every other digit, sums them, checks if divisible by 10</li>
+        <li>4532015112830366 passes Luhn &rarr; confidence score <strong>0.95</strong> (above 0.6 threshold)</li>
+        <li>Entity type: <code>CREDIT_CARD</code> &rarr; request BLOCKED</li>
+      </ol>
+      <p><strong>Why this matters:</strong> A random number like "1234567890123456" would NOT be blocked because it fails the Luhn checksum — Presidio knows it's not a real credit card. This prevents false positives while catching real personal data.</p>
+    </div>
+
+    <table>
+      <tr><th>Entity Type</th><th>Detection Method</th><th>Example</th><th>Blocked?</th></tr>
+      <tr><td><strong>CREDIT_CARD</strong></td><td>Regex + Luhn checksum</td><td>4532015112830366</td><td style="color:var(--red);font-weight:700">YES</td></tr>
+      <tr><td><strong>US_SSN</strong></td><td>Regex (XXX-XX-XXXX)</td><td>123-45-6789</td><td style="color:var(--red);font-weight:700">YES</td></tr>
+      <tr><td><strong>EMAIL_ADDRESS</strong></td><td>RFC 5322 regex</td><td>john@company.com</td><td style="color:var(--red);font-weight:700">YES</td></tr>
+      <tr><td><strong>PHONE_NUMBER</strong></td><td>Multi-format regex</td><td>+353 87 123 4567</td><td style="color:var(--red);font-weight:700">YES</td></tr>
+      <tr><td><strong>IBAN_CODE</strong></td><td>ISO 13616 checksum</td><td>DE89370400440532013000</td><td style="color:var(--red);font-weight:700">YES</td></tr>
+      <tr><td>LOCATION</td><td>NER model</td><td>"France", "Dublin"</td><td style="color:var(--green);font-weight:700">NO (filtered)</td></tr>
+      <tr><td>PERSON</td><td>NER model</td><td>"John Smith"</td><td style="color:var(--green);font-weight:700">NO (filtered)</td></tr>
+    </table>
+
+    <div class="explain">
+      <p><strong>Why do LOCATION and PERSON not trigger blocks?</strong> Because mentioning "France" or "Dublin" in a prompt is normal. We configured Presidio to only block <strong>truly sensitive</strong> PII (financial data, government IDs, contact details) — not common nouns that happen to be detected as entities. This prevents false positives like "What is the capital of France?" being blocked.</p>
+    </div>
+
+    <div class="proof">
+      <p><strong>Prove on localhost:3333:</strong> Click "PII Leakage (L3)" preset &rarr; <code>"My credit card is 4532015112830366 and SSN is 123-45-6789"</code> &rarr; Send to Gateway &rarr; <strong>HTTP 422 BLOCKED</strong>. Presidio detects CREDIT_CARD + US_SSN. Then try <code>"What is the capital of France?"</code> &rarr; <strong>HTTP 200 OK</strong>. Presidio detects LOCATION but it's filtered out as non-sensitive.</p>
+    </div>
+
+    <div class="technical">
+      Docker: secureai-presidio | Image: mcr.microsoft.com/presidio-analyzer:latest | Port: 5002<br>
+      Endpoint: POST /analyze | Health: GET /health<br>
+      Config: language=en, min_score=0.6<br>
+      Sensitive types: CREDIT_CARD, US_SSN, EMAIL_ADDRESS, PHONE_NUMBER, IBAN_CODE, IP_ADDRESS, US_PASSPORT, + 13 more<br>
+      Filtered types: LOCATION, PERSON, DATE_TIME, NRP (non-sensitive, cause false positives)<br>
+      Speed: ~10-30ms per scan (fastest layer — pure pattern matching, no LLM involved)
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- PARALLEL EXECUTION                              -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="section" id="sec-parallel">
+  <div class="section-head" onclick="this.parentElement.classList.toggle('open')">
+    <div class="section-icon icon-purple">&#x26A1;</div>
+    <div class="section-info">
+      <h2>Parallel Execution with Mono.zip() — The Key Innovation</h2>
+      <p>All 3 layers run simultaneously — you only wait for the slowest one</p>
+    </div>
+    <span class="section-badge sb-key">CORE INNOVATION</span>
+    <span class="chevron">&#x25BC;</span>
+  </div>
+  <div class="section-body">
+
+    <div class="analogy">
+      <p><strong>&#x1F6D2; Supermarket Checkout Lanes.</strong></p>
+      <p><strong>Sequential (bad):</strong> One checkout lane. Customer 1 takes 40ms, Customer 2 takes 200ms, Customer 3 takes 15ms. Total: <strong>255ms</strong>.</p>
+      <p><strong>Parallel (our approach):</strong> Three checkout lanes. All three customers check out at the <strong>same time</strong>. Total: <strong>200ms</strong> (the slowest customer). That's <strong>27% faster</strong>.</p>
+    </div>
+
+    <div class="compare-grid">
+      <div class="compare-card compare-bad">
+        <h4>Sequential Execution</h4>
+        <p>NeMo: 40ms &rarr; wait &rarr; LlamaGuard: 200ms &rarr; wait &rarr; Presidio: 15ms<br><br><strong>Total: 255ms</strong> (sum of all three)</p>
+      </div>
+      <div class="compare-card compare-good">
+        <h4>Parallel Execution (Our Approach)</h4>
+        <p>NeMo: 40ms &nbsp; &#x2502;<br>LlamaGuard: 200ms &#x2502; &larr; all running at once<br>Presidio: 15ms &nbsp; &#x2502;<br><br><strong>Total: 200ms</strong> (only the slowest)</p>
+      </div>
+    </div>
+
+    <div class="howit">
+      <p><strong>The Java code that makes it work:</strong></p>
+      <ol>
+        <li><code>Mono.zip()</code> from Project Reactor takes 3 asynchronous operations</li>
+        <li>Each operation runs on a <code>Schedulers.boundedElastic()</code> thread (non-blocking)</li>
+        <li>All 3 start executing at the same instant</li>
+        <li><code>.block()</code> waits until ALL 3 complete (not just the fastest)</li>
+        <li>Results are collected and checked: <code>anyMatch(GuardrailsResult::blocked)</code></li>
+        <li>If ANY returned blocked = request denied (union/fail-closed logic)</li>
+      </ol>
+    </div>
+
+    <div class="technical">
+      File: GuardrailsOrchestrator.java, lines 60-64<br>
+      Code: Mono.zip(nemoClient.evaluate(prompt).subscribeOn(Schedulers.boundedElastic()),<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;llamaGuardClient.evaluate(prompt).subscribeOn(Schedulers.boundedElastic()),<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;presidioClient.evaluate(prompt).subscribeOn(Schedulers.boundedElastic())).block();<br>
+      Decision: allResults.stream().anyMatch(GuardrailsResult::blocked) &rarr; fail-closed
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- JWT AUTH                                         -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="section" id="sec-jwt">
+  <div class="section-head" onclick="this.parentElement.classList.toggle('open')">
+    <div class="section-icon icon-green">&#x1F511;</div>
+    <div class="section-info">
+      <h2>JWT Authentication + RBAC + Account Lockout</h2>
+      <p>The complete identity system — who you are, what you can do, and brute-force protection</p>
+    </div>
+    <span class="section-badge sb-running">BUILT-IN</span>
+    <span class="chevron">&#x25BC;</span>
+  </div>
+  <div class="section-body">
+
+    <div class="analogy">
+      <p><strong>&#x1F3AB; Festival Wristband System.</strong></p>
+      <p>When you arrive at a music festival, you show your ticket (username + password) at the entrance. They give you a <strong>wristband (JWT token)</strong> that you wear for the whole day. At every stage, you flash the wristband — no need to re-enter your password. The wristband has your name and ticket type (ADMIN or USER) encoded in it. <strong>VIP wristbands</strong> let you into backstage areas (admin dashboard). Regular wristbands don't. The wristband expires at midnight (1 hour). If you lose it and someone finds it, they can't use it because we check the unique ID (JTI) against a blacklist.</p>
+    </div>
+
+    <div class="howit">
+      <p><strong>7-Step JWT Validation Pipeline (every request):</strong></p>
+      <ol>
+        <li><strong>Signature check</strong> — Is this token signed by our server? (HMAC-SHA256)</li>
+        <li><strong>Expiry check</strong> — Has the token expired? (1-hour TTL)</li>
+        <li><strong>Issuer check</strong> — Was it issued by "secure-ai-gateway"?</li>
+        <li><strong>JTI blacklist</strong> — Has this token been logged out? (prevents replay attacks)</li>
+        <li><strong>Subject present</strong> — Does the token contain a username?</li>
+        <li><strong>Role extraction</strong> — Is the user ADMIN or USER?</li>
+        <li><strong>SecurityContext</strong> — Register the authenticated user for this request</li>
+      </ol>
+    </div>
+
+    <div class="explain">
+      <p><strong>Account Lockout:</strong> After <strong>5 failed login attempts</strong>, the account is locked for <strong>15 minutes</strong>. This prevents brute-force password guessing attacks. The lockout check happens <em>before</em> any database or password operations, which prevents timing-based username enumeration (attackers can't tell if a username exists based on response time).</p>
+    </div>
+
+    <div class="proof">
+      <p><strong>Prove on localhost:3333:</strong></p>
+      <p>1. <strong>JWT:</strong> Login as Admin &rarr; see the JWT Token Decoded panel showing header (alg: HS384), payload (sub, role, jti, iss, iat, exp), and signature</p>
+      <p>2. <strong>RBAC:</strong> Login as User &rarr; click "RBAC Test" preset &rarr; HTTP 403 Forbidden (USER cannot access /admin)</p>
+      <p>3. <strong>Password policy:</strong> Click "Weak Password" preset &rarr; Registration fails with "must contain uppercase, lowercase, digit, and special character"</p>
+    </div>
+
+    <div class="technical">
+      JWT: JJWT 0.12.6, HMAC-SHA384, 1-hour expiry (3,600,000ms)<br>
+      Password: BCrypt cost=12, @Pattern(regexp="^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&#^()\\-_=+])...")<br>
+      Lockout: 5 attempts &rarr; 900s cooldown (ConcurrentHashMap tracking)<br>
+      RBAC: @PreAuthorize("hasRole('ADMIN')") on /admin/** endpoints<br>
+      Logout: POST /auth/logout &rarr; JTI added to blacklist
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SPRING BOOT                                     -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="section" id="sec-springboot">
+  <div class="section-head" onclick="this.parentElement.classList.toggle('open')">
+    <div class="section-icon icon-green">&#x1F343;</div>
+    <div class="section-info">
+      <h2>Spring Boot 3.4.3 + Java 21 LTS</h2>
+      <p>The application framework — connects all technologies together</p>
+    </div>
+    <span class="section-badge sb-running">DOCKER :8100</span>
+    <span class="chevron">&#x25BC;</span>
+  </div>
+  <div class="section-body">
+    <div class="explain">
+      <p><strong>Spring Boot</strong> is like the <strong>manager of a restaurant</strong>. It doesn't cook the food (AI model), check IDs (guardrails), or keep records (database). But it coordinates everyone — takes the order, routes it to the right kitchen station, ensures security checks happen, and delivers the dish.</p>
+    </div>
+
+    <table>
+      <tr><th>Module</th><th>Purpose</th><th>Key Classes</th></tr>
+      <tr><td><strong>secure-ai-model</strong></td><td>JPA entities, DTOs, repositories</td><td>User, AuditLog, AskRequest, LoginRequest</td></tr>
+      <tr><td><strong>secure-ai-core</strong></td><td>Security config, JWT, PII redaction</td><td>SecurityConfig, JwtUtil, JwtAuthFilter, PiiRedactionService</td></tr>
+      <tr><td><strong>secure-ai-service</strong></td><td>Guardrails, Ollama client, rate limiter</td><td>GuardrailsOrchestrator, OllamaClient, RateLimiterService, ReActAgentService</td></tr>
+      <tr><td><strong>secure-ai-web</strong></td><td>REST controllers, Spring Boot main</td><td>AskController, AuthController, AdminController</td></tr>
+    </table>
+
+    <div class="technical">
+      Docker: secureai-gateway | Image: absartus/secure-ai-gateway:latest | Port: 8100:8080<br>
+      Build: Multi-stage Docker (JDK build &rarr; JRE runtime), Alpine Linux, non-root UID 1001<br>
+      Security headers: CSP (no unsafe-inline), HSTS (1 year), X-Frame-Options, Referrer-Policy
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- DOCKER                                          -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="section" id="sec-docker">
+  <div class="section-head" onclick="this.parentElement.classList.toggle('open')">
+    <div class="section-icon icon-blue">&#x1F433;</div>
+    <div class="section-info">
+      <h2>Docker + Kubernetes — Deployment Architecture</h2>
+      <p>How all services are packaged, isolated, and deployed</p>
+    </div>
+    <span class="section-badge sb-running">8 GB ALLOCATED</span>
+    <span class="chevron">&#x25BC;</span>
+  </div>
+  <div class="section-body">
+    <div class="explain">
+      <p>Docker is like <strong>shipping containers</strong> for software. Each service runs in its own isolated box. They can't interfere with each other, and the whole system starts with <strong>one command</strong>: <code>docker-compose up</code>.</p>
+    </div>
+
+    <table>
+      <tr><th>Container</th><th>Port</th><th>Memory</th><th>Image</th><th>Purpose</th></tr>
+      <tr><td>secureai-gateway</td><td>:8100</td><td>~500 MB</td><td>absartus/secure-ai-gateway</td><td>Spring Boot app</td></tr>
+      <tr><td>secureai-app-db</td><td>:5434</td><td>~60 MB</td><td>postgres:17.2-alpine</td><td>PostgreSQL database</td></tr>
+      <tr><td>secureai-nemo-guardrails</td><td>:8001</td><td>~320 MB</td><td>secure-ai-nemo-guardrails</td><td>NeMo + Colang rules</td></tr>
+      <tr><td>secureai-presidio</td><td>:5002</td><td>~170 MB</td><td>mcr.microsoft.com/presidio-analyzer</td><td>PII detection</td></tr>
+      <tr><td>secureai-ollama</td><td>:11434</td><td>~50 MB</td><td>ollama/ollama</td><td>Fallback LLM (CI/CD only)</td></tr>
+      <tr><td>secure-ai-jenkins</td><td>:9090</td><td>~430 MB</td><td>jenkins/jenkins:lts-jdk21</td><td>CI/CD pipeline</td></tr>
+      <tr><td>secure-ai-sonarqube</td><td>:9000</td><td>~1 GB</td><td>sonarqube:community</td><td>Code quality gate</td></tr>
+      <tr><td>secure-ai-grafana</td><td>:3000</td><td>~150 MB</td><td>grafana/grafana</td><td>Monitoring dashboards</td></tr>
+      <tr><td>secure-ai-prometheus</td><td>:9092</td><td>~40 MB</td><td>prom/prometheus</td><td>Metrics collection</td></tr>
+    </table>
+
+    <div class="explain">
+      <p><strong>Why Ollama runs BOTH natively AND in Docker:</strong> Native Ollama uses the M3 Max GPU for fast inference (live demo). Docker Ollama exists as a fallback for the CI/CD pipeline (Jenkins) which runs inside Docker and can't access native macOS apps. Both work — native is 60x faster, Docker is for automation.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- CI/CD                                           -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="section" id="sec-cicd">
+  <div class="section-head" onclick="this.parentElement.classList.toggle('open')">
+    <div class="section-icon icon-orange">&#x2699;</div>
+    <div class="section-info">
+      <h2>Jenkins DevSecOps Pipeline — 15 Stages, 7 Security Gates</h2>
+      <p>Every commit automatically built, tested, scanned, and deployed</p>
+    </div>
+    <span class="section-badge sb-port">:9090</span>
+    <span class="chevron">&#x25BC;</span>
+  </div>
+  <div class="section-body">
+    <div class="analogy">
+      <p><strong>&#x1F3ED; A Car Factory Assembly Line.</strong> Every car (code commit) passes through 15 checkpoints. At checkpoints marked "GATE", a robot inspector checks quality. If the car fails ANY gate — it's pulled off the line and doesn't ship. Our code goes through the exact same process automatically, every single time.</p>
+    </div>
+
+    <table>
+      <tr><th>#</th><th>Stage</th><th>Tool</th><th>What It Checks</th><th>Blocks Build?</th></tr>
+      <tr><td>1</td><td>Checkout</td><td>Git</td><td>Clone source code</td><td>No</td></tr>
+      <tr><td>2</td><td>Build</td><td>Maven</td><td>Compile all 4 modules</td><td>Yes</td></tr>
+      <tr><td>3</td><td>Unit Tests + Coverage</td><td>JUnit + JaCoCo</td><td>83% line coverage, 70% branch</td><td style="color:var(--red);font-weight:700">GATE</td></tr>
+      <tr><td>4</td><td>SpotBugs</td><td>SpotBugs + FindSecBugs</td><td>0 bugs, 0 security flaws</td><td style="color:var(--red);font-weight:700">GATE</td></tr>
+      <tr><td>5</td><td>SonarQube</td><td>SonarQube Community</td><td>Quality Gate: A rating</td><td style="color:var(--red);font-weight:700">GATE</td></tr>
+      <tr><td>6</td><td>Archive JAR</td><td>Maven</td><td>Create deployable artifact</td><td>No</td></tr>
+      <tr><td>7</td><td>Docker Build</td><td>Docker</td><td>Build container image</td><td style="color:var(--red);font-weight:700">GATE</td></tr>
+      <tr><td>8</td><td>Trivy Scan</td><td>Trivy</td><td>Container CVE scan</td><td style="color:var(--red);font-weight:700">GATE</td></tr>
+      <tr><td>9</td><td>Docker Push</td><td>Docker Hub</td><td>Push to registry</td><td>No</td></tr>
+      <tr><td>10</td><td>OWASP CVE</td><td>OWASP Dep-Check</td><td>Dependency vulnerabilities (CVSS &lt; 7)</td><td style="color:var(--red);font-weight:700">GATE</td></tr>
+      <tr><td>11</td><td>Deploy</td><td>Docker Compose</td><td>Deploy to dev environment</td><td>No</td></tr>
+      <tr><td>12</td><td>Karate E2E</td><td>Karate</td><td>BDD API tests</td><td style="color:var(--red);font-weight:700">GATE</td></tr>
+      <tr><td>13</td><td>Health Check</td><td>Actuator</td><td>Verify deployment health</td><td>No</td></tr>
+      <tr><td>14</td><td>ZAP (planned)</td><td>OWASP ZAP</td><td>DAST runtime scanning</td><td>Future</td></tr>
+      <tr><td>15</td><td>Archive</td><td>Jenkins</td><td>Archive artifacts + reports</td><td>No</td></tr>
+    </table>
+
+    <div class="proof">
+      <p><strong>Prove it:</strong> Open <a href="http://localhost:9090" style="color:var(--blue)">http://localhost:9090</a> (Jenkins) &rarr; SecureAI-Gateway &rarr; feature/secureaigw &rarr; see build history with all stages green. Or open <a href="http://localhost:9090/blue" style="color:var(--blue)">Blue Ocean</a> for the visual pipeline.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- MONITORING                                      -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="section" id="sec-monitoring">
+  <div class="section-head" onclick="this.parentElement.classList.toggle('open')">
+    <div class="section-icon icon-blue">&#x1F4CA;</div>
+    <div class="section-info">
+      <h2>Prometheus + Grafana — Real-Time Monitoring</h2>
+      <p>CCTV for your application — tracks every metric in real-time</p>
+    </div>
+    <span class="section-badge sb-port">:9092 :3000</span>
+    <span class="chevron">&#x25BC;</span>
+  </div>
+  <div class="section-body">
+    <div class="explain">
+      <p><strong>Prometheus</strong> is the CCTV camera — records metrics every 15 seconds (request count, response times, memory usage, error rates). <strong>Grafana</strong> is the TV screen — displays those metrics as beautiful charts so you can spot problems at a glance.</p>
+    </div>
+    <div class="proof">
+      <p>Visit <a href="http://localhost:3000" style="color:var(--blue)">http://localhost:3000</a> (Grafana) and <a href="http://localhost:8100/actuator/prometheus" style="color:var(--blue)">http://localhost:8100/actuator/prometheus</a> (raw metrics).</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- PROVING EVERY LAYER                             -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="section open" id="sec-proof">
+  <div class="section-head" onclick="this.parentElement.classList.toggle('open')">
+    <div class="section-icon icon-green">&#x2705;</div>
+    <div class="section-info">
+      <h2>Proving Every Layer — Live Demo Script for Professor</h2>
+      <p>Step-by-step guide to demonstrate every feature during the presentation</p>
+    </div>
+    <span class="section-badge sb-running">DEMO SCRIPT</span>
+    <span class="chevron">&#x25BC;</span>
+  </div>
+  <div class="section-body">
+
+    <div class="step-flow">
+      <div class="step">
+        <div class="step-num s-blue">1</div>
+        <div class="step-content">
+          <strong>Open the dashboard</strong>
+          <p>Navigate to <a href="http://localhost:3333" style="color:var(--blue)">http://localhost:3333</a>. Show the <strong>Overview tab</strong> — all 5 services green with response times. Point out the latency breakdown chart.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num s-green">2</div>
+        <div class="step-content">
+          <strong>Prove JWT Authentication</strong>
+          <p>Go to <strong>Interactive Tester</strong> &rarr; Click <strong>Login as Admin</strong>. Show the JWT Token Decoded panel — Header (algorithm), Payload (sub, role, jti, iss, exp), Signature. Explain: "This token was signed with HMAC-SHA384. The JTI is a unique ID that gets blacklisted on logout."</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num s-green">3</div>
+        <div class="step-content">
+          <strong>Prove SAFE prompt passes all 3 layers</strong>
+          <p>Click <strong>"Safe Prompt"</strong> preset &rarr; <strong>"Send to Gateway"</strong>. Watch the pipeline: JWT PASS, Rate Limiter PASS, NeMo PASS, LlamaGuard PASS, Presidio PASS, Decision Gate ALLOWED, Ollama DONE, Response <strong>200 OK</strong>. Say: "All 3 guardrail layers evaluated this prompt in parallel and determined it was safe."</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num s-red">4</div>
+        <div class="step-content">
+          <strong>Prove Layer 2 (LlamaGuard) blocks harmful content</strong>
+          <p>Click <strong>"Harmful Content (L2)"</strong> preset &rarr; Send. Pipeline shows NeMo BLOCKED, LlamaGuard BLOCKED, Decision Gate DENIED, Ollama SKIPPED, Response <strong>422 BLOCKED</strong>. Say: "LlamaGuard classified this as S2 (Non-Violent Crimes). The AI model never saw this prompt."</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num s-red">5</div>
+        <div class="step-content">
+          <strong>Prove Layer 3 (Presidio) blocks PII</strong>
+          <p>Click <strong>"PII Leakage (L3)"</strong> preset &rarr; Send. Pipeline shows Presidio BLOCKED (CREDIT_CARD + US_SSN detected), Response <strong>422 BLOCKED</strong>. Say: "Presidio validated the credit card using Luhn checksum and confirmed it's a real card number."</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num s-purple">6</div>
+        <div class="step-content">
+          <strong>Prove RBAC</strong>
+          <p>Click <strong>"RBAC Test"</strong> preset. It logs in as USER and tries to access /admin/dashboard. Response: <strong>403 Forbidden</strong>. Say: "The USER role cannot access admin endpoints. Only ADMIN can."</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num s-orange">7</div>
+        <div class="step-content">
+          <strong>Prove Password Policy</strong>
+          <p>Click <strong>"Weak Password"</strong> preset. It tries to register with "abc123". Response: <strong>400 Bad Request</strong> — password must contain uppercase, lowercase, digit, and special character.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num s-blue">8</div>
+        <div class="step-content">
+          <strong>Show remaining tabs</strong>
+          <p><strong>Security Scorecard:</strong> 8 ring charts (OWASP 90%, API 100%, NIST 89%, Docker 100%, Coverage 83%, SpotBugs 0, SonarQube A, CVEs 0).<br>
+          <strong>CI/CD Pipeline:</strong> 15 stages with 7 red GATE badges.<br>
+          <strong>Technology Stack:</strong> 24 technology cards with versions.<br>
+          <strong>Request Log:</strong> Live stream of all health checks and API calls.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <strong>SecureAI Gateway v2.0.0</strong> | Technological University of the Shannon, Athlone, Ireland<br>
+  Supervised by Dr. Thiago Braga Rodrigues | Team: Absar Ahammad Shaik, Jenish Richard Jayasingh, Mabin Shaibi, Sai Siddarth Sandur Kiran Kumar<br><br>
+  Live Dashboard: <a href="http://localhost:3333">http://localhost:3333</a> |
+  GitHub: <a href="https://github.com/A00336136/secure-ai-gateway">A00336136/secure-ai-gateway</a> |
+  This Guide: <a href="TECHNOLOGY_STACK_EXPLAINED.html">TECHNOLOGY_STACK_EXPLAINED.html</a>
+</div>
+
+</div>
+
+<script>
+document.querySelectorAll('.section-head').forEach(h => {
+  h.addEventListener('click', () => h.parentElement.classList.toggle('open'));
+});
+</script>
+</body>
+</html>

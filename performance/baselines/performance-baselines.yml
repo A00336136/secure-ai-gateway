@@ -1,0 +1,197 @@
+---
+# SecureAIGateway Performance Baselines
+# These baselines define the expected performance characteristics
+# and SLA targets for the SecureAIGateway API.
+
+service:
+  name: SecureAIGateway
+  version: "1.0.0"
+  port: 8080
+
+# ---------------------------------------------------------------------------
+# Response Time SLAs (milliseconds)
+# ---------------------------------------------------------------------------
+response_time_slas:
+  ask_endpoint:
+    p50: 500
+    p95: 1500
+    p99: 2000
+    max: 3000
+  status_endpoint:
+    p50: 50
+    p95: 150
+    p99: 300
+    max: 500
+  auth_login:
+    p50: 100
+    p95: 300
+    p99: 500
+    max: 1000
+  auth_register:
+    p50: 150
+    p95: 400
+    p99: 600
+    max: 1000
+  admin_dashboard:
+    p50: 200
+    p95: 500
+    p99: 800
+    max: 1500
+  admin_audit:
+    p50: 300
+    p95: 800
+    p99: 1200
+    max: 2000
+
+# ---------------------------------------------------------------------------
+# Throughput Targets (requests per second)
+# ---------------------------------------------------------------------------
+throughput_targets:
+  normal_load:
+    concurrent_users: 50
+    min_requests_per_second: 50
+    description: "Standard operating conditions"
+  stress_load:
+    concurrent_users: 200
+    min_requests_per_second: 20
+    description: "System under stress, acceptable degradation"
+  peak_load:
+    concurrent_users: 100
+    min_requests_per_second: 35
+    description: "Peak traffic during high-usage periods"
+
+# ---------------------------------------------------------------------------
+# Error Rate Thresholds
+# ---------------------------------------------------------------------------
+error_rates:
+  normal_load:
+    max_error_percent: 1.0
+    description: "Under 50 concurrent users"
+  stress_load:
+    max_error_percent: 5.0
+    description: "Under 200 concurrent users"
+  spike_load:
+    max_error_percent: 10.0
+    description: "Sudden burst of 200 users in 10 seconds"
+
+# ---------------------------------------------------------------------------
+# Rate Limiting
+# ---------------------------------------------------------------------------
+rate_limiting:
+  requests_per_hour_per_user: 100
+  expected_status_code_on_limit: 429
+  headers:
+    retry_after: true
+    x_rate_limit_remaining: true
+    x_rate_limit_reset: true
+  behavior:
+    - "First 100 requests within the hour window return HTTP 200"
+    - "Requests 101+ return HTTP 429 Too Many Requests"
+    - "Rate limit resets at the start of the next hour window"
+    - "Each authenticated user has an independent rate limit counter"
+
+# ---------------------------------------------------------------------------
+# Guardrails Latency Budget
+# ---------------------------------------------------------------------------
+guardrails:
+  total_latency_budget_ms: 100
+  breakdown:
+    input_validation_ms: 20
+    prompt_injection_check_ms: 30
+    content_filtering_ms: 25
+    token_limit_check_ms: 10
+    audit_logging_ms: 15
+  description: >
+    Total time added by security guardrails must not exceed 100ms.
+    This budget is separate from the AI model inference time.
+
+# ---------------------------------------------------------------------------
+# Token Consumption Limits
+# ---------------------------------------------------------------------------
+token_limits:
+  max_input_tokens_per_request: 4096
+  max_output_tokens_per_request: 2048
+  max_tokens_per_user_per_day: 100000
+  max_tokens_per_user_per_hour: 25000
+  cost_tracking:
+    enabled: true
+    alert_threshold_percent: 80
+
+# ---------------------------------------------------------------------------
+# Resource Utilization Thresholds
+# ---------------------------------------------------------------------------
+resource_utilization:
+  cpu:
+    normal_max_percent: 60
+    stress_max_percent: 80
+    critical_percent: 95
+  memory:
+    normal_max_percent: 70
+    stress_max_percent: 85
+    critical_percent: 95
+  jvm_heap:
+    max_usage_percent: 80
+    gc_pause_max_ms: 200
+  disk_io:
+    max_iops: 5000
+    max_latency_ms: 10
+  network:
+    max_bandwidth_mbps: 100
+    max_connections: 500
+
+# ---------------------------------------------------------------------------
+# Test Execution Parameters
+# ---------------------------------------------------------------------------
+test_profiles:
+  smoke_test:
+    users: 5
+    iterations: 1
+    ramp_up_seconds: 10
+    purpose: "Verify basic functionality before load testing"
+  load_test:
+    users: 50
+    duration_seconds: 60
+    ramp_up_seconds: 30
+    purpose: "Validate performance under expected production load"
+  stress_test:
+    users: 200
+    duration_seconds: 120
+    ramp_up_seconds: 60
+    purpose: "Find the breaking point and observe degradation"
+  endurance_test:
+    users: 30
+    duration_seconds: 300
+    ramp_up_seconds: 30
+    purpose: "Detect memory leaks and resource exhaustion over time"
+  spike_test:
+    users: 200
+    ramp_up_seconds: 10
+    pattern: "heaviside"
+    purpose: "Validate system recovery from sudden traffic spikes"
+  rate_limit_test:
+    users: 1
+    iterations: 150
+    purpose: "Verify rate limiting enforces 100 req/hr per user"
+
+# ---------------------------------------------------------------------------
+# Monitoring and Alerting
+# ---------------------------------------------------------------------------
+monitoring:
+  health_check_endpoint: "/api/status"
+  health_check_interval_seconds: 30
+  alerts:
+    - metric: "response_time_p95"
+      threshold_ms: 1500
+      action: "warn"
+    - metric: "response_time_p99"
+      threshold_ms: 2000
+      action: "critical"
+    - metric: "error_rate"
+      threshold_percent: 5.0
+      action: "critical"
+    - metric: "cpu_usage"
+      threshold_percent: 80
+      action: "warn"
+    - metric: "memory_usage"
+      threshold_percent: 85
+      action: "critical"

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "secure-ai-gateway.fullname" . }}-config
+  namespace: {{ include "secure-ai-gateway.namespace" . }}
+  labels:
+    {{- include "secure-ai-gateway.labels" . | nindent 4 }}
+data:
+  SPRING_PROFILES_ACTIVE: {{ .Values.config.springProfiles | quote }}
+  OLLAMA_URL: {{ .Values.config.ollamaUrl | quote }}
+  NEMO_GUARDRAILS_URL: {{ .Values.config.nemoUrl | quote }}
+  PRESIDIO_ANALYZER_URL: {{ .Values.config.presidioUrl | quote }}
+  JAVA_OPTS: {{ .Values.config.javaOpts | quote }}
+  SPRING_DATASOURCE_URL: {{ printf "jdbc:postgresql://%s:%d/%s" .Values.postgresql.host (int .Values.postgresql.port) .Values.postgresql.database | quote }}
+  SPRING_DATASOURCE_USERNAME: {{ .Values.postgresql.username | quote }}

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Email Draft - Dr. Thiago</title>
+<style>
+:root{--bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--border:#30363d;--text:#e6edf3;--text2:#8b949e;--blue:#58a6ff;--green:#3fb950;--orange:#d29922}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;padding:2rem}
+.container{max-width:800px;margin:0 auto}
+h1{font-size:1.5rem;margin-bottom:1.5rem;color:var(--blue)}
+.email-box{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:2rem}
+.email-header{padding:1rem 1.5rem;border-bottom:1px solid var(--border);background:var(--bg3)}
+.email-field{display:flex;gap:.5rem;margin-bottom:.4rem;font-size:.9rem}
+.email-label{font-weight:700;color:var(--text2);min-width:80px}
+.email-value{color:var(--text)}
+.email-body{padding:1.5rem;font-family:Georgia,'Times New Roman',serif;font-size:.95rem;line-height:1.8;color:var(--text)}
+.email-body p{margin-bottom:1rem}
+.email-body ul{margin:.5rem 0 1rem 1.5rem}
+.email-body li{margin-bottom:.3rem}
+.copy-btn{display:inline-block;padding:.6rem 1.2rem;background:var(--blue);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:.85rem;margin-top:1rem;transition:opacity .2s}
+.copy-btn:hover{opacity:.85}
+.note{background:var(--bg3);border-left:3px solid var(--orange);padding:.75rem 1rem;border-radius:0 6px 6px 0;font-size:.85rem;color:var(--text2);margin-bottom:1.5rem}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>Email Draft to Dr. Thiago Braga Rodrigues</h1>
+
+<div class="note">Copy the email body below and paste it into your email client (Outlook/Teams). Attach the PDF: <strong>SecureAI_Gateway_Full_Article.pdf</strong> (218 KB, 6 pages).</div>
+
+<div class="email-box">
+  <div class="email-header">
+    <div class="email-field"><span class="email-label">To:</span><span class="email-value">Dr. Thiago Braga Rodrigues (ATU lecturer email)</span></div>
+    <div class="email-field"><span class="email-label">CC:</span><span class="email-value">Jenish Richard, Mabin Shaibi, Sai Siddarth Sandur Kiran Kumar</span></div>
+    <div class="email-field"><span class="email-label">Subject:</span><span class="email-value">SecureAI Gateway - Sprint 2 Full Article Draft for Review &amp; Request for Teams Meeting</span></div>
+    <div class="email-field"><span class="email-label">Attach:</span><span class="email-value">SecureAI_Gateway_Full_Article.pdf (6 pages, IEEE format)</span></div>
+  </div>
+  <div class="email-body" id="email-content">
+<p>Dear Dr. Rodrigues,</p>
+
+<p>I hope this email finds you well. On behalf of the SecureAI Gateway team, I am writing to share our draft full article submission for Sprint 2 (due 12 April 2026) and to request your feedback before final submission.</p>
+
+<p>Please find attached our 6-page research paper titled <strong>"SecureAI Gateway: A Three-Layer Defence-in-Depth Framework for Securing Enterprise LLM Applications"</strong>, formatted per the IEEE conference template (A4, two-column layout). The paper covers the following sections as outlined in the submission guidelines:</p>
+
+<ul>
+  <li><strong>Abstract</strong> &mdash; Context, three-layer architecture proposal, key results (90ms guardrail latency, 100% jailbreak interception, 1.6s E2E latency)</li>
+  <li><strong>Introduction</strong> &mdash; Problem statement, three contributions, and motivation for defence-in-depth in LLM security</li>
+  <li><strong>Literature Review</strong> &mdash; 7 subsections covering prompt injection (Greshake et al.), content safety (LlamaGuard), NeMo Guardrails, Presidio PII detection, NIST SSDF, transformer foundations, and gap analysis</li>
+  <li><strong>System Architecture &amp; Test Configuration</strong> &mdash; Multi-module Spring Boot design, parallel guardrail orchestration via Project Reactor, and experimental environment (5 Docker containers)</li>
+  <li><strong>Results &amp; Discussion</strong> &mdash; Guardrail effectiveness (4 tables), latency analysis, layer-by-layer evaluation, authentication hardening, comparative analysis against OpenAI/AWS/Azure, security benchmark compliance (OWASP LLM 90%, API 100%, NIST 89%, CIS Docker 100%), and DevSecOps pipeline (15 stages, 7 blocking gates)</li>
+  <li><strong>Conclusion &amp; Future Work</strong> &mdash; Summary and five proposed improvements (DAST, Redis-backed distributed state, adversarial testing, Istio mTLS, AI drift monitoring)</li>
+  <li><strong>References</strong> &mdash; 20 IEEE-formatted citations</li>
+</ul>
+
+<p>We would greatly appreciate your review and any suggestions for improvement before we finalise the submission. In particular, we would welcome feedback on:</p>
+
+<ul>
+  <li>Whether the depth and scope of the literature review is sufficient</li>
+  <li>If additional experimental results or analysis would strengthen the paper</li>
+  <li>Any formatting or structural adjustments needed to meet the submission criteria</li>
+  <li>Whether the contribution claims are appropriately positioned relative to existing work</li>
+</ul>
+
+<p>Additionally, would it be possible to arrange a <strong>short Microsoft Teams call</strong> at your convenience to discuss the paper and any further improvements? We are flexible on timing and happy to work around your schedule. Any slot within the coming week would work well for us.</p>
+
+<p>The complete source code, Docker Compose configuration, CI/CD pipeline, and test suite are available on our GitHub repository: <a href="https://github.com/A00336136/secure-ai-gateway">https://github.com/A00336136/secure-ai-gateway</a></p>
+
+<p>Thank you for your time and guidance throughout this project. We look forward to hearing from you.</p>
+
+<p>Kind regards,<br>
+<strong>Absar Ahammad Shaik</strong><br>
+On behalf of the SecureAI Gateway Team<br>
+(Jenish Richard, Mabin Shaibi, Sai Siddarth Sandur Kiran Kumar)<br>
+Student ID: A00336136<br>
+M.Sc. in Computing, Atlantic Technological University<br>
+a00336136@student.tus.ie</p>
+  </div>
+</div>
+
+<button class="copy-btn" onclick="copyEmail()">Copy Email Body to Clipboard</button>
+
+<script>
+function copyEmail() {
+  const el = document.getElementById('email-content');
+  // Get plain text version
+  const text = el.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = 'Copied!';
+    btn.style.background = '#3fb950';
+    setTimeout(() => { btn.textContent = 'Copy Email Body to Clipboard'; btn.style.background = '#58a6ff'; }, 2000);
+  });
+}
+</script>
+
+</div>
+</body>
+</html>

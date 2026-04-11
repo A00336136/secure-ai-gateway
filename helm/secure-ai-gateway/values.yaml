@@ -1,0 +1,290 @@
+# ==============================================================================
+# Secure AI Gateway — Helm Values
+# ==============================================================================
+
+# -- Number of pod replicas
+replicaCount: 3
+
+# -- Namespace override (optional)
+namespaceOverride: ""
+
+# ==============================================================================
+# Main Application Container
+# ==============================================================================
+image:
+  repository: your-dockerhub-username/secure-ai-gateway
+  tag: "latest"
+  pullPolicy: Always
+
+imagePullSecrets: []
+
+# ==============================================================================
+# Service Configuration
+# ==============================================================================
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+
+# ==============================================================================
+# Ingress Configuration
+# ==============================================================================
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "120"
+  host: secure-ai.local
+  tls: []
+  #  - secretName: secure-ai-tls
+  #    hosts:
+  #      - secure-ai.local
+
+# ==============================================================================
+# Horizontal Pod Autoscaler
+# ==============================================================================
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+# ==============================================================================
+# Service Account
+# ==============================================================================
+serviceAccount:
+  create: true
+  automountServiceAccountToken: false
+  annotations: {}
+  name: ""
+
+# ==============================================================================
+# Pod Security Context
+# ==============================================================================
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1001
+  fsGroup: 1001
+
+# ==============================================================================
+# Main Container — Secure AI Gateway
+# ==============================================================================
+gateway:
+  containerPort: 8080
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "250m"
+    limits:
+      memory: "1Gi"
+      cpu: "1000m"
+  securityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
+  livenessProbe:
+    httpGet:
+      path: /actuator/health/liveness
+      port: 8080
+    initialDelaySeconds: 60
+    periodSeconds: 30
+    timeoutSeconds: 10
+    failureThreshold: 3
+  readinessProbe:
+    httpGet:
+      path: /actuator/health/readiness
+      port: 8080
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+# ==============================================================================
+# Sidecar — NeMo Guardrails
+# ==============================================================================
+nemo:
+  enabled: true
+  image:
+    repository: nemo-guardrails
+    tag: "0.10.0"
+    pullPolicy: IfNotPresent
+  containerPort: 8001
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "200m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+  securityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: false
+  env:
+    ollamaBaseUrl: "http://localhost:11434"
+    guardrailsModel: "mistral:7b"
+  livenessProbe:
+    httpGet:
+      path: /v1/health
+      port: 8001
+    initialDelaySeconds: 45
+    periodSeconds: 30
+
+# ==============================================================================
+# Sidecar — Presidio Analyzer
+# ==============================================================================
+presidio:
+  enabled: true
+  image:
+    repository: mcr.microsoft.com/presidio-analyzer
+    tag: "latest"
+    pullPolicy: IfNotPresent
+  containerPort: 5002
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "200m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+  securityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: false
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: 5002
+    initialDelaySeconds: 30
+    periodSeconds: 30
+
+# ==============================================================================
+# Sidecar — Ollama
+# ==============================================================================
+ollama:
+  enabled: true
+  image:
+    repository: ollama/ollama
+    tag: "0.6.2"
+    pullPolicy: IfNotPresent
+  containerPort: 11434
+  resources:
+    requests:
+      memory: "2Gi"
+      cpu: "1000m"
+    limits:
+      memory: "4Gi"
+      cpu: "2000m"
+  securityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: false
+    capabilities:
+      drop:
+        - ALL
+  livenessProbe:
+    exec:
+      command: ["ollama", "list"]
+    initialDelaySeconds: 30
+    periodSeconds: 30
+
+# ==============================================================================
+# Environment / Application Configuration
+# ==============================================================================
+config:
+  springProfiles: "dev"
+  ollamaUrl: "http://localhost:11434"
+  nemoUrl: "http://localhost:8001"
+  presidioUrl: "http://localhost:5002"
+  javaOpts: "-Xms256m -Xmx768m"
+
+# ==============================================================================
+# PostgreSQL Connection
+# ==============================================================================
+postgresql:
+  host: "postgres-service"
+  port: 5432
+  database: "secureai"
+  username: "secureai_user"
+
+# Secret values — override via: helm install --set secrets.dbPassword=... or use a SealedSecret
+secrets:
+  dbPassword: ""
+
+# ==============================================================================
+# Monitoring
+# ==============================================================================
+monitoring:
+  prometheus:
+    enabled: true
+    path: "/actuator/prometheus"
+    port: "8080"
+
+# ==============================================================================
+# Network Policy
+# ==============================================================================
+networkPolicy:
+  enabled: true
+
+# ==============================================================================
+# Rolling Update Strategy
+# ==============================================================================
+strategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxUnavailable: 0
+    maxSurge: 1
+
+# ==============================================================================
+# Node Selector / Tolerations / Affinity
+# ==============================================================================
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# ==============================================================================
+# Environment Overrides
+# ==============================================================================
+# Dev environment defaults (applied via values-dev.yaml)
+# dev:
+#   replicaCount: 1
+#   autoscaling:
+#     enabled: false
+#   ingress:
+#     host: secure-ai.dev.local
+#   config:
+#     springProfiles: "dev"
+#   gateway:
+#     resources:
+#       requests:
+#         memory: "256Mi"
+#         cpu: "125m"
+#       limits:
+#         memory: "512Mi"
+#         cpu: "500m"
+
+# Staging environment (applied via values-staging.yaml)
+# staging:
+#   replicaCount: 2
+#   ingress:
+#     host: secure-ai.staging.local
+#   config:
+#     springProfiles: "staging"
+
+# Production environment (applied via values-prod.yaml)
+# prod:
+#   replicaCount: 3
+#   autoscaling:
+#     minReplicas: 3
+#     maxReplicas: 20
+#   ingress:
+#     host: secure-ai.example.com
+#     tls:
+#       - secretName: secure-ai-tls
+#         hosts:
+#           - secure-ai.example.com
+#   config:
+#     springProfiles: "prod"

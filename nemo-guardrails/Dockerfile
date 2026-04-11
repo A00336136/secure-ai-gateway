@@ -1,0 +1,25 @@
+# NVIDIA NeMo Guardrails — Layer 1 Sidecar
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install build tools needed by annoy (C++ extension)
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends g++ curl && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN pip install --no-cache-dir nemoguardrails==0.10.0
+
+COPY config/ /app/config/
+
+# Security: run as non-root user (CIS Docker Benchmark 4.1)
+RUN groupadd -r nemoapp && useradd -r -g nemoapp -d /app -s /sbin/nologin nemoapp \
+    && chown -R nemoapp:nemoapp /app
+USER nemoapp
+
+EXPOSE 8001
+
+HEALTHCHECK --interval=30s --timeout=10s --retries=3 --start-period=60s \
+    CMD curl -sf http://localhost:8001/ -o /dev/null || exit 1
+
+CMD ["nemoguardrails", "server", "--config", "/app/config", "--port", "8001", "--default-config-id", "config"]

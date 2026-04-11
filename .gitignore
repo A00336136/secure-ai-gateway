@@ -18,8 +18,10 @@ target/
 
 # ── Environment & secrets ────────────────────────────────────
 .env
-.env.*
-*.env
+.env.local
+.env.production
+.env.staging
+!.env.example
 application-local.yml
 application-local.properties
 

@@ -1,0 +1,117 @@
+{{- if .Values.networkPolicy.enabled }}
+# Default deny all ingress and egress traffic
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "secure-ai-gateway.fullname" . }}-default-deny
+  namespace: {{ include "secure-ai-gateway.namespace" . }}
+  labels:
+    {{- include "secure-ai-gateway.labels" . | nindent 4 }}
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+---
+# Allow ingress to the gateway pod from within the namespace
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "secure-ai-gateway.fullname" . }}-allow-ingress
+  namespace: {{ include "secure-ai-gateway.namespace" . }}
+  labels:
+    {{- include "secure-ai-gateway.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "secure-ai-gateway.selectorLabels" . | nindent 6 }}
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ include "secure-ai-gateway.namespace" . }}
+      ports:
+        - protocol: TCP
+          port: {{ .Values.gateway.containerPort }}
+---
+# Allow egress from gateway to PostgreSQL, sidecars, and DNS
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "secure-ai-gateway.fullname" . }}-allow-egress
+  namespace: {{ include "secure-ai-gateway.namespace" . }}
+  labels:
+    {{- include "secure-ai-gateway.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "secure-ai-gateway.selectorLabels" . | nindent 6 }}
+  policyTypes:
+    - Egress
+  egress:
+    # PostgreSQL
+    - to:
+        - podSelector:
+            matchLabels:
+              app: postgres
+      ports:
+        - protocol: TCP
+          port: {{ .Values.postgresql.port }}
+    # Ollama sidecar
+    - to:
+        - podSelector:
+            matchLabels:
+              {{- include "secure-ai-gateway.selectorLabels" . | nindent 14 }}
+      ports:
+        - protocol: TCP
+          port: {{ .Values.ollama.containerPort }}
+    # NeMo Guardrails sidecar
+    - to:
+        - podSelector:
+            matchLabels:
+              {{- include "secure-ai-gateway.selectorLabels" . | nindent 14 }}
+      ports:
+        - protocol: TCP
+          port: {{ .Values.nemo.containerPort }}
+    # Presidio Analyzer sidecar
+    - to:
+        - podSelector:
+            matchLabels:
+              {{- include "secure-ai-gateway.selectorLabels" . | nindent 14 }}
+      ports:
+        - protocol: TCP
+          port: {{ .Values.presidio.containerPort }}
+    # DNS resolution (kube-dns)
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+---
+# Allow ingress to PostgreSQL only from gateway pods
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "secure-ai-gateway.fullname" . }}-allow-postgres
+  namespace: {{ include "secure-ai-gateway.namespace" . }}
+  labels:
+    {{- include "secure-ai-gateway.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app: postgres
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              {{- include "secure-ai-gateway.selectorLabels" . | nindent 14 }}
+      ports:
+        - protocol: TCP
+          port: {{ .Values.postgresql.port }}
+{{- end }}

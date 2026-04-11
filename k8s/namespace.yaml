@@ -39,9 +39,17 @@ data:
   MANAGEMENT_ENDPOINTS_INCLUDE: "health,info,metrics,prometheus"
 ---
 # ═══════════════════════════════════════════════════════
-# Secret — sensitive credentials (base64 encoded)
-# In production: use Kubernetes Vault integration or
-# External Secrets Operator instead of raw secrets
+# Secret — NEVER commit real secrets to Git!
+# Create secrets via kubectl command (Zero Trust):
+#
+#   kubectl create secret generic secure-ai-secrets \
+#     --namespace=secure-ai-dev \
+#     --from-literal=DB_PASSWORD='<your-db-password>' \
+#     --from-literal=JWT_SECRET='<your-64-char-random-key>' \
+#     --from-literal=SONAR_TOKEN='<your-sonarqube-token>'
+#
+# For production: use HashiCorp Vault, AWS Secrets Manager,
+# or Kubernetes External Secrets Operator
 # ═══════════════════════════════════════════════════════
 apiVersion: v1
 kind: Secret
@@ -50,5 +58,9 @@ metadata:
   namespace: secure-ai-dev
 type: Opaque
 stringData:
-  DB_PASSWORD: "secureai_password"
-  JWT_SECRET: "change-this-in-production-to-a-very-long-random-secret-key"
+  # Set via: kubectl create secret generic secure-ai-secrets --from-literal=DB_PASSWORD='<value>'
+  DB_PASSWORD: ""
+  # Set via: kubectl create secret generic secure-ai-secrets --from-literal=JWT_SECRET='<value>'
+  JWT_SECRET: ""
+  # Set via: kubectl create secret generic secure-ai-secrets --from-literal=SONAR_TOKEN='<value>'
+  SONAR_TOKEN: ""

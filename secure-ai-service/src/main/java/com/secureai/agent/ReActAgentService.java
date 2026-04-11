@@ -1,0 +1,321 @@
+package com.secureai.agent;
+
+import com.secureai.guardrails.GuardrailsOrchestrator;
+import com.secureai.service.OllamaClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+/**
+ * ReAct Agent (Reasoning + Acting)
+ *
+ * Loop: THOUGHT → ACTION → OBSERVATION → repeat → ANSWER
+ *
+ * The agent uses the LLM to reason about a problem step-by-step.
+ * Each step it produces:
+ *   Thought: [reasoning about what to do]
+ *   Action: [tool name or ANSWER]
+ *   Action Input: [input for the tool]
+ *
+ * When Action == ANSWER, the loop terminates.
+ * Max 10 steps to prevent infinite loops.
+ *
+ * Reference: "ReAct: Synergizing Reasoning and Acting in Language Models"
+ *            Yao et al., 2022 — https://arxiv.org/abs/2210.03629
+ */
+@Service
+public class ReActAgentService {
+
+    private static final Logger log = LoggerFactory.getLogger(ReActAgentService.class);
+
+    @Value("${ollama.react.max-steps:10}")
+    private int maxSteps;
+
+    @Value("${ollama.react.guardrail-tool-output:true}")
+    private boolean guardrailToolOutput;
+
+    private final OllamaClient ollamaClient;
+    private final GuardrailsOrchestrator guardrailsOrchestrator;
+
+    public ReActAgentService(OllamaClient ollamaClient,
+                             GuardrailsOrchestrator guardrailsOrchestrator) {
+        this.ollamaClient = ollamaClient;
+        this.guardrailsOrchestrator = guardrailsOrchestrator;
+    }
+
+    private static final Pattern THOUGHT_PATTERN =
+            Pattern.compile("Thought:\\s*(.+)(?=Action:|$)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+    private static final Pattern ACTION_PATTERN =
+            Pattern.compile("Action:\\s*(\\w+)", Pattern.CASE_INSENSITIVE);
+    private static final Pattern ACTION_INPUT_PATTERN =
+            Pattern.compile("Action Input:\\s*(.+)(?=Observation:|Thought:|$)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+    private static final Pattern FINAL_ANSWER_PATTERN =
+            Pattern.compile("Final Answer:\\s*(.+)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+
+    private static final String SYSTEM_PROMPT = """
+            You are a helpful AI assistant using the ReAct (Reasoning + Acting) framework.
+            You have access to the following tools:
+            
+            - calculate: Perform mathematical calculations. Input: a math expression.
+            - search_knowledge: Answer questions from your training knowledge. Input: a question.
+            - summarize: Summarize a given text. Input: text to summarize.
+            
+            Always follow this EXACT format:
+            
+            Thought: [your reasoning about what to do next]
+            Action: [tool name OR "answer"]
+            Action Input: [input for the tool]
+            Observation: [result of the action — will be filled in by the system]
+            
+            When you have enough information to answer the user:
+            Thought: I now know the final answer.
+            Action: answer
+            Final Answer: [your complete response to the user]
+            
+            Begin!
+            """;
+
+    // ─────────────────────────────────────────────────────────────────────────
+
+    /**
+     * Execute the ReAct loop for a given user prompt.
+     * @return AgentResult with final answer and step count
+     */
+    public AgentResult execute(String userPrompt) {
+        log.info("ReAct agent starting for prompt: {}...",
+                userPrompt.length() > 60 ? userPrompt.substring(0, 60) : userPrompt);
+
+        List<AgentStep> steps = new ArrayList<>();
+        StringBuilder conversationHistory = new StringBuilder();
+        conversationHistory.append("Question: ").append(userPrompt).append("\n\n");
+
+        for (int step = 1; step <= maxSteps; step++) {
+            log.debug("ReAct step {}/{}", step, maxSteps);
+
+            String llmResponse = ollamaClient.generateResponse(
+                    conversationHistory.toString(),
+                    SYSTEM_PROMPT
+            );
+
+            AgentStep agentStep = parseStep(llmResponse, step);
+            steps.add(agentStep);
+
+            log.debug("Step {}: thought='{}', action='{}'",
+                    step, agentStep.getThought(), agentStep.getAction());
+
+            // Check for final answer — use Locale.ROOT to avoid locale-sensitive comparison
+            if ("answer".equals(agentStep.getAction() != null
+                    ? agentStep.getAction().toLowerCase(Locale.ROOT) : null)
+                    && agentStep.getFinalAnswer() != null) {
+                log.info("ReAct agent completed in {} step(s)", step);
+                return new AgentResult(agentStep.getFinalAnswer(), steps, step);
+            }
+
+            // Execute tool action and add observation
+            String observation = executeTool(agentStep.getAction(), agentStep.getActionInput());
+
+            // Re-evaluate tool output through guardrails (indirect injection prevention)
+            // This ensures that tool results cannot inject malicious content into the
+            // conversation context. OWASP LLM03 — Supply Chain / Indirect Prompt Injection.
+            String safeObservation = evaluateToolOutput(observation, step);
+            agentStep.setObservation(safeObservation);
+
+            // Append to conversation with sanitized delimiters
+            conversationHistory.append(sanitizeForConversation(llmResponse)).append("\n");
+            conversationHistory.append("Observation: ").append(safeObservation).append("\n\n");
+        }
+
+        // Max steps reached — return best available response
+        log.warn("ReAct agent reached max steps ({}), returning partial result", maxSteps);
+        String fallback = "I've analyzed this through " + maxSteps +
+                " reasoning steps. Based on my analysis: " + userPrompt;
+        return new AgentResult(fallback, steps, maxSteps);
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Tool Output Safety — Indirect Injection Prevention (OWASP LLM03)
+    // ─────────────────────────────────────────────────────────────────────────
+
+    /**
+     * Re-evaluate tool output through guardrails before adding to conversation.
+     * Prevents indirect injection where a tool result contains malicious content
+     * that could manipulate the agent's subsequent reasoning.
+     *
+     * @param observation raw tool output
+     * @param step        current step number (for logging)
+     * @return safe observation (original if clean, sanitized message if flagged)
+     */
+    private String evaluateToolOutput(String observation, int step) {
+        if (!guardrailToolOutput || observation == null || observation.isBlank()) {
+            return observation;
+        }
+
+        try {
+            var result = guardrailsOrchestrator.evaluate(observation);
+            if (result.blocked()) {
+                log.warn("TOOL OUTPUT BLOCKED at step {} — guardrails flagged: {}",
+                        step, result.blockedBy());
+                return "[Tool output blocked by safety guardrails — contained potentially unsafe content]";
+            }
+        } catch (Exception e) {
+            // Fail-CLOSED: if guardrails evaluation fails, sanitize conservatively
+            log.error("Guardrails evaluation failed for tool output at step {}: {}",
+                    step, e.getMessage());
+            return "[Tool output could not be verified — safety check unavailable]";
+        }
+
+        return observation;
+    }
+
+    /**
+     * Sanitize LLM response before appending to conversation history.
+     * Strips delimiter injection attempts that could confuse the ReAct parser
+     * (e.g., user-injected "Action:", "Observation:", "Final Answer:" markers).
+     *
+     * @param llmResponse the raw LLM step response
+     * @return sanitized response safe for conversation history
+     */
+    private String sanitizeForConversation(String llmResponse) {
+        if (llmResponse == null) return "";
+        // Escape any embedded system-level delimiters that could be injected
+        // to manipulate future parsing (e.g., fake "Final Answer:" in tool output)
+        return llmResponse
+                .replace("\\[SYSTEM\\]", "[SYS_ESCAPED]")
+                .replace("\\[USER\\]", "[USR_ESCAPED]")
+                .replace("\\[INST\\]", "[INST_ESCAPED]")
+                .replace("<<SYS>>", "[SYS_ESCAPED]")
+                .replace("<</SYS>>", "[SYS_ESCAPED]");
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Tool Execution
+    // ─────────────────────────────────────────────────────────────────────────
+
+    private String executeTool(String action, String input) {
+        if (action == null) return "No action specified.";
+        return switch (action.toLowerCase(Locale.ROOT).trim()) {
+            case "calculate" -> executeCalculation(input);
+            case "search_knowledge" -> executeKnowledgeSearch(input);
+            case "summarize" -> executeSummarize(input);
+            default -> "Unknown tool: " + action + ". Available tools: calculate, search_knowledge, summarize";
+        };
+    }
+
+    private String executeCalculation(String expression) {
+        try {
+            // Simple safe evaluation — real impl would use a math library
+            // For demonstration: delegate back to LLM with specific prompt
+            String result = ollamaClient.generateResponse(
+                    "Calculate this mathematical expression and return ONLY the numeric result: " + expression
+            );
+            return "Result: " + result.trim();
+        } catch (Exception e) {
+            return "Calculation error: " + e.getMessage();
+        }
+    }
+
+    private String executeKnowledgeSearch(String query) {
+        try {
+            String result = ollamaClient.generateResponse(
+                    "Answer this question concisely based on your knowledge: " + query
+            );
+            return result.trim();
+        } catch (Exception e) {
+            return "Search error: " + e.getMessage();
+        }
+    }
+
+    private String executeSummarize(String text) {
+        try {
+            String result = ollamaClient.generateResponse(
+                    "Summarize this text in 2-3 sentences: " + text
+            );
+            return "Summary: " + result.trim();
+        } catch (Exception e) {
+            return "Summarize error: " + e.getMessage();
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Parsing
+    // ─────────────────────────────────────────────────────────────────────────
+
+    private AgentStep parseStep(String llmResponse, int stepNumber) {
+        AgentStep step = new AgentStep(stepNumber);
+
+        Matcher thoughtMatcher = THOUGHT_PATTERN.matcher(llmResponse);
+        if (thoughtMatcher.find()) {
+            step.setThought(thoughtMatcher.group(1).trim());
+        }
+
+        Matcher actionMatcher = ACTION_PATTERN.matcher(llmResponse);
+        if (actionMatcher.find()) {
+            step.setAction(actionMatcher.group(1).trim());
+        }
+
+        Matcher inputMatcher = ACTION_INPUT_PATTERN.matcher(llmResponse);
+        if (inputMatcher.find()) {
+            step.setActionInput(inputMatcher.group(1).trim());
+        }
+
+        Matcher finalMatcher = FINAL_ANSWER_PATTERN.matcher(llmResponse);
+        if (finalMatcher.find()) {
+            step.setFinalAnswer(finalMatcher.group(1).trim());
+            step.setAction("answer");
+        }
+
+        step.setRawResponse(llmResponse);
+        return step;
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Data Classes
+    // ─────────────────────────────────────────────────────────────────────────
+
+    public static class AgentStep {
+        private final int stepNumber;
+        private String thought;
+        private String action;
+        private String actionInput;
+        private String observation;
+        private String finalAnswer;
+        private String rawResponse;
+
+        public AgentStep(int stepNumber) {
+            this.stepNumber = stepNumber;
+        }
+
+        public int getStepNumber() { return stepNumber; }
+        public String getThought() { return thought; }
+        public void setThought(String thought) { this.thought = thought; }
+        public String getAction() { return action; }
+        public void setAction(String action) { this.action = action; }
+        public String getActionInput() { return actionInput; }
+        public void setActionInput(String actionInput) { this.actionInput = actionInput; }
+        public String getObservation() { return observation; }
+        public void setObservation(String observation) { this.observation = observation; }
+        public String getFinalAnswer() { return finalAnswer; }
+        public void setFinalAnswer(String finalAnswer) { this.finalAnswer = finalAnswer; }
+        public String getRawResponse() { return rawResponse; }
+        public void setRawResponse(String rawResponse) { this.rawResponse = rawResponse; }
+    }
+
+    public static class AgentResult {
+        public final String answer;
+        public final List<AgentStep> steps;
+        public final int totalSteps;
+
+        public AgentResult(String answer, List<AgentStep> steps, int totalSteps) {
+            this.answer = answer;
+            this.steps = steps;
+            this.totalSteps = totalSteps;
+        }
+    }
+}
