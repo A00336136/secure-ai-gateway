@@ -58,6 +58,9 @@ metadata:
   namespace: secure-ai-dev
 type: Opaque
 stringData:
-  DB_PASSWORD: "REPLACE_VIA_KUBECTL_CREATE_SECRET"
-  JWT_SECRET: "REPLACE_VIA_KUBECTL_CREATE_SECRET"
-  SONAR_TOKEN: "REPLACE_VIA_KUBECTL_CREATE_SECRET"
+  # Set via: kubectl create secret generic secure-ai-secrets --from-literal=DB_PASSWORD='<value>'
+  DB_PASSWORD: ""
+  # Set via: kubectl create secret generic secure-ai-secrets --from-literal=JWT_SECRET='<value>'
+  JWT_SECRET: ""
+  # Set via: kubectl create secret generic secure-ai-secrets --from-literal=SONAR_TOKEN='<value>'
+  SONAR_TOKEN: ""

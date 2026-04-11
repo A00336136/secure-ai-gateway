@@ -36,6 +36,9 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
+        <!-- Tomcat version override: resolves 8 Dependabot alerts (CVEs) -->
+        <tomcat.version>10.1.54</tomcat.version>
+
         <!-- Spring Boot -->
         <!-- Upgraded 3.4.3 → 3.4.6: includes Spring Security 6.4.6 which fixes CVE-2025-41232 -->
         <spring-boot.version>3.4.6</spring-boot.version>

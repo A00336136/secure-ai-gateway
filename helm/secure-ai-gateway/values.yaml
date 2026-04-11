@@ -210,9 +210,9 @@ postgresql:
   database: "secureai"
   username: "secureai_user"
 
-# Secret values — override at deploy time or use external secrets
+# Secret values — override via: helm install --set secrets.dbPassword=... or use a SealedSecret
 secrets:
-  dbPassword: "changeme"
+  dbPassword: ""
 
 # ==============================================================================
 # Monitoring
