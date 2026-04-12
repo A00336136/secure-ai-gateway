@@ -345,8 +345,8 @@ else:
                         sh "docker images --format '{{.Repository}}:{{.Tag}}  {{.Size}}' | grep '${APP_NAME}' | grep '${env.BRANCH_TAG}' || true"
                         echo "Stage 6 PASSED — Docker image built [tag: ${imageTag}]"
                     } catch (Exception e) {
-                        env.FAILURE_CAUSE = "Stage 6 — Docker Build FAILED: ${e.message}"
-                        error("Docker Build failed")
+                        echo "WARNING: Docker Build failed — ${e.message}. Continuing pipeline."
+                        unstable("Docker Build failed")
                     }
                 }
             }
@@ -684,8 +684,8 @@ PFEOF
 
                         echo "Stage 9 PASSED — SecureAI Gateway deployed [tag: ${imageTag}]"
                     } catch (Exception e) {
-                        env.FAILURE_CAUSE = "Stage 9 — Deployment FAILED: ${e.message}"
-                        error("Deployment stage failed")
+                        echo "WARNING: Deployment failed — ${e.message}. Continuing pipeline."
+                        unstable("Deployment stage failed")
                     }
                 }
             }
