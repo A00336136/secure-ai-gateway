@@ -27,6 +27,8 @@ volumes:
   sonarqube_logs:
   sonarqube_extensions:
   jenkins_home:
+    external: true
+    name: secure-ai-gateway_jenkins_home
   prometheus_data:
   grafana_data:
 
@@ -43,8 +45,8 @@ services:
       - "9001:9000"
     environment:
       SONAR_JDBC_URL: ${SONAR_JDBC_URL}
-      SONAR_JDBC_USERNAME: ${POSTGRES_USER}
-      SONAR_JDBC_PASSWORD: ${POSTGRES_PASSWORD}
+      SONAR_JDBC_USERNAME: ${SONAR_JDBC_USERNAME}
+      SONAR_JDBC_PASSWORD: ${SONAR_JDBC_PASSWORD}
       SONAR_TELEMETRY_ENABLE: "false"
     volumes:
       - sonarqube_data:/opt/sonarqube/data
@@ -81,6 +83,11 @@ services:
       - jenkins_home:/var/jenkins_home
       # Mount Docker socket — allows Jenkins to build/push images (Docker-in-Docker)
       - /var/run/docker.sock:/var/run/docker.sock
+    # On Docker Desktop (macOS/Windows) the mounted socket is root:root 0660.
+    # Adding gid 0 as a supplementary group lets the jenkins user read/write it
+    # without chmod 666. (Linux hosts with a real docker group GID can swap 0 → that GID.)
+    group_add:
+      - "0"
     networks:
       - secure-ai-net
     environment:
