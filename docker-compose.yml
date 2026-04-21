@@ -29,7 +29,6 @@ networks:
 
 volumes:
   secureai_postgres_data:
-  secureai_ollama_data:
   secureai_redis_data:
 
 services:
@@ -55,7 +54,7 @@ services:
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set in .env}
       NEMO_GUARDRAILS_URL: http://secureai-nemo-guardrails:8001
       PRESIDIO_URL: http://secureai-presidio:5002
-      LLAMAGUARD_MODEL: ${LLAMAGUARD_MODEL:-llamaguard3:1b}
+      LLAMAGUARD_MODEL: ${LLAMAGUARD_MODEL:-llamaguard3:8b}
       REDIS_ENABLED: "true"
       SPRING_DATA_REDIS_HOST: secureai-redis
       SPRING_DATA_REDIS_PORT: 6379
@@ -64,8 +63,6 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-      ollama:
-        condition: service_started
       nemo-guardrails:
         condition: service_started
       presidio:
@@ -104,29 +101,19 @@ services:
       retries: 5
     restart: unless-stopped
 
-  # ─── Ollama Local LLM Server (host port 11434) ─────────────────
-  # Serves llama3.1:8b for chat + llamaguard3:1b for content safety
-  ollama:
-    image: ollama/ollama:latest
-    container_name: secureai-ollama
-    ports:
-      - "11434:11434"
-    environment:
-      OLLAMA_KEEP_ALIVE: "-1"
-      OLLAMA_NUM_PARALLEL: "3"
-      OLLAMA_MAX_LOADED_MODELS: "3"
-      OLLAMA_FLASH_ATTENTION: "1"
-    volumes:
-      - secureai_ollama_data:/root/.ollama
-    networks:
-      - secure-ai-net
-    healthcheck:
-      test: ["CMD", "ollama", "list"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
-    restart: unless-stopped
+  # ─── Ollama runs NATIVELY on the macOS host (Metal GPU) ─────────
+  # Docker Desktop on Mac cannot pass Metal/ANE into a container, so
+  # Ollama must be the Ollama.app / `ollama serve` process on the host.
+  # Containers reach it via host.docker.internal:11434.
+  #
+  # Host setup:
+  #   brew install ollama           # or download Ollama.app
+  #   ollama serve                  # or launch Ollama.app (starts on login)
+  #   ollama pull llama3.1:8b
+  #   ollama pull llamaguard3:8b
+  #
+  # DO NOT re-add an ollama service here — it would bind 11434 and
+  # shadow the native daemon, forcing inference back to container CPU.
 
   # ─── NVIDIA NeMo Guardrails (host port 8001) ───────────────────
   # Layer 1: Colang DSL policy enforcement
@@ -146,9 +133,6 @@ services:
       - ./nemo-guardrails/config:/app/config
     networks:
       - secure-ai-net
-    depends_on:
-      ollama:
-        condition: service_started
     healthcheck:
       # /v1/rails/configs returns 200 with [{"id":"config"}] — correct NeMo API endpoint
       # /v1/health returns 404 (not implemented in nemoguardrails 0.10.x)
