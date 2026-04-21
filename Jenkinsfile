@@ -59,7 +59,7 @@ pipeline {
         DOCKER_IMAGE    = "absartus/${APP_NAME}"
         DOCKERHUB_USER  = 'absartus'
         SONAR_TOKEN     = credentials('sonarqube-token')
-        SONAR_URL       = 'http://host.docker.internal:9001'
+        SONAR_URL       = 'http://secure-ai-sonarqube:9000'
         JAVA_HOME       = "${tool 'JDK21'}"
     }
 
@@ -715,7 +715,7 @@ PFEOF
                             MAX_WAIT=120
                             ELAPSED=0
                             while [ $ELAPSED -lt $MAX_WAIT ]; do
-                                if curl -sf "http://host.docker.internal:8100/actuator/health" > /dev/null 2>&1; then
+                                if curl -sf "http://secureai-gateway:8080/actuator/health" > /dev/null 2>&1; then
                                     echo "SecureAI Gateway is healthy! (${ELAPSED}s)"
                                     break
                                 fi
@@ -731,8 +731,8 @@ PFEOF
                         sh '''
                             cd karate-tests
                             mvn -B test \
-                                -Dkarate.env=ci \
-                                -Dkarate.base.url=http://host.docker.internal:8100 \
+                                -Dkarate.env=docker \
+                                -Dkarate.base.url=http://secureai-gateway:8080 \
                                 -Dkarate.options="--tags ~@slow,~@ignore" \
                                 || true
                         '''
