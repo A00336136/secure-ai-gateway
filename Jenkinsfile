@@ -93,7 +93,7 @@ pipeline {
                 }
                 failure {
                     slackSend(color: 'danger',
-                        message: "❌ Unit tests failed: ${env.JOB_NAME} #${env.BUILD_NUMBER}")
+                        message: "Unit tests failed: ${env.JOB_NAME} #${env.BUILD_NUMBER}")
                 }
             }
         }
@@ -158,7 +158,7 @@ pipeline {
             post {
                 failure {
                     slackSend(color: 'danger',
-                        message: "❌ SonarQube Quality Gate FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}")
+                        message: "SonarQube Quality Gate FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}")
                 }
             }
         }
@@ -185,7 +185,7 @@ pipeline {
                 }
                 failure {
                     slackSend(color: 'danger',
-                        message: "🚨 OWASP CVE scan FAILED (HIGH severity CVEs found): ${env.JOB_NAME}")
+                        message: "OWASP CVE scan FAILED (HIGH severity CVEs found): ${env.JOB_NAME}")
                 }
             }
         }
@@ -262,7 +262,7 @@ pipeline {
                 }
                 failure {
                     slackSend(color: 'danger',
-                        message: "🚨 Trivy found CRITICAL container vulnerabilities: ${env.JOB_NAME}")
+                        message: "Trivy found CRITICAL container vulnerabilities: ${env.JOB_NAME}")
                 }
             }
         }
@@ -328,7 +328,7 @@ pipeline {
             post {
                 success {
                     slackSend(color: 'good',
-                        message: "✅ ${APP_NAME} v${DOCKER_TAG} deployed to PRODUCTION successfully!")
+                        message: "${APP_NAME} v${DOCKER_TAG} deployed to PRODUCTION successfully!")
                 }
             }
         }
@@ -340,11 +340,11 @@ pipeline {
         }
         success {
             slackSend(color: 'good',
-                message: "✅ Pipeline PASSED: ${env.JOB_NAME} #${env.BUILD_NUMBER} (${env.BRANCH_NAME})")
+                message: "Pipeline PASSED: ${env.JOB_NAME} #${env.BUILD_NUMBER} (${env.BRANCH_NAME})")
         }
         failure {
             slackSend(color: 'danger',
-                message: "❌ Pipeline FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER} (${env.BRANCH_NAME})")
+                message: "Pipeline FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER} (${env.BRANCH_NAME})")
             emailext(
                 subject: "FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                 body: "Pipeline failed. Check: ${env.BUILD_URL}",
@@ -353,7 +353,7 @@ pipeline {
         }
         unstable {
             slackSend(color: 'warning',
-                message: "⚠️ Pipeline UNSTABLE: ${env.JOB_NAME} #${env.BUILD_NUMBER}")
+                message: "Pipeline UNSTABLE: ${env.JOB_NAME} #${env.BUILD_NUMBER}")
         }
     }
 }
