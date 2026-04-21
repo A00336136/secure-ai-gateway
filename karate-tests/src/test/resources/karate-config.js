@@ -28,9 +28,11 @@ function fn() {
             password: 'Karate@123'
         },
 
-        // Timeouts
+        // Timeouts — /api/ask runs the full NeMo+LlamaGuard+Presidio chain
+        // which takes 12–14s happy-path and can spike above 30s under load
+        // (LlamaGuard inference alone observed at 20–30s). 120s leaves headroom.
         connectTimeout: 10000,
-        readTimeout: 30000
+        readTimeout: 120000
     };
 
     // Allow base URL override via system property
