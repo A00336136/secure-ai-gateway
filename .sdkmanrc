@@ -1,0 +1,2 @@
+# Enable auto-env through sdkman_auto_env setting
+java=21.0.10-oracle

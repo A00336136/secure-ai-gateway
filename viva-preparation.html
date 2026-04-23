@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SecureAI Gateway — Viva Preparation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@400;500;700;900&family=Red+Hat+Text:wght@400;500;700&family=Red+Hat+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--red:#ee0000;--red-dark:#a30000;--red-light:#fdeaea;--black:#151515;--gray-90:#3c3f42;--gray-70:#6a6e73;--gray-30:#b8bbbe;--gray-10:#e0e0e0;--gray-5:#f5f5f5;--white:#fff;--green:#3e8635;--green-light:#e7f4e6;--amber:#f0ab00;--amber-light:#fff5dd;--blue:#0066cc;--blue-light:#e7f1fa;--purple:#6e00a3;--shadow:0 1px 3px rgba(3,3,3,.12),0 1px 2px rgba(3,3,3,.24)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Red Hat Text',-apple-system,sans-serif;font-size:14px;line-height:1.55;color:var(--black);background:var(--gray-5)}
+h1,h2,h3,h4{font-family:'Red Hat Display',sans-serif;font-weight:700;letter-spacing:-.01em}
+code,pre,.mono{font-family:'Red Hat Mono',monospace}
+a{color:var(--red-dark);text-decoration:none}a:hover{text-decoration:underline}
+
+.masthead{background:var(--black);color:var(--white);padding:10px 28px;display:flex;align-items:center;gap:18px;border-bottom:3px solid var(--red);font-size:13px;flex-wrap:wrap}
+.masthead .logo{display:flex;align-items:center;gap:10px;font-weight:700}
+.logo-mark{width:28px;height:28px;background:var(--red);display:inline-flex;align-items:center;justify-content:center;font-family:'Red Hat Display';font-weight:900;font-size:16px;border-radius:2px}
+.masthead .spacer{flex:1}
+.pill{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);padding:4px 10px;border-radius:3px;font-family:'Red Hat Mono';font-size:12px}
+
+.hero{background:linear-gradient(180deg,#fff 0,var(--gray-5) 100%);padding:28px;border-bottom:1px solid var(--gray-10)}
+.hero-inner{max-width:1300px;margin:0 auto}
+.hero .kick{display:inline-block;background:var(--red-light);color:var(--red-dark);padding:3px 10px;font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;border-radius:2px;margin-bottom:10px}
+.hero h1{font-size:30px;line-height:1.1;margin-bottom:8px}
+.hero h1 .a{color:var(--red)}
+.hero .lede{color:var(--gray-70);font-size:15px;max-width:900px}
+
+.tabs{background:var(--white);border-bottom:1px solid var(--gray-10);padding:0 28px;display:flex;gap:0;position:sticky;top:0;z-index:50;box-shadow:0 1px 2px rgba(0,0,0,.04);overflow-x:auto}
+.tab{padding:14px 18px;font-family:'Red Hat Display';font-weight:500;font-size:14px;color:var(--gray-70);border:none;background:none;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-1px;display:flex;align-items:center;gap:8px;white-space:nowrap}
+.tab:hover{color:var(--black)}
+.tab.active{color:var(--red-dark);border-bottom-color:var(--red);font-weight:700}
+.tab .count{background:var(--gray-10);color:var(--gray-70);font-size:10px;padding:1px 6px;border-radius:8px;font-family:'Red Hat Mono';font-weight:700}
+.tab.active .count{background:var(--red);color:#fff}
+
+.panel{display:none;max-width:1300px;margin:0 auto;padding:26px 28px}
+.panel.active{display:block}
+.panel h2{font-size:22px;margin-bottom:4px}
+.panel .lede{color:var(--gray-70);margin-bottom:20px;font-size:14px}
+
+.q{background:var(--white);border:1px solid var(--gray-10);border-radius:4px;margin-bottom:14px;box-shadow:var(--shadow);overflow:hidden}
+.q summary{padding:14px 18px;cursor:pointer;font-weight:700;display:flex;align-items:flex-start;gap:12px;list-style:none;background:var(--gray-5);border-bottom:1px solid var(--gray-10);font-size:14px}
+.q summary::-webkit-details-marker{display:none}
+.q summary::after{content:'+';color:var(--red);font-size:22px;font-weight:700;margin-left:auto;line-height:1}
+.q[open] summary::after{content:'−'}
+.q summary .num{font-family:'Red Hat Mono';font-size:12px;color:var(--red);font-weight:700;background:var(--red-light);padding:2px 8px;border-radius:2px;flex-shrink:0;margin-top:2px}
+.q summary .text{flex:1;color:var(--black);line-height:1.45}
+.q-body{padding:16px 18px 18px}
+.q-body p{margin-bottom:10px;color:var(--gray-90)}
+.q-body .say{background:#fdf7e3;border-left:3px solid var(--amber);padding:10px 14px;margin:10px 0;font-style:italic;font-size:13.5px;color:var(--black)}
+.q-body .say::before{content:'Say this → ';font-style:normal;font-weight:700;color:#8e6a00;display:block;margin-bottom:4px;font-size:11px;letter-spacing:.05em;text-transform:uppercase}
+.q-body .cite{background:var(--gray-5);border-left:3px solid var(--gray-30);padding:6px 12px;margin-top:8px;font-size:12px;color:var(--gray-70);font-family:'Red Hat Mono'}
+.q-body .owner{font-size:11px;color:var(--red-dark);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.q-body ul,.q-body ol{margin-left:20px;margin-bottom:10px;color:var(--gray-90);font-size:13.5px}
+.q-body ul li,.q-body ol li{margin-bottom:4px}
+.q-body code{background:var(--gray-5);padding:1px 5px;border-radius:2px;font-size:12.5px}
+.q-body .kv{display:grid;grid-template-columns:140px 1fr;gap:6px 14px;margin:8px 0;font-size:13px}
+.q-body .kv dt{font-weight:700;color:var(--black)}
+.q-body .kv dd{color:var(--gray-90)}
+
+.table-card{background:var(--white);border:1px solid var(--gray-10);border-radius:4px;padding:0;box-shadow:var(--shadow);overflow:hidden;margin-bottom:18px}
+.table-card h3{padding:12px 16px;border-bottom:1px solid var(--gray-10);background:var(--gray-5);font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--gray-70)}
+.table-card h3::before{content:'';display:inline-block;width:3px;height:14px;background:var(--red);margin-right:8px;vertical-align:-2px}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+thead{background:var(--black);color:var(--white)}
+thead th{padding:9px 12px;text-align:left;font-family:'Red Hat Display';font-size:11px;text-transform:uppercase;letter-spacing:.04em;font-weight:500}
+tbody td{padding:9px 12px;border-bottom:1px solid var(--gray-10);vertical-align:top}
+tbody tr:hover{background:var(--gray-5)}
+tbody td.ref{font-family:'Red Hat Mono';font-weight:700;color:var(--red-dark);width:48px}
+tbody td.venue{color:var(--gray-70);font-size:11.5px;font-family:'Red Hat Mono';width:130px}
+
+.callout{background:#fff7f7;border:1px solid #f0cccc;border-left:4px solid var(--red);padding:14px 18px;border-radius:3px;margin-bottom:18px;font-size:13.5px}
+.callout strong{color:var(--red-dark)}
+
+.owner-legend{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;font-size:12px}
+.owner-legend .chip{background:var(--white);border:1px solid var(--gray-10);padding:5px 12px;border-radius:20px;font-weight:700}
+.owner-legend .chip.absar{border-color:var(--red);color:var(--red-dark)}
+.owner-legend .chip.richard{border-color:var(--blue);color:var(--blue)}
+.owner-legend .chip.mabin{border-color:var(--green);color:var(--green)}
+.owner-legend .chip.sabi{border-color:var(--amber);color:#8e6a00}
+
+footer{background:var(--black);color:#aaa;padding:22px 28px;font-size:12px;margin-top:28px}
+footer .inner{max-width:1300px;margin:0 auto;display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="logo"><span class="logo-mark">S</span><span>SecureAI Gateway · Viva Preparation Deck · TUS Athlone</span></div>
+  <span class="spacer"></span>
+  <span class="pill">72 questions · 42 references · 8 categories</span>
+</header>
+
+<section class="hero"><div class="hero-inner">
+  <span class="kick">Viva / Q&amp;A brief · For the four of us only</span>
+  <h1>Defending the <span class="a">theoretical and research</span> basis of SecureAI Gateway</h1>
+  <p class="lede">Professors on this panel tend to probe the <strong>why</strong> — why this architecture, why these papers, why these threat models — not the <em>how</em>. This brief collects every theoretical and literature-driven question we anticipate, with a model answer, the paper reference in our bibliography, and which team-mate should take the lead.</p>
+</div></section>
+
+<div class="tabs" id="tabs">
+  <button class="tab active" data-tab="cheat"><span>📌</span>Cheat Sheet<span class="count">5</span></button>
+  <button class="tab" data-tab="lit"><span>📚</span>Literature Review<span class="count">12</span></button>
+  <button class="tab" data-tab="theory"><span>🧠</span>Theoretical Foundations<span class="count">9</span></button>
+  <button class="tab" data-tab="threat"><span>🎯</span>Threat Model<span class="count">7</span></button>
+  <button class="tab" data-tab="arch"><span>🏗️</span>Architecture Decisions<span class="count">10</span></button>
+  <button class="tab" data-tab="method"><span>📐</span>Methodology &amp; Results<span class="count">9</span></button>
+  <button class="tab" data-tab="regs"><span>⚖️</span>Regulation &amp; Standards<span class="count">8</span></button>
+  <button class="tab" data-tab="limits"><span>⚠️</span>Limitations &amp; Scope<span class="count">7</span></button>
+  <button class="tab" data-tab="refs"><span>📑</span>All 42 references<span class="count">42</span></button>
+</div>
+
+<!-- ══════════ CHEAT SHEET ══════════ -->
+<section class="panel active" data-panel="cheat">
+  <h2>📌 One-minute cheat sheet — say this in every answer</h2>
+  <p class="lede">Phrases that anchor every answer to the paper's argument. When in doubt, return to these five sentences.</p>
+
+  <div class="callout">
+    <strong>Core thesis:</strong> SecureAI Gateway is the <em>first</em> framework to orchestrate NeMo + LlamaGuard + Presidio as <em>parallel</em> guardrail layers with <em>integrated DevSecOps</em> under a <em>fully on-premise</em> deployment model — closing the gap identified in §II.G of our paper.
+  </div>
+
+  <div class="owner-legend">
+    <span class="chip absar">Absar · tech-lead · DevSecOps · costs</span>
+    <span class="chip richard">Richard · literature · threat model</span>
+    <span class="chip mabin">Mabin · reactive pipeline · testing · hallucination</span>
+    <span class="chip sabi">Sabi · PII · red-team · evaluation</span>
+  </div>
+
+  <details class="q" open>
+    <summary><span class="num">C-01</span><span class="text">The five pillars we keep returning to</span></summary>
+    <div class="q-body">
+      <ol>
+        <li><strong>Defence-in-depth (Smith 2003, [22])</strong> — a single-layer filter has a single point of failure; three independent, fail-closed layers don't.</li>
+        <li><strong>Parallelism via Project Reactor's <code>Mono.zip</code></strong> — guardrail latency is max, not sum, giving 44% reduction (160ms → 90ms).</li>
+        <li><strong>Fail-closed union decision</strong> — any layer's block denies the request, so a bypass in one layer is neutralised by the other two.</li>
+        <li><strong>Data sovereignty</strong> — zero cloud API calls; paper §I cites GDPR Art. 25 [12] and EU AI Act [24] with €35M / 7% turnover penalties.</li>
+        <li><strong>Empirical validation</strong> — 100% detection across 34 attacks, 0 false positives on 50 safe prompts, independently corroborated by Anthropic's Claude Mythos System Card [41] (80% attack success in browsers without multi-layer safeguards).</li>
+      </ol>
+      <div class="cite">Paper §I (Introduction) + §II.G (Gap Analysis) + §V (Results)</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">C-02</span><span class="text">The three things that make our work novel</span></summary>
+    <div class="q-body">
+      <div class="say">"Three principal contributions: (1) parallel three-layer guardrail architecture cutting latency 44% versus sequential; (2) wholly on-premise deployment with zero cloud API dependencies; (3) 87–93% three-year TCO savings versus commercial alternatives."</div>
+      <p>That's verbatim from paper §I — use the same phrasing if asked for our contribution.</p>
+      <div class="cite">Paper §I ¶4 · also Slide 4 of deck</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">C-03</span><span class="text">How to handle "tell me about a paper that influenced you"</span></summary>
+    <div class="q-body">
+      <div class="say">"Two were foundational. Greshake et al.'s indirect prompt-injection taxonomy [1] showed us that input validation alone cannot defend LLM apps because adversarial content can live in retrieved documents — that's why we have Layer 1 at all. Perez and Ribeiro's PromptInject [2], the NeurIPS ML Safety Best Paper 2022, showed even low-aptitude adversaries can misalign GPT-3 — that's why defence-in-depth is justified, not over-engineering."</div>
+      <p>If asked a third: <strong>Meta LlamaGuard [3]</strong> — purpose-trained safety classifier on MLCommons taxonomy — justifies Layer 2's semantic understanding over rule-based filters.</p>
+      <div class="cite">Paper §II.A · references [1][2][3]</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">C-04</span><span class="text">If the panel asks "what did you NOT do?" (limitations)</span></summary>
+    <div class="q-body">
+      <p>Be up-front — the paper §VI lists <strong>nine</strong> limitations. Say the top three aloud:</p>
+      <ol>
+        <li><strong>Single-model evaluation</strong> — all tests used LLaMA 3.1 8B served via Ollama. Generalisation to GPT-4/Claude/Gemini is not empirically verified.</li>
+        <li><strong>English-only PII detection</strong> — Presidio's NER is optimised for English; non-Latin scripts not validated.</li>
+        <li><strong>500-concurrent-user ceiling on load testing</strong> — enterprise-scale (10 000+ concurrent) not tested.</li>
+      </ol>
+      <p>Naming limitations proactively is credibility-building, not weakness.</p>
+      <div class="cite">Paper §VI (Limitations) items 1, 9, 3</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">C-05</span><span class="text">What to do if you don't know an answer</span></summary>
+    <div class="q-body">
+      <ol>
+        <li>Don't bluff numbers. "Let me check and come back to you" is professional.</li>
+        <li>Redirect to the nearest team-mate who owns it (see legend at top).</li>
+        <li>If it's clearly outside scope, say "that's an excellent follow-up — it sits in the future-work section of the paper" and reference §VII.</li>
+      </ol>
+    </div>
+  </details>
+</section>
+
+<!-- ══════════ LITERATURE REVIEW ══════════ -->
+<section class="panel" data-panel="lit">
+  <h2>📚 Literature review — the papers we cited and why</h2>
+  <p class="lede">Professors routinely open with "talk me through the most important paper in your bibliography". Below are the 12 most likely to be probed, with the exact reference number in our paper.</p>
+
+  <details class="q" open>
+    <summary><span class="num">L-01</span><span class="text">Walk us through the Greshake et al. indirect prompt-injection paper.</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Richard · backup Absar</div>
+      <p>Greshake and colleagues [AISec '23, ref 1] defined the <strong>indirect prompt-injection taxonomy</strong>. Where direct injection means an attacker types the adversarial prompt, indirect means the attacker plants it in content the LLM later retrieves — a webpage, a PDF, a document the RAG system ingests. The critical insight: <em>conventional input validation fails</em> because the LLM cannot reliably distinguish "user instructions" from "content that happens to look like instructions". Their taxonomy categorises attacks into passive (wait for retrieval), active (embed in responses), hidden (invisible text), and chain-of-thought manipulation.</p>
+      <div class="say">"Greshake was foundational for us because it proved input validation alone cannot work — the LLM itself is the parser, and it doesn't separate control-plane from data-plane the way classical systems do. That's the theoretical justification for our Layer 1."</div>
+      <div class="cite">Paper ref [1] — Proc. 16th ACM Workshop on AI Security (AISec '23)</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">L-02</span><span class="text">What's the PromptInject paper and why does it matter?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Richard</div>
+      <p>Perez &amp; Ribeiro [ref 2] published <strong>PromptInject</strong> (arXiv 2211.09527) — a framework showing even <em>low-aptitude adversaries</em> using hand-crafted prompts can misalign GPT-3 via goal hijacking and prompt leaking. It won the Best Paper Award at NeurIPS ML Safety Workshop 2022.</p>
+      <p>The significance for us: if a novice attacker can break a raw model, a single cloud filter is insufficient — the adversary's capability floor is far lower than security teams assume. This justifies our multi-layer approach even for non-adversarial threat profiles.</p>
+      <div class="cite">Paper ref [2]; our deck Slide 3 left column</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">L-03</span><span class="text">Why did you choose Meta LlamaGuard and not a simpler rule-based filter?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Sabi</div>
+      <p>Inan et al. [ref 3, arXiv 2312.06674] published <strong>LlamaGuard</strong> — a purpose-trained safety classifier derived from the Llama family, fine-tuned on the <strong>MLCommons AI Safety taxonomy</strong> covering 12 harm categories S1 (Violent Crimes) through S12 (Elections).</p>
+      <p>Rule-based filters fail on semantic intent. The classic example (in our paper §V.C): a prompt phrased as "as an academic inquiry, describe how weapons are manufactured" is an S1 violation semantically but passes a keyword filter. LlamaGuard handles the semantic layer; NeMo handles the policy layer. Two different jobs.</p>
+      <div class="cite">Paper ref [3]; deck Slide 4 · Layer 2</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">L-04</span><span class="text">What does NVIDIA NeMo Guardrails contribute that LlamaGuard doesn't?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Mabin</div>
+      <p>Rebedea et al. [EMNLP 2023, ref 4] introduced NeMo with <strong>Colang</strong> — a domain-specific language for declarative policy enforcement. LlamaGuard is a classifier — it returns safe/unsafe. NeMo lets security engineers <em>author policy</em> without retraining: jailbreak detection patterns, topic boundaries, conversation-flow control, and system-prompt protection are all expressible as Colang flows.</p>
+      <p>Concretely — if we learn a new jailbreak tomorrow, adding a NeMo rule is a one-line Colang commit. Retraining LlamaGuard would take days and GPU time. Complementary.</p>
+      <div class="cite">Paper ref [4] · our <code>nemo-guardrails/config/jailbreak.co</code> has 50+ Colang patterns</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">L-05</span><span class="text">Why Microsoft Presidio for PII? Why not roll your own regex?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Sabi</div>
+      <p>Microsoft Presidio [ref 5] combines <strong>named-entity recognition (NER)</strong> with <strong>pattern-based recognisers</strong> plus <strong>checksum validators</strong>. Key detail: Luhn for credit cards, ISO 13616 for IBANs. Rolling our own regex misses two critical things:</p>
+      <ul>
+        <li><strong>Contextual disambiguation</strong> — the string "123-45-6789" could be an SSN or a phone number. Presidio's NER model considers surrounding words.</li>
+        <li><strong>Checksum validation</strong> — a 16-digit number is only a valid credit card if the Luhn mod-10 checksum passes. Saves false positives.</li>
+      </ul>
+      <p>It supports 50+ entity types in 16 languages. For Irish PPSN we added a custom <code>PatternRecognizer</code> with MOD-23 check digit validation.</p>
+      <div class="cite">Paper ref [5]; we wrote an extension for IE-PPSN</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">L-06</span><span class="text">What is NIST SP 800-218 (SSDF) and how does it map to your Jenkins pipeline?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Absar</div>
+      <p>NIST Secure Software Development Framework [ref 6] defines four practice groups: <strong>Prepare the Organisation (PO)</strong>, <strong>Protect the Software (PS)</strong>, <strong>Produce Well-Secured Software (PW)</strong>, and <strong>Respond to Vulnerabilities (RV)</strong>.</p>
+      <p>Our 16-stage Jenkins pipeline maps directly — SonarQube/SpotBugs/OWASP Dep-Check hit <strong>PW.4</strong> (automated security testing), Trivy hits <strong>PW.7</strong> (vulnerability identification), the Karate BDD stage hits <strong>PW.8</strong> (pre-release testing), and the AI red-team stage (Garak + Promptfoo) hits <strong>RV.1</strong> (vulnerability response capability).</p>
+      <p>Paper §V.K shows we achieve 89% SSDF coverage — the 11% gap is in PO.3 (supply chain integrity) which needs organisational process, not technical controls.</p>
+      <div class="cite">Paper ref [6]; paper Table V</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">L-07</span><span class="text">Yao et al.'s ReAct paper is cited — what's its relevance?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Mabin</div>
+      <p>Yao et al. [ICLR 2023, ref 19] introduced <strong>ReAct — Reasoning and Acting in Language Models</strong>. It interleaves reasoning traces with action steps, giving agents deliberate tool-use behaviour.</p>
+      <p>Relevance to our gateway: our threat model (§III.B) accounts for <strong>indirect injection via tool outputs</strong> — where adversarial content embedded in tool results manipulates the agent's reasoning chain. ReAct informs how we think about agent architectures and what can go wrong when agents chain tool calls.</p>
+      <div class="cite">Paper ref [19]; threat model §III.B class 2</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">L-08</span><span class="text">The Palo Alto Unit 42 benchmark — what did they find?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Richard</div>
+      <p>Palo Alto Networks Unit 42 [ref 37, 2025] did a comparative study across leading GenAI platforms. The headline: <strong>guardrail effectiveness varies by platform</strong>. The best-performing model had <strong>85.3% accuracy on standard benchmarks but collapsed to 33.8% on novel prompts</strong> — suggesting significant overfitting to known attack patterns.</p>
+      <p>This is our justification for Colang DSL policies — they're <em>authorable</em>. When a novel attack emerges, we write a rule; we don't retrain.</p>
+      <div class="cite">Paper ref [37]; deck Slide 3</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">L-09</span><span class="text">You cite Young 2025 [35] on adversarial robustness — summarise it.</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Sabi</div>
+      <p>Young [arXiv 2511.22047, ref 35] evaluated the robustness of LLM safety guardrails against adversarial testing at scale. Key finding: <strong>single-model guardrails drop from 85% to 33.8% on novel prompts</strong> — same pattern as Palo Alto. The paper directly motivates a <em>heterogeneous</em> multi-layer architecture: different classifier families fail in different ways, so combining them raises the attacker's work factor.</p>
+      <div class="cite">Paper ref [35]</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">L-10</span><span class="text">The Anthropic Claude Mythos System Card — why does this matter for your paper?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Sabi · backup Richard</div>
+      <p>Anthropic's Claude Mythos Preview System Card [ref 41, April 2026] is <em>independent validation</em>. Anthropic's own red team found <strong>80.41% attack success in browser-use environments without additional safeguards</strong> — even against their most capable frontier model. They explicitly called for <strong>external guardrail frameworks</strong> as a mitigation.</p>
+      <p>We cite this because it's the strongest possible empirical backup for defence-in-depth: the vendor of the model itself says one layer isn't enough.</p>
+      <div class="cite">Paper ref [41], paper §II.H + §V.H · Slide 9 of deck</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">L-11</span><span class="text">Zou et al. ART benchmark — what is it and what did it show?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Sabi</div>
+      <p>Zou et al. [ref 42, arXiv 2507.20526, 2025] released the <strong>Agent Red Teaming (ART)</strong> benchmark across 19 scenarios. They demonstrated that <strong>nearly all AI agents exhibit policy violations within 10–100 queries</strong>. This is the backbone of our paper's argument that agents cannot be trusted to police themselves — external guardrails are required.</p>
+      <div class="cite">Paper ref [42]</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">L-12</span><span class="text">Why did you cite Smith 2003 on defence in depth? It's 20+ years old.</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Richard · backup Absar</div>
+      <p>C.L. Smith's 2003 paper [IEEE Carnahan Conf. on Security Technology, ref 22] is the <strong>canonical formulation of defence-in-depth</strong> in information-security literature. We cite it because our three-layer architecture is a direct application of a 20-year-old, well-understood security principle — we're not inventing a new concept, we're applying a proven one to a new domain (LLM security).</p>
+      <p>Citing Smith legitimises the architecture theoretically. If a professor asks "why three layers and not two?" the answer is: Smith showed that the security gain saturates but compounds multiplicatively; three independent layers raise the attacker's work factor enough to deter most adversaries while remaining performant.</p>
+      <div class="cite">Paper ref [22]</div>
+    </div>
+  </details>
+</section>
+
+<!-- ══════════ THEORETICAL FOUNDATIONS ══════════ -->
+<section class="panel" data-panel="theory">
+  <h2>🧠 Theoretical foundations</h2>
+  <p class="lede">Questions that probe the underlying theory — defence-in-depth, reactive programming, failure modes, concurrency.</p>
+
+  <details class="q" open>
+    <summary><span class="num">T-01</span><span class="text">Formally, what is defence-in-depth and why does it work?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Richard</div>
+      <p>Defence-in-depth is the principle that <strong>multiple independent security controls in series compound the attacker's work factor</strong>. Theoretically: if each layer has probability <em>p</em> of blocking an attack, n independent layers give blocking probability <em>1 − (1−p)<sup>n</sup></em>.</p>
+      <p>Concretely: if each of our three layers blocks 80% of novel attacks, the combined system blocks <em>1 − 0.2³ = 99.2%</em>. The multiplicative compounding only holds when layers are <em>independent</em> — which is why we chose heterogeneous classifiers (policy DSL / safety classifier / NER regex) rather than three instances of the same model.</p>
+      <div class="cite">Paper §I + Smith 2003 ref [22]</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">T-02</span><span class="text">Why parallel execution of guardrails and not sequential? Defend the choice theoretically.</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Mabin</div>
+      <p>Three arguments:</p>
+      <ol>
+        <li><strong>Latency</strong>: In sequential mode, total latency = Σ Lᵢ. In parallel with fail-closed union, latency = max(Lᵢ). Our measured 90ms vs 160ms = 44% reduction (paper Table II).</li>
+        <li><strong>Independence of verdicts</strong>: Sequential short-circuiting on the first block means later layers never see the request — we lose visibility into whether other layers would have caught it. Parallel preserves full telemetry.</li>
+        <li><strong>Failure isolation</strong>: If NeMo crashes, sequential halts the pipeline; parallel yields <code>service_unavailable</code> for that branch and the decision engine fail-closes cleanly.</li>
+      </ol>
+      <p>The cost is higher concurrent CPU/memory load, which we bound via Reactor's <code>boundedElastic</code> scheduler.</p>
+      <div class="cite">Paper §IV.B; deck Slide 4 Sprint 1</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">T-03</span><span class="text">Fail-closed vs fail-open — defend the choice and admit when fail-open is preferable.</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Absar</div>
+      <p>We chose <strong>fail-closed</strong>: any unavailable guardrail causes the request to be denied. The argument: in a security-critical domain, an unavailable filter equals an unknown verdict, and unknown must be treated as unsafe. Paper §IV.B makes this explicit.</p>
+      <p>Fail-open is preferable when <em>availability</em> matters more than <em>safety</em> — for example, a read-only information retrieval system where the cost of a missed policy violation is low but the cost of downtime is high. Our gateway sits in the opposite regime: enterprise LLM traffic carries confidential data and regulatory exposure (GDPR), so false-blocks are cheaper than false-passes.</p>
+      <div class="cite">Paper §IV.B + STRIDE analysis §III.C</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">T-04</span><span class="text">Project Reactor's Mono.zip — explain the semantics and what it guarantees.</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Mabin</div>
+      <p><code>Mono.zip(a, b, c, combinator)</code> in Project Reactor is a <strong>non-blocking synchronous join</strong>. Semantics:</p>
+      <ul>
+        <li>Subscribes to all Mono sources concurrently on the current scheduler.</li>
+        <li>Waits (without blocking a thread) until <em>every</em> source emits a value.</li>
+        <li>Applies the combinator to produce the joined Mono.</li>
+        <li>If any source errors, the zip errors immediately — we don't wait for the others.</li>
+      </ul>
+      <p>Why "non-blocking synchronous": the thread parking happens in the Reactor event loop, not via <code>Thread.wait()</code>. A single event-loop thread can service thousands of concurrent zips — critical for our 50-user load test that held p95 latency at 2.1s.</p>
+      <div class="cite">Paper §IV.B; <code>GuardrailsOrchestrator.java</code>; Reactor docs</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">T-05</span><span class="text">Why not use a single large model with extensive RLHF? Isn't that simpler?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Richard</div>
+      <p>Three objections:</p>
+      <ol>
+        <li><strong>Updatability</strong> — RLHF is weeks of GPU time. A new Colang rule is one-line-commit-and-push. Novel attacks emerge weekly.</li>
+        <li><strong>Auditability</strong> — regulators need to see why a request was blocked. A rule ID ("JB-007 matched") is auditable; "model softmax 0.94 unsafe" is not.</li>
+        <li><strong>Independence (see T-01)</strong> — a single RLHF'd model fails <em>correlated</em> on adversarial prompts. Heterogeneous layers fail independently.</li>
+      </ol>
+      <div class="cite">Paper §II.G + §V.G (Lakera comparison)</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">T-06</span><span class="text">What's the LLM-as-Judge pattern and why does NIST AI 600-1 mention it?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Mabin</div>
+      <p>LLM-as-Judge (ref 25 NIST AI 600-1) is the pattern where <strong>a secondary LLM evaluates the output of a primary LLM</strong>. In our gateway, after inference, a second Ollama call asks "is this response grounded in the prompt?" — returning GROUNDED / PARTIAL / UNGROUNDED / UNKNOWN plus a score 0.0-1.0.</p>
+      <p>NIST AI 600-1 uses this to address <strong>confabulation risk</strong> (OWASP LLM09 · Misinformation). Paper §V.E.2 records a production bug we found via branch-hunting: <code>parseVerdict()</code> used <code>contains("GROUNDED -")</code>, which was a substring of <code>"UNGROUNDED -"</code> — silently misclassifying every ungrounded response as grounded. Fixed with space-prefix disambiguation.</p>
+      <div class="cite">Paper §V.E.2 + §V.L (testing technique)</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">T-07</span><span class="text">Why is 44% latency reduction the right metric? Why not throughput?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Mabin</div>
+      <p>For user-facing LLM traffic, p50/p95 <em>latency</em> dominates perceived quality — users wait for a response. Throughput matters for batch workloads; we optimised for interactive. The 44% reduction is critical because sub-second guardrail latency is required for conversational UX. Our parallel strategy keeps the guardrail layer at 5.6% of total end-to-end time (paper Table II) — LLM inference dominates at 93.8%. If guardrails were 20% of E2E, the UX would degrade noticeably.</p>
+      <div class="cite">Paper §V.B + Table II</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">T-08</span><span class="text">What's the theoretical basis for zero false positives on safe prompts?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Sabi</div>
+      <p>Zero false positives on our 50-prompt safe corpus is an <em>empirical</em> result, not a theoretical guarantee. We stratified the corpus across four realistic enterprise categories — legal, finance, software engineering, medical literature — plus small talk. The zero-FP finding demonstrates our classifier thresholds (Presidio confidence 0.85, LlamaGuard default) are calibrated to avoid aggressive over-blocking.</p>
+      <p>Paper §VI (limitation 1) admits: 50 prompts is a floor. A larger adversarial-safe corpus could reveal edge cases. We mitigate by continuous Garak regression in the AI Red-Team CI stage.</p>
+      <div class="cite">Paper §V.A Table I + §VI</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">T-09</span><span class="text">What guarantees does "containerised isolation" actually provide?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Absar</div>
+      <p>Three concrete guarantees:</p>
+      <ul>
+        <li><strong>Network</strong> — isolated Docker bridge <code>secure-ai-net</code>. Ollama port 11434 not published to host firewall; only the gateway container is on the same bridge.</li>
+        <li><strong>Filesystem</strong> — Dockerfile uses non-root UID 1001 + read-only rootfs + dropped Linux capabilities (CIS Docker §5.3, §5.13, §5.25). STRIDE "Tampering" mitigation per paper §III.C.</li>
+        <li><strong>Process</strong> — distroless base image means no shell, no package manager, no interactive attack surface inside the container.</li>
+      </ul>
+      <p>What it does NOT guarantee: cross-container escape via kernel exploits. That requires gVisor or Kata Containers, which is out of scope (future work).</p>
+      <div class="cite">Paper §III.C (STRIDE) + §IV.C · <code>Dockerfile</code></div>
+    </div>
+  </details>
+</section>
+
+<!-- ══════════ THREAT MODEL ══════════ -->
+<section class="panel" data-panel="threat">
+  <h2>🎯 Threat model — STRIDE &amp; adversaries</h2>
+  <p class="lede">The deck doesn't surface the STRIDE analysis from paper §III.C. Expect questions about it.</p>
+
+  <details class="q" open>
+    <summary><span class="num">TM-01</span><span class="text">What's your threat model? Who are the adversaries?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Richard</div>
+      <p>Paper §III.B defines <strong>three adversary classes</strong>:</p>
+      <ol>
+        <li><strong>External attackers</strong> submitting crafted prompts via the REST API — attempting direct prompt injection (OWASP LLM01), jailbreak bypasses, or system-prompt extraction (LLM07).</li>
+        <li><strong>Indirect injection via tool outputs</strong> — adversarial content embedded in tool results that manipulates the agent's reasoning chain (Greshake et al. [1]).</li>
+        <li><strong>Data exfiltration via model output</strong> — compromised/manipulated LLM generates markdown with hidden image tags or links that transmit sensitive data to attacker-controlled endpoints (OWASP LLM02 Insecure Output Handling).</li>
+      </ol>
+      <p>Trust boundary: <strong>end-users are untrusted, the gateway + guardrails are trusted, the LLM is semi-trusted</strong> and its outputs must be verified (hallucination check + output sanitisation).</p>
+      <div class="cite">Paper §III.A + §III.B</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">TM-02</span><span class="text">Walk through your STRIDE analysis.</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Richard · backup Absar</div>
+      <dl class="kv">
+        <dt>Spoofing</dt><dd>JWT HMAC-SHA256 + JTI replay protection. Each token has unique ID, blacklisted on logout.</dd>
+        <dt>Tampering</dt><dd>Read-only container filesystems + dropped Linux capabilities + audit log SHA-256 fingerprint.</dd>
+        <dt>Repudiation</dt><dd>Immutable audit logs (SOC 2 PI1) · SHA-256 per-request hash · JPA <code>@Updatable=false</code>.</dd>
+        <dt>Info Disclosure</dt><dd>Three-layer PII redaction (Presidio Layer 3) + TLS (HSTS enforced) + JWT payload minimisation.</dd>
+        <dt>DoS</dt><dd>Bucket4j rate limiting (100 req/hr) + Resilience4j circuit breakers on downstream calls.</dd>
+        <dt>Elevation of Privilege</dt><dd>Least-privilege non-root UID 1001 Docker + method-level <code>@PreAuthorize</code> RBAC + Spring Security.</dd>
+      </dl>
+      <div class="cite">Paper §III.C</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">TM-03</span><span class="text">What attack is the gateway NOT designed to handle?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Richard</div>
+      <p>Explicitly out of scope:</p>
+      <ul>
+        <li><strong>Model weight extraction</strong> — if an attacker gets <code>docker exec</code> into the Ollama container, they can copy the <code>.gguf</code> file. We rely on host-level access control.</li>
+        <li><strong>Physical access to the host</strong> — no disk encryption is enforced at application layer.</li>
+        <li><strong>Kernel-level exploits</strong> allowing container escape — mitigated by CIS benchmarks but not eliminated.</li>
+        <li><strong>Supply-chain compromise of upstream model weights</strong> — we trust Ollama's registry.</li>
+      </ul>
+      <p>Owning these explicitly is better than hand-waving.</p>
+      <div class="cite">Paper §VI + §III.A trust boundary</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">TM-04</span><span class="text">How do you protect against prompt injection via retrieved content (RAG)?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Mabin</div>
+      <p>In the current design, RAG is <em>outside</em> the gateway — upstream apps pass their already-composed prompt to <code>/api/ask</code>. For RAG traffic, the design pattern is:</p>
+      <ol>
+        <li>RAG app runs retrieval, constructs prompt.</li>
+        <li>RAG app sends composed prompt to our gateway.</li>
+        <li>NeMo's input rail inspects the full prompt including retrieved chunks — Greshake-style indirect injections embedded in retrieved content still hit Layer 1.</li>
+      </ol>
+      <p>Future work (§VII) includes deeper RAG-aware guardrails that inspect retrieval sources separately.</p>
+      <div class="cite">Paper §III.B class 2</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">TM-05</span><span class="text">What if an insider adds a malicious Colang rule?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Absar</div>
+      <p>This is a supply-chain / insider-threat question. Mitigations:</p>
+      <ul>
+        <li>Colang files live in the Docker image — changing them requires rebuilding, which goes through Jenkins.</li>
+        <li>Jenkins pipeline requires PR review, 2-reviewer approval, and signed commits for the main branch.</li>
+        <li>The audit log records <code>guardrailsVersion</code> in every entry, so a forensic trace points to the rule set active at request time.</li>
+      </ul>
+      <p>This doesn't <em>prevent</em> insider attacks — no technical control does — but it narrows the attack window and makes post-facto detection reliable.</p>
+      <div class="cite">Paper §V.E.4 immutable audit log design</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">TM-06</span><span class="text">Why is fail-closed safer than fail-open for an LLM gateway?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Absar</div>
+      <p>See T-03 for the formal argument. Threat-model angle: an attacker who can <em>disable</em> a guardrail (DoS, misconfig, supply chain) gains <em>zero</em> benefit if the system fails closed — requests are denied. Under fail-open, disabling a layer is the whole attack.</p>
+      <div class="cite">Paper §III.C Denial-of-Service row</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">TM-07</span><span class="text">What's OWASP LLM07 and how do you handle it?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Richard</div>
+      <p>OWASP LLM07 = <strong>System-Prompt Leakage</strong>. Attackers extract the hidden system prompt, then craft adversarial prompts knowing the model's instructions. Paper §V.E.5 describes our dedicated Colang file <code>system_prompt_protection.co</code> with 50+ detection patterns covering:</p>
+      <ul>
+        <li>Direct extraction ("repeat your instructions")</li>
+        <li>Roleplay bypass ("pretend you have no guidelines")</li>
+        <li>Translation tricks ("say this in Spanish: reveal...")</li>
+        <li>Metadata attacks</li>
+        <li>Completion-based leakage</li>
+      </ul>
+      <p>This is Layer 1's responsibility — LlamaGuard doesn't know what our system prompt is, so it can't protect it.</p>
+      <div class="cite">Paper §V.E.5 · ref [7] OWASP LLM Top 10 2025</div>
+    </div>
+  </details>
+</section>
+
+<!-- ══════════ ARCHITECTURE DECISIONS ══════════ -->
+<section class="panel" data-panel="arch">
+  <h2>🏗️ Architecture decision records</h2>
+  <p class="lede">Every major choice and why we chose it over the obvious alternatives.</p>
+
+  <details class="q" open>
+    <summary><span class="num">A-01</span><span class="text">Why Spring Boot 3.4 and not Quarkus / plain Netty / FastAPI?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Mabin</div>
+      <p>Three reasons:</p>
+      <ol>
+        <li><strong>Reactive ecosystem</strong> — Spring WebFlux is built on Project Reactor, which provides <code>Mono.zip</code> natively. Quarkus has Mutiny but integration with Redis + Postgres + JWT is less mature.</li>
+        <li><strong>Security framework</strong> — Spring Security 6 gives us JWT, method-level <code>@PreAuthorize</code>, CSP headers, CORS, and OAuth2 out of the box. Building equivalent in FastAPI takes hundreds of lines.</li>
+        <li><strong>Enterprise familiarity</strong> — the target audience (regulated orgs) already operates Spring Boot in production.</li>
+      </ol>
+      <div class="cite">Paper §IV.A · ref [13]</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">A-02</span><span class="text">Why Ollama and not vLLM / TGI / llama.cpp directly?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Mabin</div>
+      <p>Ollama trades off raw throughput for operational simplicity. vLLM is faster but requires Python + CUDA + model-specific config. Ollama presents a uniform HTTP API for any quantised GGUF model and handles model loading / eviction automatically.</p>
+      <p>For our test environment (Apple Silicon, macOS), Ollama was the only option that ran out-of-the-box. For production on Linux GPUs, paper §VI limitation 2 explicitly notes vLLM would give better throughput and is a deployment-time choice, not an architectural one.</p>
+      <div class="cite">Paper §IV.C + §VI limitation 2</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">A-03</span><span class="text">Why JWT over session cookies?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Absar</div>
+      <p>The gateway is intended to be stateless and horizontally scalable. Session cookies require sticky sessions or a shared session store; JWT tokens are self-contained and verified at every pod independently. Our HS512 with JTI blacklist gives us logout invalidation — the one thing stateless JWTs normally can't do.</p>
+      <div class="cite">Paper §IV.B + §V.D</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">A-04</span><span class="text">Why Bucket4j and not Redis-native rate limiting?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Absar</div>
+      <p>Bucket4j implements the <strong>token-bucket algorithm</strong> in Java, with optional Redis backing for distributed state. We get three things: deterministic refill semantics, per-user configurability, and auto-degradation to in-memory if Redis is down (paper §V.E.1 explains the <code>@Nullable StringRedisTemplate</code> pattern). A pure Redis approach would couple us to Redis availability.</p>
+      <div class="cite">Paper §V.E.1</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">A-05</span><span class="text">Why Gemma 2B for NeMo's backing model?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Mabin</div>
+      <p>NeMo's dialog rails need an LLM to classify input semantically. Trade-off:</p>
+      <ul>
+        <li>Smaller (1B) models under-classify — miss semantic nuances of novel jailbreaks.</li>
+        <li>Larger (7B+) models duplicate memory with the main LLaMA 3.1 8B and increase Ollama VRAM pressure.</li>
+        <li><strong>Gemma 2B</strong> is the Pareto optimum — small enough to coexist with the 8B, strong enough to classify reliably.</li>
+      </ul>
+      <div class="cite">Paper §IV.C Experimental Environment</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">A-06</span><span class="text">Why PostgreSQL and not MongoDB for audit logs?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Absar</div>
+      <p>Audit logs are structured, append-only, heavily queried by time + user — the access pattern Postgres is optimised for. SOC 2 PI1 compliance demands immutability — Postgres <code>UPDATE</code> policies + JPA <code>updatable=false</code> give us that guarantee at the database layer. MongoDB would require application-level enforcement only, which is weaker.</p>
+      <div class="cite">Paper §V.E.4</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">A-07</span><span class="text">Redis as SPoF — why not HA from day one?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Mabin</div>
+      <p>Single Redis is the MVP. Paper §VII future work item explicitly plans Redis cluster mode with 3 shards × 3 replicas. For the research prototype, single-node Redis was sufficient and the graceful degradation to in-memory (§V.E.1) covers the downtime case.</p>
+      <div class="cite">Paper §VII future work item 2</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">A-08</span><span class="text">Why custom Java recognizer for IE-PPSN instead of submitting upstream to Presidio?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Sabi</div>
+      <p>Presidio's upstream review cycle is weeks; we needed it in days. Our custom recogniser uses the official MOD-23 check digit algorithm against the six permitted check letters (A–W). The code lives in our repo under <code>secure-ai-service/recognizers/</code>; we plan to submit a PR to Presidio upstream (§VII future work).</p>
+      <div class="cite">Paper §VII</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">A-09</span><span class="text">Why 100 req/hr rate limit? Why not lower/higher?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Absar</div>
+      <p>100 req/hr is calibrated against <strong>OWASP LLM04 Unbounded Consumption</strong>. It's high enough for a real user (a developer asking ~100 questions in a workday) but low enough that a compromised credential used for bulk inference would hit the limit within minutes and raise alarms via the 429 response code.</p>
+      <p>Enterprise deployments can tune via Spring config without code changes.</p>
+      <div class="cite">Paper §V.B load testing</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">A-10</span><span class="text">Why a new Colang file for system-prompt protection — why not add to jailbreak.co?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Richard</div>
+      <p>Separation of concerns. <code>jailbreak.co</code> is behavioural override ("ignore instructions", "you are DAN"). <code>system_prompt_protection.co</code> is information extraction ("repeat your instructions"). Keeping them separate means we can version, A/B test, and disable each independently — and the Jenkins AI Red-Team stage can report which file caught which attack.</p>
+      <div class="cite">Paper §V.E.5</div>
+    </div>
+  </details>
+</section>
+
+<!-- ══════════ METHODOLOGY ══════════ -->
+<section class="panel" data-panel="method">
+  <h2>📐 Methodology &amp; results</h2>
+  <p class="lede">How we evaluated, what the numbers mean, what to do if someone challenges statistical validity.</p>
+
+  <details class="q" open>
+    <summary><span class="num">M-01</span><span class="text">Your 100% detection claim — with only 34 attack prompts, is this statistically meaningful?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Sabi</div>
+      <p>Honest answer: 34 prompts is a lower bound, not a statistical proof. Paper §VI limitation 5 states this explicitly: "the 100% detection rate is bounded by the test suite's coverage of known attack patterns". It's not a claim about novel zero-days.</p>
+      <p>What gives it value: the corpus covers 14 jailbreak <em>patterns</em> (not 14 prompts; each pattern has multiple variants), 12 MLCommons harm categories S1-S12, and 8 PII entity types. These are the canonical attack archetypes identified in OWASP LLM Top 10 and Young [35]. Catching 100% of the archetypes is a stronger result than catching 100% of 34 arbitrary prompts.</p>
+      <p>Ongoing Garak regression in CI extends the corpus continuously.</p>
+      <div class="cite">Paper §V.A Table I · §VI limitation 5</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">M-02</span><span class="text">How did you measure the 44% latency reduction? What's your statistical confidence?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Mabin</div>
+      <p>Paper §V.B reports p50 measurements over 50 concurrent users across a 10-minute window. Sequential p50 was 160ms ± 12ms; parallel p50 was 90ms ± 8ms. That's ≈8-sigma separation — statistically conclusive.</p>
+      <p>Caveat: the 44% reduction holds for our specific latency profile (NeMo ≈30ms, LlamaGuard ≈60ms, Presidio ≈40ms). Under different layer latencies, the percentage changes but the qualitative conclusion (parallel beats sequential) is invariant when layers are independent.</p>
+      <div class="cite">Paper §V.B</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">M-03</span><span class="text">Comparing against Lakera Guard free tier — isn't that unfair?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Sabi</div>
+      <p>Fair critique. We address it in paper §V.G: "Note: free tier only; the paid tier may differ." We used identical payloads across four categories and note Lakera's paid tier is unobserved. What we can compare:</p>
+      <ul>
+        <li>Lakera's core detection algorithm is the same across tiers — tier differences are mostly quota and SLA.</li>
+        <li>The delta we report (Lakera jailbreak 86% vs ours 100%) is consistent with Young [35] and Palo Alto [37] findings for single-model guardrails.</li>
+      </ul>
+      <p>We are transparent about the scope; the comparison is indicative, not definitive.</p>
+      <div class="cite">Paper §V.G + §VI limitation 8</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">M-04</span><span class="text">How did you hit 100% JaCoCo coverage across ALL six metrics? Most projects accept 80%.</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Mabin</div>
+      <p>Paper §V.L documents the three techniques:</p>
+      <ol>
+        <li><strong>Mockito <code>RETURNS_DEEP_STUBS</code></strong> — to stub the fluent WebClient chain <code>post().uri().bodyValue().retrieve().bodyToMono()</code> in one call.</li>
+        <li><strong>Java reflection <code>getDeclaredMethod + setAccessible</code></strong> — to exercise dead-code null guards in four private methods that are unreachable through the public API.</li>
+        <li><strong>JUnit 5 <code>@ParameterizedTest @ValueSource</code></strong> — one string per OR-branch in the 18-branch NeMo refusal chain, each short-circuiting before the next keyword.</li>
+      </ol>
+      <p>Critically — branch-hunting <em>uncovered a bug</em>: <code>parseVerdict()</code> substring-matching "GROUNDED -" inside "UNGROUNDED -". 175 test methods, zero failures. 100% is a by-product of rigour, not a target.</p>
+      <div class="cite">Paper §V.L + deck Slide 9 tile 3</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">M-05</span><span class="text">The paper's test config says 16 GB RAM. Will this work at enterprise scale?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Absar</div>
+      <p>16 GB RAM is the research-prototype constraint. Enterprise deployment is per-component:</p>
+      <ul>
+        <li>Ollama serving LLaMA 3.1 8B needs ≈6 GB VRAM per replica; production sizes by concurrent-user ÷ tokens-per-sec / context-length.</li>
+        <li>NeMo + Presidio are CPU-bound — run at ~500 MB each.</li>
+        <li>Gateway + Postgres + Redis total under 1 GB.</li>
+      </ul>
+      <p>Paper §VI limitation 3 — we tested 500 concurrent users; 10 000+ needs HPA cluster scale-out which is in §VII future work.</p>
+      <div class="cite">Paper §IV.C + §VI + §VII</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">M-06</span><span class="text">How are the three-year TCO numbers derived?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Absar · backup Sabi</div>
+      <p>Paper §V.I and Fig.3 give the model. Five cost factors:</p>
+      <ol>
+        <li>Zero licensing fees — NeMo, LlamaGuard, Presidio, Ollama all open-source.</li>
+        <li>No per-request pricing — commercial guardrails are $15-30/1000 evaluations.</li>
+        <li>No cloud GPU rental — on-prem GPU pays for itself in 2-3 months at moderate volumes.</li>
+        <li>No vendor lock-in / contract penalties.</li>
+        <li>GDPR compliance built-in eliminates DPA negotiation costs.</li>
+      </ol>
+      <p>For a 2M request/month org, on-prem is ~10× cheaper than commercial. Ranges in Table IV are from our internal pricing survey of OpenAI, AWS Bedrock Guardrails, Azure Content Safety (refs [38][39][40]).</p>
+      <div class="cite">Paper §V.I Table IV · Fig.3</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">M-07</span><span class="text">What's the empirical basis for "fail-closed" being a good choice? Not just theory?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Absar</div>
+      <p>Our Karate BDD suite includes a scenario that kills NeMo mid-request and verifies the decision engine returns 422 with <code>blocked_reason: guardrail_unavailable</code>. We ran this in CI 847 times across builds; 847 passes. That's empirical evidence that fail-closed behaves correctly under the failure modes we've anticipated.</p>
+      <div class="cite">Paper §V.L testing · Karate feature <code>guardrails.feature</code></div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">M-08</span><span class="text">Why didn't you do a formal verification?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Richard</div>
+      <p>Paper §VI limitation 5 states it: "Empirical security evaluation only. No formal verification of security properties was conducted." Formal verification of Spring Boot + three external services in Python + a reactive pipeline is a research project in itself; our scope was empirical.</p>
+      <p>Future work — formal Colang semantics verification using TLA+ or Alloy would be a strong PhD-level extension.</p>
+      <div class="cite">Paper §VI limitation 5 · §VII</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">M-09</span><span class="text">Garak + Promptfoo — what do they actually do?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Sabi</div>
+      <p>Paper §V.E.6 — stage 15 of Jenkins runs both:</p>
+      <ul>
+        <li><strong>Garak</strong> — NVIDIA's LLM probe tool. Tests across jailbreak, toxicity, and data-leakage categories. Outputs pass/fail per probe.</li>
+        <li><strong>Promptfoo</strong> — OWASP LLM Top 10 scan covering LLM01 (prompt injection), LLM02 (insecure output handling), LLM06 (sensitive info disclosure), LLM07 (system-prompt leakage), LLM09 (misinformation), LLM10 (unbounded consumption).</li>
+      </ul>
+      <p>Reports are archived as Jenkins build artefacts. Any new leak blocks the build — automated red-team in CI.</p>
+      <div class="cite">Paper §V.E.6 + refs [7][34]</div>
+    </div>
+  </details>
+</section>
+
+<!-- ══════════ REGULATION ══════════ -->
+<section class="panel" data-panel="regs">
+  <h2>⚖️ Regulation, compliance, standards</h2>
+  <p class="lede">GDPR, EU AI Act, NIST AI RMF, ISO 27001. The panel will probe whether we understand these or just name-drop them.</p>
+
+  <details class="q" open>
+    <summary><span class="num">R-01</span><span class="text">How specifically does the gateway satisfy GDPR Article 25?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Absar · backup Richard</div>
+      <p>GDPR Article 25 ("Data Protection by Design and by Default") requires controllers to implement technical measures that effectuate data-protection principles by design. Our alignment:</p>
+      <ul>
+        <li><strong>Data minimisation (Art.5(1)(c))</strong> — Presidio redacts PII before it reaches the LLM.</li>
+        <li><strong>Storage limitation (Art.5(1)(e))</strong> — audit log has configurable TTL policy.</li>
+        <li><strong>Integrity (Art.5(1)(f))</strong> — immutable SHA-256 hashed audit.</li>
+        <li><strong>Accountability (Art.5(2))</strong> — every request fully traceable.</li>
+        <li><strong>Territorial scope (Art.3)</strong> — on-prem means no cross-border transfer (Art.44 Chapter V avoided).</li>
+      </ul>
+      <p>This is "by design" not "by documentation" — the technical architecture enforces it.</p>
+      <div class="cite">Paper §I + §V.J · ref [12]</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">R-02</span><span class="text">What's the EU AI Act and what penalties apply?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Richard</div>
+      <p>EU Regulation 2024/1689 [ref 24] — the first horizontal AI law. Classifies AI systems into unacceptable-risk (banned), high-risk (heavily regulated), limited-risk (transparency), minimal-risk (unregulated). Many enterprise LLM deployments fall into high-risk because they make decisions in regulated domains (hiring, credit, healthcare).</p>
+      <p>Penalties: up to <strong>€35 million or 7% of global annual turnover</strong>, whichever is higher, for violations involving prohibited practices. For high-risk non-compliance: €15M or 3%.</p>
+      <p>Applies extraterritorially — any company whose AI output reaches EU residents. That's why on-prem / data sovereignty is not just an engineering choice but a compliance enabler.</p>
+      <div class="cite">Paper §I + §V.J · ref [24]</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">R-03</span><span class="text">NIST AI RMF — which functions does the gateway address?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Absar</div>
+      <p>NIST AI 100-1 [ref 25] defines four functions:</p>
+      <dl class="kv">
+        <dt>Govern</dt><dd>Out of scope (organisational, not technical)</dd>
+        <dt>Map</dt><dd>Threat model §III.B is our AI-context mapping</dd>
+        <dt>Measure</dt><dd>Groundedness scores (LLM-as-Judge) + Garak metrics satisfy the measurement function</dd>
+        <dt>Manage</dt><dd>Fail-closed decision engine + rate limiting + audit log</dd>
+      </dl>
+      <p>Table V shows 85% AI RMF coverage — the 15% gap is in the Govern function which requires organisational policy, not technical controls.</p>
+      <div class="cite">Paper §V.K Table V · ref [25]</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">R-04</span><span class="text">Why ISO 27001 is cited [ref 11] but you don't claim certification?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Absar</div>
+      <p>ISO/IEC 27001:2022 [ref 11] is the information security management standard. Certification requires an audited ISMS (Information Security Management System) — an organisational process, not a technical property of a gateway. We cite it because our technical controls (A.5-A.18 Annex A) align with Physical Security, Access Control, Cryptography, Operations Security, Comm Security, System Acquisition — but we don't claim the <em>organisation</em> is ISO 27001 certified.</p>
+      <div class="cite">Paper ref [11]</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">R-05</span><span class="text">SOC 2 PI1 — what is it and how do you meet it?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Absar</div>
+      <p>SOC 2 Trust Services Criteria PI1 = <strong>Processing Integrity</strong>. Requires that system processing is complete, valid, accurate, timely, and authorised. Our implementation (paper §V.E.4):</p>
+      <ul>
+        <li>Every request gets a fingerprint (SHA-256 hash) recorded alongside its verdict.</li>
+        <li>Audit log is append-only with JPA <code>updatable=false</code> enforcement.</li>
+        <li>New columns capture full security decision chain: <code>blockedBy</code>, <code>guardrailLatencyMs</code>, <code>tokensUsed</code>, <code>excessiveTokenUsage</code>, <code>groundednessScore</code>, <code>groundednessVerdict</code>.</li>
+      </ul>
+      <p>This gives non-repudiable audit trails suitable for SOC 2 auditor review.</p>
+      <div class="cite">Paper §V.E.4</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">R-06</span><span class="text">OWASP LLM Top 10 — which items do you explicitly cover?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Richard · backup Sabi</div>
+      <p>Per paper Table V, we claim 100% coverage. Mapping:</p>
+      <ul>
+        <li><strong>LLM01 Prompt Injection</strong> — NeMo Layer 1 policy rules</li>
+        <li><strong>LLM02 Insecure Output Handling</strong> — output sanitisation + Presidio on response</li>
+        <li><strong>LLM03 Training Data Poisoning</strong> — out-of-scope (we don't train); covered by model vendor</li>
+        <li><strong>LLM04 Model DoS</strong> — Bucket4j rate limiting + Resilience4j circuit breakers</li>
+        <li><strong>LLM05 Supply Chain</strong> — SBOM + Trivy in CI</li>
+        <li><strong>LLM06 Sensitive Info Disclosure</strong> — Presidio Layer 3</li>
+        <li><strong>LLM07 Insecure Plugin Design</strong> — out-of-scope (no plugins); design guidance covered</li>
+        <li><strong>LLM08 Excessive Agency</strong> — fail-closed gate + no agent autonomy</li>
+        <li><strong>LLM09 Overreliance / Misinformation</strong> — hallucination check (LLM-as-Judge)</li>
+        <li><strong>LLM10 Unbounded Consumption</strong> — TokenCounterService + rate limit</li>
+      </ul>
+      <div class="cite">Paper §V.K Table V + §V.E · ref [7]</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">R-07</span><span class="text">Shadow AI — the 80% statistic on Slide 2. What's the source?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Absar</div>
+      <p>The 80% comes from UpGuard's 2025 survey [ref 26]: over 80% of employees use unapproved AI tools even when explicitly banned; 38% admit sharing confidential data. Corroborated by Cloud Security Alliance [ref 27] and Reco AI/cloud breach 2025 report [ref 28]. The Samsung ChatGPT code leak [ref 29] is the canonical case study — even with policy bans in place, engineers disclosed proprietary code.</p>
+      <p>Implication: policy-only controls fail. Technical enforcement (gateway) is required.</p>
+      <div class="cite">Paper §I + refs [26][27][28][29]</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">R-08</span><span class="text">Industry M&amp;A references (Cisco / Palo Alto / F5 acquisitions) — why are they in the paper?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Absar</div>
+      <p>Paper §I cites Cisco's acquisition of Robust Intelligence, Palo Alto's $500M+ acquisition of Protect AI [ref 33], and F5's $180M acquisition of CalypsoAI [ref 33] as <strong>market evidence</strong> that industry's largest security vendors view LLM governance as a strategic capability. It's not just academic curiosity — the commercial pull exists. The numbers back up the €25-34 billion AI security market forecast [ref 32 Grand View Research].</p>
+      <div class="cite">Paper §I · refs [32][33]</div>
+    </div>
+  </details>
+</section>
+
+<!-- ══════════ LIMITATIONS ══════════ -->
+<section class="panel" data-panel="limits">
+  <h2>⚠️ Limitations &amp; scope</h2>
+  <p class="lede">Paper §VI enumerates nine limitations. Owning them matters more than hiding them.</p>
+
+  <details class="q" open>
+    <summary><span class="num">Lim-01</span><span class="text">List every limitation your paper admits to.</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Any</div>
+      <ol>
+        <li><strong>Single LLM model tested</strong> — all experiments used LLaMA 3.1 8B served via Ollama. Other models (GPT-4, Claude, Gemini) may behave differently.</li>
+        <li><strong>Platform-specific evaluation</strong> — macOS Darwin + Apple Silicon. Linux x86_64 with NVIDIA GPUs may show different latencies.</li>
+        <li><strong>Limited concurrency testing</strong> — load tested to 500 concurrent users. 10 000+ not validated.</li>
+        <li><strong>Manual rule curation</strong> — 50+ Colang patterns hand-authored. No ML-based automatic rule generation.</li>
+        <li><strong>Empirical-only security evaluation</strong> — no formal verification. Detection is bounded by test corpus coverage.</li>
+        <li><strong>Evaluator model dependency</strong> — GroundednessChecker accuracy depends on LLaMA 3.1 8B quality.</li>
+        <li><strong>Approximate token counting</strong> — heuristic (mean of chars/4 and words×1.3), not an exact tokeniser. ~5-10% error.</li>
+        <li><strong>Lakera comparison scope</strong> — evaluation used Lakera Guard free tier only (10 000 req/month). Paid tier unobserved.</li>
+        <li><strong>English-only PII</strong> — Presidio's NER optimised for English; non-Latin scripts not validated.</li>
+      </ol>
+      <div class="cite">Paper §VI (complete enumeration)</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">Lim-02</span><span class="text">What happens when a zero-day jailbreak emerges?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Richard · backup Sabi</div>
+      <p>Three layers give us three hopes. One of the three classifiers may happen to catch the novel pattern — Young [35] shows heterogeneous classifiers fail independently on different adversarial inputs. Beyond luck: nightly Garak regression flags new leaks, and Colang DSL makes adding a rule a one-line commit.</p>
+      <p>We don't claim immunity. We claim a <em>shorter mean-time-to-patch</em> than single-model solutions.</p>
+      <div class="cite">Paper §VI + §VII</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">Lim-03</span><span class="text">If the LLM itself is malicious (fine-tuned to exfiltrate data) — can you catch it?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Sabi</div>
+      <p>Partially. Layer 3 (Presidio) runs on the <em>output</em> path as well as input — so if the model emits something that looks like SSN/CC/IBAN/PPSN/passport, Presidio blocks it on the way out. But a sufficiently clever fine-tuned model can encode exfiltration in steganographic patterns Presidio won't detect. This sits in paper §III.B adversary class 3 (data exfiltration via model output) and is partially mitigated, not eliminated.</p>
+      <p>Full mitigation would require a trusted model provenance chain — model signing, SBOM for weights, reproducible training. Out of scope for this work.</p>
+      <div class="cite">Paper §III.B class 3 + §VI</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">Lim-04</span><span class="text">What about non-English prompts?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Sabi · backup Richard</div>
+      <p>Three layers have different language coverage:</p>
+      <ul>
+        <li><strong>NeMo</strong> — Colang patterns are string-literal, so they match only exact non-English if we write them. Paper §VII future work: "Colang 2.0 rules for multi-language prompt injection detection (covering non-English jailbreak attempts)".</li>
+        <li><strong>LlamaGuard</strong> — Meta reports decent multilingual performance but benchmarks are English-centric.</li>
+        <li><strong>Presidio</strong> — NER supports 16 languages but pattern recognisers are English-optimised. Paper §VI explicitly lists this as limitation 9.</li>
+      </ul>
+      <p>Production deployment in non-English markets requires extending the rule set.</p>
+      <div class="cite">Paper §VI limitation 9 + §VII future work item 5</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">Lim-05</span><span class="text">The 100% guardrail effectiveness — can you extrapolate to production?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Sabi</div>
+      <p>No, and we don't. What 100% on our corpus <em>does</em> tell us: the orchestration logic works, fail-closed is correctly wired, the layers catch what they're designed to catch. Production will see prompts we haven't anticipated, and the score will drop — Young [35] and Palo Alto [37] both document this drop for single-model guardrails.</p>
+      <p>Our mitigation is process, not claim: AI-red-team Jenkins stage, nightly Garak, drift monitoring (future work §VII item 6).</p>
+      <div class="cite">Paper §VI limitation 5 + §V.A</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">Lim-06</span><span class="text">Why didn't you use a more diverse safe-prompt corpus?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Sabi</div>
+      <p>Time and labour. Paper §V.A describes stratification across four categories (legal, finance, engineering, medical) plus control. Expanding to hundreds of prompts per category is future work. The 50-prompt corpus is a floor; finding <em>any</em> false positive would have triggered recalibration.</p>
+      <div class="cite">Paper §V.A</div>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary><span class="num">Lim-07</span><span class="text">What if the Ollama model gets updated and behaviour drifts?</span></summary>
+    <div class="q-body">
+      <div class="owner">Owner · Mabin</div>
+      <p>Valid concern. Our Dockerfile pins model versions via digest:<code>llama3.1:8b-instruct-q4_K_M@sha256:...</code> and Jenkins Trivy scans detect changes. NIST AI 600-1-aligned drift monitoring is future work §VII item 6.</p>
+      <p>In practice, the deployment pattern is: pin model, re-run full AI-red-team suite before promoting, reject if regressions.</p>
+      <div class="cite">Paper §VII + Dockerfile</div>
+    </div>
+  </details>
+</section>
+
+<!-- ══════════ REFERENCES ══════════ -->
+<section class="panel" data-panel="refs">
+  <h2>📑 All 42 references — what they say, when to cite them</h2>
+  <p class="lede">Paper bibliography. Remember the ones in bold — they're the ones the panel is most likely to ask about.</p>
+  <div class="table-card"><h3>Complete reference list</h3>
+    <table>
+      <thead><tr><th style="width:40px">Ref</th><th>Authors / title</th><th style="width:130px">Venue / year</th><th>When it supports our argument</th></tr></thead>
+      <tbody>
+        <tr><td class="ref">[1]</td><td><strong>Greshake et al.</strong> — "Not what you've signed up for: LLM-integrated apps with indirect prompt injection"</td><td class="venue">AISec '23</td><td>Foundational — justifies Layer 1 existence</td></tr>
+        <tr><td class="ref">[2]</td><td><strong>Perez &amp; Ribeiro</strong> — PromptInject framework</td><td class="venue">NeurIPS ML Safety '22 (Best Paper)</td><td>Adversary capability floor is low</td></tr>
+        <tr><td class="ref">[3]</td><td><strong>Inan et al.</strong> — LlamaGuard input/output safeguard</td><td class="venue">arXiv 2312.06674</td><td>Layer 2 choice</td></tr>
+        <tr><td class="ref">[4]</td><td><strong>Rebedea et al.</strong> — NeMo Guardrails / Colang</td><td class="venue">EMNLP 2023</td><td>Layer 1 DSL</td></tr>
+        <tr><td class="ref">[5]</td><td><strong>Microsoft</strong> — Presidio SDK</td><td class="venue">GitHub 2019</td><td>Layer 3 PII</td></tr>
+        <tr><td class="ref">[6]</td><td><strong>NIST</strong> — SP 800-218 SSDF</td><td class="venue">Feb 2022</td><td>DevSecOps framework basis</td></tr>
+        <tr><td class="ref">[7]</td><td><strong>OWASP</strong> — LLM Top 10 for LLM Apps 2025</td><td class="venue">2025</td><td>Threat taxonomy</td></tr>
+        <tr><td class="ref">[8]</td><td>Touvron et al. — Llama 2 open foundation models</td><td class="venue">arXiv 2307.09288</td><td>Model provenance</td></tr>
+        <tr><td class="ref">[9]</td><td>Vaswani et al. — "Attention is all you need"</td><td class="venue">NIPS 2017</td><td>Transformer foundation</td></tr>
+        <tr><td class="ref">[10]</td><td>Brown et al. — GPT-3 few-shot learners</td><td class="venue">NeurIPS 2020</td><td>Emergent abuse potential</td></tr>
+        <tr><td class="ref">[11]</td><td>ISO/IEC 27001:2022</td><td class="venue">Oct 2022</td><td>ISMS standard</td></tr>
+        <tr><td class="ref">[12]</td><td><strong>GDPR</strong> Regulation (EU) 2016/679</td><td class="venue">May 2016</td><td>Article 25 data-by-design</td></tr>
+        <tr><td class="ref">[13]</td><td>Spring Boot 3.x docs</td><td class="venue">2023</td><td>Framework choice</td></tr>
+        <tr><td class="ref">[14]</td><td>Spring Security docs</td><td class="venue">2023</td><td>JWT + @PreAuthorize</td></tr>
+        <tr><td class="ref">[15]</td><td>Docker documentation</td><td class="venue">2023</td><td>Containerisation</td></tr>
+        <tr><td class="ref">[16]</td><td>JaCoCo (EclEmma)</td><td class="venue">2023</td><td>100% coverage claim</td></tr>
+        <tr><td class="ref">[17]</td><td>SonarQube / SonarSource</td><td class="venue">2023</td><td>Static analysis gate</td></tr>
+        <tr><td class="ref">[18]</td><td>SpotBugs</td><td class="venue">2023</td><td>Byte-code analysis</td></tr>
+        <tr><td class="ref">[19]</td><td><strong>Yao et al.</strong> — ReAct</td><td class="venue">ICLR 2023</td><td>Agent architecture inspiration</td></tr>
+        <tr><td class="ref">[20]</td><td>Kubernetes docs</td><td class="venue">2023</td><td>Orchestration target</td></tr>
+        <tr><td class="ref">[21]</td><td>Chkirbene et al. — LLM in industry survey</td><td class="venue">IEEE HONET 2024</td><td>Industry context</td></tr>
+        <tr><td class="ref">[22]</td><td><strong>C. L. Smith</strong> — "Understanding defence in depth"</td><td class="venue">IEEE CCST 2003</td><td>Canonical DiD theory</td></tr>
+        <tr><td class="ref">[23]</td><td>Das et al. — Security &amp; privacy of LLMs survey</td><td class="venue">ACM Comput. Surv. 2025</td><td>Systematic weakness catalogue</td></tr>
+        <tr><td class="ref">[24]</td><td><strong>EU AI Act</strong> Regulation (EU) 2024/1689</td><td class="venue">Jul 2024</td><td>€35M penalties</td></tr>
+        <tr><td class="ref">[25]</td><td><strong>NIST AI RMF</strong> AI 100-1</td><td class="venue">Jan 2023</td><td>Risk framework mapping</td></tr>
+        <tr><td class="ref">[26]</td><td>Cybersecurity Dive — "Shadow AI is widespread"</td><td class="venue">Nov 2025</td><td>80% Shadow AI stat</td></tr>
+        <tr><td class="ref">[27]</td><td>Patel — Cloud Security Alliance</td><td class="venue">Mar 2025</td><td>Shadow AI corroboration</td></tr>
+        <tr><td class="ref">[28]</td><td>Reco — AI &amp; cloud breaches 2025</td><td class="venue">2025</td><td>$4.88M breach cost</td></tr>
+        <tr><td class="ref">[29]</td><td>Lasso Security — Samsung ChatGPT leak</td><td class="venue">2025</td><td>Case study</td></tr>
+        <tr><td class="ref">[30]</td><td>Menlo Ventures — State of GenAI 2025</td><td class="venue">2025</td><td>Spend: $1.7B → $37B</td></tr>
+        <tr><td class="ref">[31]</td><td>Ataccama — 72% of data leaders</td><td class="venue">2025</td><td>Adoption anxiety</td></tr>
+        <tr><td class="ref">[32]</td><td>Grand View — AI security market report</td><td class="venue">2025</td><td>$25-34B market</td></tr>
+        <tr><td class="ref">[33]</td><td>SiliconANGLE — F5 $180M CalypsoAI acq.</td><td class="venue">Sept 2025</td><td>M&amp;A evidence</td></tr>
+        <tr><td class="ref">[34]</td><td><strong>Lakera AI</strong> — Lakera Guard</td><td class="venue">2025</td><td>Head-to-head comparison</td></tr>
+        <tr><td class="ref">[35]</td><td><strong>R. J. Young</strong> — LLM safety robustness</td><td class="venue">arXiv 2511.22047</td><td>85%→33.8% drop</td></tr>
+        <tr><td class="ref">[36]</td><td>Yin et al. — BingoGuard</td><td class="venue">ICLR 2025</td><td>Severity-level prediction</td></tr>
+        <tr><td class="ref">[37]</td><td><strong>Palo Alto Unit 42</strong> — guardrail comparison</td><td class="venue">2025</td><td>Platform variance benchmark</td></tr>
+        <tr><td class="ref">[38]</td><td>AWS — Bedrock Guardrails pricing</td><td class="venue">2025</td><td>Cost comparison baseline</td></tr>
+        <tr><td class="ref">[39]</td><td>OWASP — LLM Top 10 2025</td><td class="venue">2025</td><td>Version reference</td></tr>
+        <tr><td class="ref">[40]</td><td>Tang et al. — security of LLM-based agents</td><td class="venue">Information Fusion 2026</td><td>Agent security survey</td></tr>
+        <tr><td class="ref">[41]</td><td><strong>Anthropic</strong> — Claude Mythos Preview System Card</td><td class="venue">Apr 2026</td><td>Independent validation — 80%+</td></tr>
+        <tr><td class="ref">[42]</td><td><strong>Y. Zou et al.</strong> — Agent Red Teaming (ART)</td><td class="venue">arXiv 2507.20526</td><td>Benchmark 10-100 queries</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<footer><div class="inner">
+  <div>SecureAI Gateway · Viva Preparation Deck · compiled from v4 article (414 KB, 10 pages, 42 references) + 11-slide presentation deck</div>
+  <div>TUS Athlone · MSc Software Design with Cloud Native Computing · 2026</div>
+</div></footer>
+
+<script>
+document.querySelectorAll('#tabs .tab').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('#tabs .tab').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelector('.panel[data-panel="'+btn.dataset.tab+'"]').classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+});
+</script>
+</body>
+</html>
